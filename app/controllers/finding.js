@@ -137,13 +137,13 @@ exports.find = ( req, res ) => {
 // Find a single data with a ID
 exports.findOne = ( req, res ) => {
 	findingModel.findOne( { 
-		FINDING_CODE: req.params.id 
+		FINDING_CODE : req.params.id 
 	} ).then( data => {
 		if( !data ) {
 			return res.status(404).send({
 				status: false,
 				message: "Data not found 2 with id " + req.params.id,
-				data: {}
+				data: data,
 			});
 		}
 		res.send( {
