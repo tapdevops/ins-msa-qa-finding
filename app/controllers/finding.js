@@ -27,7 +27,9 @@ exports.create = ( req, res ) => {
 			dateAndTimes.format( new Date(), 'YYYYMMDD' ) + 
 			'-' + 
 			req.body.WERKS + 
-			'-H-' + 
+			'-' +
+			req.body.AFD_CODE + 
+			'-' + 
 			req.body.BLOCK_CODE + 
 			'-' + 
 			randomText;
