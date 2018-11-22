@@ -153,6 +153,54 @@ exports.find = ( req, res ) => {
 
 };
 
+// Retrieve and return all notes from the database.
+exports.findByTokenAuthCode = ( req, res ) => {
+
+	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
+		var auth = jwtDecode( req.token );
+
+		url_query = req.query;
+		var url_query_length = Object.keys( url_query ).length;
+		
+		url_query.DELETE_USER = "";
+		url_query.DELETE_TIME = "";
+
+		findingModel.find( {
+			ASSIGN_TO: auth.USER_AUTH_CODE,
+			DELETE_USER: "",
+			DELETE_TIME: "",
+		} )
+		.then( data => {
+			if( !data ) {
+				return res.status( 404 ).send( {
+					status: false,
+					message: 'Data not found 2',
+					data: {}
+				} );
+			}
+			res.send( {
+				status: true,
+				message: 'Success',
+				data: data
+			} );
+		} ).catch( err => {
+			if( err.kind === 'ObjectId' ) {
+				return res.status( 404 ).send( {
+					status: false,
+					message: 'Data not found 1',
+					data: {}
+				} );
+			}
+			return res.status( 500 ).send( {
+				status: false,
+				message: 'Error retrieving data',
+				data: {}
+			} );
+		} );
+	} );
+
+};
+
 // Find a single data with a ID
 exports.findOne = ( req, res ) => {
 	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
