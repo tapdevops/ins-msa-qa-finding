@@ -51,11 +51,9 @@ exports.create = ( req, res ) => {
 			LONG_FINDING: req.body.LONG_FINDING || "",
 			REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
 
-			//INSERT_USER: auth.USER_AUTH_CODE || "",
-			INSERT_USER: auth.USERNAME || "",
+			INSERT_USER: auth.USER_AUTH_CODE || "",
 			INSERT_TIME: new Date().getTime(),
-			//UPDATE_USER: auth.USER_AUTH_CODE || "",
-			UPDATE_USER: auth.USERNAME || "",
+			UPDATE_USER: auth.USER_AUTH_CODE || "",
 			UPDATE_TIME: new Date().getTime(),
 
 			DELETE_USER: "",
@@ -71,7 +69,7 @@ exports.create = ( req, res ) => {
 				PROGRESS: req.body.PROGRESS,
 				IMEI: req.body.IMEI,
 				SYNC_TIME: new Date(),
-				SYNC_USER: auth.USERNAME
+				SYNC_USER: auth.USER_AUTH_CODE
 			} );
 
 			data_header = data;
@@ -240,7 +238,7 @@ exports.update = ( req, res ) => {
 				PROGRESS: req.body.PROGRESS,
 				IMEI: req.body.IMEI,
 				SYNC_TIME: new Date(),
-				SYNC_USER: auth.USERNAME
+				SYNC_USER: auth.USER_AUTH_CODE
 			} );
 
 			setLog.save()
@@ -320,7 +318,7 @@ exports.delete = ( req, res ) => {
 				PROGRESS: '',
 				IMEI: req.body.IMEI,
 				SYNC_TIME: new Date(),
-				SYNC_USER: auth.USERNAME
+				SYNC_USER: auth.USER_AUTH_CODE
 			} );
 
 			setLog.save()
