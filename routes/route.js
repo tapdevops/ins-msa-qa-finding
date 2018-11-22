@@ -21,8 +21,8 @@ module.exports = ( app ) => {
 
 	// ROUTE - FINDING
 	app.post( '/finding', verifyToken, finding.create );
-	app.get( '/finding', finding.find );
-	app.get( '/finding/:id', finding.findOne );
+	app.get( '/finding', verifyToken, finding.find );
+	app.get( '/finding/:id', verifyToken, finding.findOne );
 	app.put( '/finding/:id', verifyToken, finding.update );
 	app.delete( '/finding/:id', verifyToken, finding.delete );
 }

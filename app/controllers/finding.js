@@ -74,19 +74,21 @@ exports.create = ( req, res ) => {
 				SYNC_USER: auth.USERNAME
 			} );
 
+			data_header = data;
+
 			setLog.save()
 			.then( data => {
 				if ( !data ) {
 					res.send( {
-					status: false,
-					message: 'Error create data finding',
-					data: {}
-				} );
+						status: false,
+						message: 'Error create data finding',
+						data: {}
+					} );
 				}
 				res.send( {
 					status: true,
 					message: 'Success',
-					data: {}
+					data: data_header
 				} );
 
 			} ).catch( err => {
@@ -110,10 +112,14 @@ exports.create = ( req, res ) => {
 // Retrieve and return all notes from the database.
 exports.find = ( req, res ) => {
 
-	url_query = req.query;
-	var url_query_length = Object.keys( url_query ).length;
-	
-	if ( url_query_length > 0 ) {
+	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
+		var auth = jwtDecode( req.token );
+
+		url_query = req.query;
+		var url_query_length = Object.keys( url_query ).length;
+		
+		url_query.DELETE_USER = "";
+		url_query.DELETE_TIME = "";
 
 		findingModel.find( url_query )
 		.then( data => {
@@ -143,56 +149,45 @@ exports.find = ( req, res ) => {
 				data: {}
 			} );
 		} );
-	}
-	else {
-		findingModel.find()
-		.then( data => {
+	} );
+
+};
+
+// Find a single data with a ID
+exports.findOne = ( req, res ) => {
+	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
+		var auth = jwtDecode( req.token );
+
+		findingModel.findOne( { 
+			FINDING_CODE : req.params.id,
+			DELETE_USER: "",
+			DELETE_TIME: ""
+		} ).then( data => {
+			if( !data ) {
+				return res.status(404).send({
+					status: false,
+					message: "Data not found 2 with id " + req.params.id,
+					data: data,
+				});
+			}
 			res.send( {
 				status: true,
 				message: 'Success',
 				data: data
 			} );
 		} ).catch( err => {
-			res.status( 500 ).send( {
+			if( err.kind === 'ObjectId' ) {
+				return res.status( 404 ).send({
+					status: false,
+					message: "Data not found 1 with id " + req.params.id,
+					data: {}
+				});
+			}
+			return res.status( 500 ).send({
 				status: false,
-				message: err.message || "Some error occurred while retrieving data.",
+				message: "Error retrieving Data with id " + req.params.id,
 				data: {}
 			} );
-		} );
-	}
-
-};
-
-// Find a single data with a ID
-exports.findOne = ( req, res ) => {
-	console.log(req.body)
-	findingModel.findOne( { 
-		FINDING_CODE : req.params.id 
-	} ).then( data => {
-		if( !data ) {
-			return res.status(404).send({
-				status: false,
-				message: "Data not found 2 with id " + req.params.id,
-				data: data,
-			});
-		}
-		res.send( {
-			status: true,
-			message: 'Success',
-			data: data
-		} );
-	} ).catch( err => {
-		if( err.kind === 'ObjectId' ) {
-			return res.status( 404 ).send({
-				status: false,
-				message: "Data not found 1 with id " + req.params.id,
-				data: {}
-			});
-		}
-		return res.status( 500 ).send({
-			status: false,
-			message: "Error retrieving Data with id " + req.params.id,
-			data: {}
 		} );
 	} );
 };
