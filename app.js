@@ -1,9 +1,12 @@
-const express = require( 'express' );							// Import Express
-const mongoose = require( 'mongoose' );							// Import Mongoose
-const bodyParser = require( 'body-parser' ); 					// Import Body Parser
-const app = express(); 											// Define App
-const config = require( './config/config.js' ); 				// Config
-const dbConfig = require( './config/database.js' ); 			// Database Config
+const express = require( 'express' );				
+const mongoose = require( 'mongoose' );				
+const bodyParser = require( 'body-parser' ); 		
+const app = express(); 								
+const config = require( './config/config.js' ); 	
+const dbConfig = require( './config/database.js' ); 
+const uuid = require( 'uuid' );
+const nJwt = require( 'njwt' );
+
 // Setup Database
 mongoose.Promise = global.Promise;
 

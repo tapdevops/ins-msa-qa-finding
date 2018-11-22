@@ -1,79 +1,108 @@
 const findingModel = require( '../models/finding.js' );
 const findingLogModel = require( '../models/findingLog.js' );
+const config = require( '../../config/config.js' ); 	
+const uuid = require( 'uuid' );
+const nJwt = require( 'njwt' );
+const dateAndTimes = require( 'date-and-time' );
+const jwtDecode = require( 'jwt-decode' );
+const randomTextLib = require( '../libraries/randomText' );
 
 // Create and Save new Data
 exports.create = ( req, res ) => {
 
-	if( !req.body.FINDING_CODE || !req.body.WERKS || !req.body.AFD_CODE || !req.body.BLOCK_CODE ) {
-		return res.status( 400 ).send({
-			status: false,
-			message: 'Invalid input',
-			data: {}
-		});
-	}
-
-	const set = new findingModel( {
-		FINDING_CODE: req.body.FINDING_CODE || "",
-		WERKS: req.body.WERKS || "",
-		AFD_CODE: req.body.AFD_CODE || "",
-		BLOCK_CODE: req.body.BLOCK_CODE || "",
-		FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
-		FINDING_DESC: req.body.FINDING_DESC || "",
-		FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-		DUE_DATE: req.body.DUE_DATE || "",
-		ASSIGN_TO: req.body.ASSIGN_TO || "",
-		PROGRESS: req.body.PROGRESS || "",
-		LAT_FINDING: req.body.LAT_FINDING || "",
-		LONG_FINDING: req.body.LONG_FINDING || "",
-		REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-		INSERT_USER: req.body.INSERT_USER || "",
-		INSERT_TIME: req.body.INSERT_TIME || "",
-		UPDATE_USER: req.body.UPDATE_USER || "",
-		UPDATE_TIME: req.body.UPDATE_TIME || "",
-		DELETE_USER: req.body.DELETE_USER || "",
-		DELETE_TIME: req.body.DELETE_TIME || ""
-	} );
-	
-	set.save()
-	.then( data => {
-
-		const setLog = new findingLogModel( {
-			FINDING_CODE: req.body.FINDING_CODE,
-			PROSES: 'INSERT',
-			PROGRESS: req.body.PROGRESS,
-			IMEI: req.body.IMEI,
-			SYNC_TIME: new Date(),
-			SYNC_USER: req.body.INSERT_USER
-		} );
-
-		setLog.save()
-		.then( data => {
-			if ( !data ) {
-				res.send( {
+	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
+		
+		if( !req.body.WERKS || !req.body.AFD_CODE || !req.body.BLOCK_CODE ) {
+			return res.status( 400 ).send({
 				status: false,
-				message: 'Error create data finding',
+				message: 'Invalid input',
 				data: {}
+			});
+		}
+
+		var auth = jwtDecode( req.token );
+		var randomText = randomTextLib.generate( 5 );
+		var CODE = auth.EMPLOYEE_NIK + 
+			'-FIN-' + 
+			dateAndTimes.format( new Date(), 'YYYYMMDD' ) + 
+			'-' + 
+			req.body.WERKS + 
+			'-H-' + 
+			req.body.BLOCK_CODE + 
+			'-' + 
+			randomText;
+
+		console.log( CODE );
+		console.log( randomTextLib.generate( 5 ) );
+		console.log( auth );
+
+		const set = new findingModel( {
+			FINDING_CODE: CODE,
+			WERKS: req.body.WERKS || "",
+			AFD_CODE: req.body.AFD_CODE || "",
+			BLOCK_CODE: req.body.BLOCK_CODE || "",
+			FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
+			FINDING_DESC: req.body.FINDING_DESC || "",
+			FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
+			DUE_DATE: req.body.DUE_DATE || "",
+			ASSIGN_TO: req.body.ASSIGN_TO || "",
+			PROGRESS: req.body.PROGRESS || "",
+			LAT_FINDING: req.body.LAT_FINDING || "",
+			LONG_FINDING: req.body.LONG_FINDING || "",
+			REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
+
+			//INSERT_USER: auth.USER_AUTH_CODE || "",
+			INSERT_USER: auth.USERNAME || "",
+			INSERT_TIME: new Date().getTime(),
+			//UPDATE_USER: auth.USER_AUTH_CODE || "",
+			UPDATE_USER: auth.USERNAME || "",
+			UPDATE_TIME: new Date().getTime(),
+
+			DELETE_USER: "",
+			DELETE_TIME: ""
+		} );
+		
+		set.save()
+		.then( data => {
+
+			const setLog = new findingLogModel( {
+				FINDING_CODE: CODE,
+				PROSES: 'INSERT',
+				PROGRESS: req.body.PROGRESS,
+				IMEI: req.body.IMEI,
+				SYNC_TIME: new Date(),
+				SYNC_USER: auth.USERNAME
 			} );
-			}
-			res.send( {
-				status: true,
-				message: 'Success',
-				data: {}
+
+			setLog.save()
+			.then( data => {
+				if ( !data ) {
+					res.send( {
+					status: false,
+					message: 'Error create data finding',
+					data: {}
+				} );
+				}
+				res.send( {
+					status: true,
+					message: 'Success',
+					data: {}
+				} );
+
+			} ).catch( err => {
+				res.status( 500 ).send( {
+					status: false,
+					message: 'Some error occurred while creating data finding',
+					data: {}
+				} );
 			} );
 
 		} ).catch( err => {
 			res.status( 500 ).send( {
 				status: false,
-				message: 'Some error occurred while creating data finding',
+				message: 'Some error occurred while creating data',
 				data: {}
 			} );
-		} );
-
-	} ).catch( err => {
-		res.status( 500 ).send( {
-			status: false,
-			message: 'Some error occurred while creating data',
-			data: {}
 		} );
 	} );
 };
@@ -136,6 +165,7 @@ exports.find = ( req, res ) => {
 
 // Find a single data with a ID
 exports.findOne = ( req, res ) => {
+	console.log(req.body)
 	findingModel.findOne( { 
 		FINDING_CODE : req.params.id 
 	} ).then( data => {
@@ -170,63 +200,176 @@ exports.findOne = ( req, res ) => {
 // Update single data with ID
 exports.update = ( req, res ) => {
 
-	// Validation
-	if( !req.body.FINDING_CODE || !req.body.WERKS || !req.body.AFD_CODE || !req.body.BLOCK_CODE ) {
-		return res.status( 400 ).send({
-			status: false,
-			message: 'Invalid input',
-			data: {}
+	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
+		// Validation
+		if( !req.body.WERKS || !req.body.AFD_CODE || !req.body.BLOCK_CODE ) {
+			return res.status( 400 ).send({
+				status: false,
+				message: 'Invalid input',
+				data: {}
+			});
+		}
+
+		var auth = jwtDecode( req.token );
+		console.log( auth );
+		
+		findingModel.findOneAndUpdate( { 
+			FINDING_CODE : req.params.id 
+		}, {
+			WERKS: req.body.WERKS || "",
+			BLOCK_CODE: req.body.BLOCK_CODE || "",
+			FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
+			FINDING_DESC: req.body.FINDING_DESC || "",
+			FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
+			DUE_DATE: req.body.DUE_DATE || "",
+			ASSIGN_TO: req.body.ASSIGN_TO || "",
+			PROGRESS: req.body.PROGRESS || "",
+			LAT_FINDING: req.body.LAT_FINDING || "",
+			LONG_FINDING: req.body.LONG_FINDING || "",
+			REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || ""
+			
+		}, { new: true } )
+		.then( data => {
+			if( !data ) {
+				return res.status( 404 ).send( {
+					status: false,
+					message: "Data not found 1 with id " + req.params.id,
+					data: {}
+				} );
+			}
+
+		
+			const setLog = new findingLogModel( {
+				FINDING_CODE: req.params.id,
+				PROSES: 'UPDATE',
+				PROGRESS: req.body.PROGRESS,
+				IMEI: req.body.IMEI,
+				SYNC_TIME: new Date(),
+				SYNC_USER: auth.USERNAME
+			} );
+
+			setLog.save()
+			.then( data => {
+				if ( !data ) {
+					res.send( {
+					status: false,
+					message: 'Error',
+					data: {}
+				} );
+				}
+				res.send( {
+					status: true,
+					message: 'Success',
+					data: {}
+				} );
+
+			} ).catch( err => {
+				res.status( 500 ).send( {
+					status: false,
+					message: 'Some error occurred while creating data finding',
+					data: {}
+				} );
+			} );
+
+
+			res.send( {
+					status: true,
+					message: 'Success',
+					data: {}
+				} );
+			
+		}).catch( err => {
+			if( err.kind === 'ObjectId' ) {
+				return res.status( 404 ).send( {
+					status: false,
+					message: "Data not found 2 with id " + req.params.id,
+					data: {}
+				} );
+			}
+			return res.status( 500 ).send( {
+				status: false,
+				message: "Data error updating with id " + req.params.id,
+				data: {}
+			} );
 		});
-	}
-	
-	findingModel.findOneAndUpdate( { 
-		FINDING_CODE : req.params.id 
-	}, {
-		BLOCK_CODE: req.body.BLOCK_CODE || "",
-		FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
-		FINDING_DESC: req.body.FINDING_DESC || "",
-		FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-		DUE_DATE: req.body.DUE_DATE || "",
-		ASSIGN_TO: req.body.ASSIGN_TO || "",
-		PROGRESS: req.body.PROGRESS || "",
-		LAT_FINDING: req.body.LAT_FINDING || "",
-		LONG_FINDING: req.body.LONG_FINDING || "",
-		REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-		INSERT_USER: req.body.INSERT_USER || "",
-		INSERT_TIME: new Date(),
-		UPDATE_USER: req.body.INSERT_USER || "",
-		UPDATE_TIME: new Date(),
-	}, { new: true } )
-	.then( data => {
-		if( !data ) {
-			return res.status( 404 ).send( {
+	});
+};
+
+
+
+// Delete data with the specified ID in the request
+exports.delete = ( req, res ) => {
+	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
+
+		var auth = jwtDecode( req.token );
+
+		findingModel.findOneAndUpdate( { 
+			FINDING_CODE : req.params.id 
+		}, {
+			DELETE_USER: auth.USERNAME,
+			DELETE_TIME: new Date().getTime()
+			
+		}, { new: true } )
+		.then( data => {
+			if( !data ) {
+				return res.status( 404 ).send( {
+					status: false,
+					message: "Data not found 1 with id " + req.params.id,
+					data: {}
+				} );
+			}
+
+			const setLog = new findingLogModel( {
+				FINDING_CODE: req.params.id,
+				PROSES: 'DELETE',
+				PROGRESS: '',
+				IMEI: req.body.IMEI,
+				SYNC_TIME: new Date(),
+				SYNC_USER: auth.USERNAME
+			} );
+
+			setLog.save()
+			.then( data => {
+				if ( !data ) {
+					res.send( {
+					status: false,
+					message: 'Error',
+					data: {}
+				} );
+				}
+				res.send( {
+					status: true,
+					message: 'Success',
+					data: {}
+				} );
+
+			} ).catch( err => {
+				res.status( 500 ).send( {
+					status: false,
+					message: 'Some error occurred while deleting data',
+					data: {}
+				} );
+			} );
+			
+		}).catch( err => {
+			if( err.kind === 'ObjectId' ) {
+				return res.status( 404 ).send( {
+					status: false,
+					message: "Data not found 1 with id " + req.params.id,
+					data: {}
+				} );
+			}
+			return res.status( 500 ).send( {
 				status: false,
-				message: "Data not found 1 with id " + req.params.id,
+				message: "Could not delete data with id " + req.params.id,
 				data: {}
 			} );
-		}
-		res.send( {
-			status: true,
-			message: 'Success',
-			data: data
-		} );
-	}).catch( err => {
-		if( err.kind === 'ObjectId' ) {
-			return res.status( 404 ).send( {
-				status: false,
-				message: "Data not found 2 with id " + req.params.id,
-				data: {}
-			} );
-		}
-		return res.status( 500 ).send( {
-			status: false,
-			message: "Data error updating with id " + req.params.id,
-			data: {}
-		} );
+		});
 	});
 };
 
 // Delete data with the specified ID in the request
+/*
 exports.delete = ( req, res ) => {
 	findingModel.findOneAndRemove( { FINDING_CODE : req.params.id } )
 	.then( data => {
@@ -257,3 +400,4 @@ exports.delete = ( req, res ) => {
 		} );
 	} );
 };
+*/
