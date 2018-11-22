@@ -67,7 +67,7 @@ exports.create = ( req, res ) => {
 				FINDING_CODE: CODE,
 				PROSES: 'INSERT',
 				PROGRESS: req.body.PROGRESS,
-				IMEI: req.body.IMEI,
+				IMEI: auth.IMEI,
 				SYNC_TIME: new Date(),
 				SYNC_USER: auth.USER_AUTH_CODE
 			} );
@@ -236,7 +236,7 @@ exports.update = ( req, res ) => {
 				FINDING_CODE: req.params.id,
 				PROSES: 'UPDATE',
 				PROGRESS: req.body.PROGRESS,
-				IMEI: req.body.IMEI,
+				IMEI: auth.IMEI,
 				SYNC_TIME: new Date(),
 				SYNC_USER: auth.USER_AUTH_CODE
 			} );
@@ -316,7 +316,7 @@ exports.delete = ( req, res ) => {
 				FINDING_CODE: req.params.id,
 				PROSES: 'DELETE',
 				PROGRESS: '',
-				IMEI: req.body.IMEI,
+				IMEI: auth.IMEI,
 				SYNC_TIME: new Date(),
 				SYNC_USER: auth.USER_AUTH_CODE
 			} );
