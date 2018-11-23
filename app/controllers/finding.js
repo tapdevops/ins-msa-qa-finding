@@ -11,6 +11,14 @@ const randomTextLib = require( '../libraries/randomText' );
 exports.create = ( req, res ) => {
 
 	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
+
+		if ( err ) {
+			return res.status( 404 ).send( {
+				status: false,
+				message: 'Invalid Token',
+				data: {}
+			} );
+		}
 		
 		if( !req.body.WERKS || !req.body.AFD_CODE || !req.body.BLOCK_CODE ) {
 			return res.status( 400 ).send({
@@ -113,6 +121,15 @@ exports.create = ( req, res ) => {
 exports.find = ( req, res ) => {
 
 	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
+
+		if ( err ) {
+			return res.status( 404 ).send( {
+				status: false,
+				message: 'Invalid Token',
+				data: {}
+			} );
+		}
+
 		var auth = jwtDecode( req.token );
 
 		url_query = req.query;
@@ -157,6 +174,15 @@ exports.find = ( req, res ) => {
 exports.findByTokenAuthCode = ( req, res ) => {
 
 	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
+
+		if ( err ) {
+			return res.status( 404 ).send( {
+				status: false,
+				message: 'Invalid Token',
+				data: {}
+			} );
+		}
+
 		var auth = jwtDecode( req.token );
 
 		url_query = req.query;
@@ -204,6 +230,15 @@ exports.findByTokenAuthCode = ( req, res ) => {
 // Find a single data with a ID
 exports.findOne = ( req, res ) => {
 	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
+
+		if ( err ) {
+			return res.status( 404 ).send( {
+				status: false,
+				message: 'Invalid Token',
+				data: {}
+			} );
+		}
+
 		var auth = jwtDecode( req.token );
 
 		findingModel.findOne( { 
@@ -343,6 +378,14 @@ exports.update = ( req, res ) => {
 // Delete data with the specified ID in the request
 exports.delete = ( req, res ) => {
 	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
+
+		if ( err ) {
+			return res.status( 404 ).send( {
+				status: false,
+				message: 'Invalid Token',
+				data: {}
+			} );
+		}
 
 		var auth = jwtDecode( req.token );
 
