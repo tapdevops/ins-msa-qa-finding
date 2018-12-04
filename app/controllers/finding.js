@@ -445,7 +445,7 @@ exports.delete = ( req, res ) => {
 					data: {}
 				} );
 			}
-			return res.status( 500 ).send( {
+			return res.send( {
 				status: false,
 				message: "Could not delete data with id " + req.params.id,
 				data: {}
