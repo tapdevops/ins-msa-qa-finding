@@ -1,174 +1,398 @@
-const findingModel = require( '../models/finding.js' );
-const findingLogModel = require( '../models/findingLog.js' );
-const config = require( '../../config/config.js' ); 	
-const uuid = require( 'uuid' );
-const nJwt = require( 'njwt' );
-const dateAndTimes = require( 'date-and-time' );
-const jwtDecode = require( 'jwt-decode' );
-const randomTextLib = require( '../libraries/randomText' );
+/*
+ |--------------------------------------------------------------------------
+ | App Setup
+ |--------------------------------------------------------------------------
+ |
+ | Untuk menghandle models, libraries, helper, node modules, dan lain-lain
+ |
+ */
+ 	// Models
+	const findingModel = require( '../models/finding.js' );
+	const findingLogModel = require( '../models/findingLog.js' );
 
-// Create and Save new Data
-exports.create = ( req, res ) => {
+	// Node Modules
+	const querystring = require( 'querystring' );
+	const url = require( 'url' );
+	const jwt = require( 'jsonwebtoken' );
+	const uuid = require( 'uuid' );
+	const nJwt = require( 'njwt' );
+	const jwtDecode = require( 'jwt-decode' );
+	const Client = require( 'node-rest-client' ).Client; 
+	const moment_pure = require( 'moment' );
+	const moment = require( 'moment-timezone' );
 
-	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
+	// Libraries
+	const config = require( '../../config/config.js' );
+	const date = require( '../libraries/date' );
 
-		if ( err ) {
-			return res.status( 404 ).send( {
+	const dateAndTimes = require( 'date-and-time' );
+	const randomTextLib = require( '../libraries/randomText' );
+
+/**
+ * syncMobile
+ * Untuk menyediakan data mobile
+ * --------------------------------------------------------------------------
+ */
+	exports.syncMobile = ( req, res ) => {
+		console.log('A');
+
+
+		var auth = req.auth;
+		var start_date = req.params.start_date;
+		var end_date = req.params.end_date;
+		
+
+		findingModel.find( {
+			WERKS: '4121',
+			//ASSIGN_TO: auth.USER_AUTH_CODE,
+			$and: [
+				{
+					$or: [
+						{
+							INSERT_TIME: {
+								$gte: start_date,
+								$lte: end_date
+							}
+						},
+						{
+							UPDATE_TIME: {
+								$gte: start_date,
+								$lte: end_date
+							}
+						},
+						{
+							DELETE_TIME: {
+								$gte: start_date,
+								$lte: end_date
+							}
+						}
+					]
+				}
+			]
+		} )
+		.select( {
+			_id: 0,
+			__v: 0
+		} )
+		.then( data_insert => {
+			if( !data_insert ) {
+				return res.send( {
+					status: false,
+					message: config.error_message.find_404,
+					data: {}
+				} );
+			}
+
+			var temp_insert = [];
+			var temp_update = [];
+			var temp_delete = [];
+			
+			data_insert.forEach( function( data ) {
+
+				if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
+					temp_delete.push( {
+						FINDING_CODE: data.FINDING_CODE,
+						WERKS: data.WERKS,
+						AFD_CODE: data.AFD_CODE,
+						BLOCK_CODE: data.BLOCK_CODE,
+						FINDING_CATEGORY: data.FINDING_CATEGORY,
+						FINDING_DESC: data.FINDING_DESC,
+						FINDING_PRIORITY: data.FINDING_PRIORITY,
+						DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+						ASSIGN_TO: data.ASSIGN_TO,
+						PROGRESS: data.PROGRESS,
+						LAT_FINDING: data.LAT_FINDING,
+						LONG_FINDING: data.LONG_FINDING,
+						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE
+					} );
+				}
+
+				if ( data.INSERT_TIME >= start_date && data.INSERT_TIME <= end_date ) {
+					temp_insert.push( {
+						FINDING_CODE: data.FINDING_CODE,
+						WERKS: data.WERKS,
+						AFD_CODE: data.AFD_CODE,
+						BLOCK_CODE: data.BLOCK_CODE,
+						FINDING_CATEGORY: data.FINDING_CATEGORY,
+						FINDING_DESC: data.FINDING_DESC,
+						FINDING_PRIORITY: data.FINDING_PRIORITY,
+						DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+						ASSIGN_TO: data.ASSIGN_TO,
+						PROGRESS: data.PROGRESS,
+						LAT_FINDING: data.LAT_FINDING,
+						LONG_FINDING: data.LONG_FINDING,
+						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE
+					} );
+				}
+
+				if ( data.UPDATE_TIME >= start_date && data.UPDATE_TIME <= end_date ) {
+					temp_update.push( {
+						FINDING_CODE: data.FINDING_CODE,
+						WERKS: data.WERKS,
+						AFD_CODE: data.AFD_CODE,
+						BLOCK_CODE: data.BLOCK_CODE,
+						FINDING_CATEGORY: data.FINDING_CATEGORY,
+						FINDING_DESC: data.FINDING_DESC,
+						FINDING_PRIORITY: data.FINDING_PRIORITY,
+						DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+						ASSIGN_TO: data.ASSIGN_TO,
+						PROGRESS: data.PROGRESS,
+						LAT_FINDING: data.LAT_FINDING, 
+						LONG_FINDING: data.LONG_FINDING,
+						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE
+					} );
+				}
+
+			} );
+			
+			res.json({
+				status: true,
+				message: 'Data Sync tanggal ' + date.convert( start_date, 'YYYY-MM-DD hh-mm-ss' ) + ' s/d ' + date.convert( end_date, 'YYYY-MM-DD hh-mm-ss' ),
+				data: {
+					"hapus": temp_delete,
+					"simpan": temp_insert,
+					"ubah": temp_update
+				}
+			});
+		} ).catch( err => {
+			res.send( {
 				status: false,
-				message: 'Invalid Token',
+				message: config.error_message.find_500,
 				data: {}
 			} );
-		}
-		
-		if( !req.body.WERKS || !req.body.AFD_CODE || !req.body.BLOCK_CODE ) {
-			return res.status( 400 ).send({
+		} );
+
+	};
+
+/**
+ * create
+ * Untuk membuat dan menyimpan data finding baru
+ * --------------------------------------------------------------------------
+ */
+	exports.create = ( req, res ) => {
+			
+		if( !req.body.WERKS || !req.body.AFD_CODE || !req.body.BLOCK_CODE || !req.body.FINDING_CODE ) {
+			return res.send({
 				status: false,
-				message: 'Invalid input',
+				message: config.error_message.invalid_input,
 				data: {}
 			});
 		}
 
-		var auth = jwtDecode( req.token );
-		var randomText = randomTextLib.generate( 5 );
-		var CODE = auth.EMPLOYEE_NIK + 
-			'-FIN-' + 
-			dateAndTimes.format( new Date(), 'YYYYMMDD' ) + 
-			'-' + 
-			req.body.WERKS + 
-			'-' +
-			req.body.AFD_CODE + 
-			'-' + 
-			req.body.BLOCK_CODE + 
-			'-' + 
-			randomText;
-
-		console.log( CODE );
-		console.log( randomTextLib.generate( 5 ) );
-		console.log( auth );
-
-		const set = new findingModel( {
-			FINDING_CODE: CODE,
+		var auth = req.auth;
+		const set_data = new findingModel( {
+			FINDING_CODE: req.body.FINDING_CODE || "",
 			WERKS: req.body.WERKS || "",
 			AFD_CODE: req.body.AFD_CODE || "",
 			BLOCK_CODE: req.body.BLOCK_CODE || "",
 			FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
 			FINDING_DESC: req.body.FINDING_DESC || "",
 			FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-			DUE_DATE: req.body.DUE_DATE || "",
+			DUE_DATE: date.convert( 'now', 'YYYYMMDDhhmmss' ) || "",
 			ASSIGN_TO: req.body.ASSIGN_TO || "",
 			PROGRESS: req.body.PROGRESS || "",
 			LAT_FINDING: req.body.LAT_FINDING || "",
 			LONG_FINDING: req.body.LONG_FINDING || "",
 			REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-
-			INSERT_USER: auth.USER_AUTH_CODE || "",
-			INSERT_TIME: new Date().getTime(),
-			UPDATE_USER: auth.USER_AUTH_CODE || "",
-			UPDATE_TIME: new Date().getTime(),
-
+			INSERT_USER: auth.USER_AUTH_CODE,
+			INSERT_TIME: date.convert( 'now', 'YYYYMMDDhhmmss' ),
+			UPDATE_USER: auth.USER_AUTH_CODE,
+			UPDATE_TIME: date.convert( 'now', 'YYYYMMDDhhmmss' ),
 			DELETE_USER: "",
-			DELETE_TIME: ""
+			DELETE_TIME: 0
 		} );
-		
-		set.save()
-		.then( data => {
 
-			const setLog = new findingLogModel( {
-				FINDING_CODE: CODE,
+		set_data.save()
+		.then( data => {
+			if ( !data ) {
+				return res.send( {
+					status: false,
+					message: config.error_message.create_404,
+					data: {}
+				} );
+			}
+			// Insert Finding Log
+			const set_log = new findingLogModel( {
+				FINDING_CODE: req.body.FINDING_CODE,
 				PROSES: 'INSERT',
 				PROGRESS: req.body.PROGRESS,
 				IMEI: auth.IMEI,
-				SYNC_TIME: new Date(),
+				SYNC_TIME: date.convert( 'now', 'YYYYMMDDhhmmss' ),
 				SYNC_USER: auth.USER_AUTH_CODE
 			} );
 
-			data_header = data;
-
-			setLog.save()
-			.then( data => {
-				if ( !data ) {
-					res.send( {
+			set_log.save()
+			.then( data_log => {
+				if ( !data_log ) {
+					return res.send( {
 						status: false,
-						message: 'Error create data finding',
+						message: config.error_message.create_404 + ' - Log',
 						data: {}
 					} );
 				}
 				res.send( {
 					status: true,
-					message: 'Success',
-					data: data_header
+					message: config.error_message.create_200,
+					data: {}
 				} );
-
 			} ).catch( err => {
-				res.status( 500 ).send( {
+				res.send( {
 					status: false,
-					message: 'Some error occurred while creating data finding',
+					message: config.error_message.create_500 + ' - 2',
 					data: {}
 				} );
 			} );
-
 		} ).catch( err => {
-			res.status( 500 ).send( {
+			res.send( {
 				status: false,
-				message: 'Some error occurred while creating data',
+				message: config.error_message.create_500,
 				data: {}
 			} );
 		} );
-	} );
-};
-
-// Retrieve and return all notes from the database.
-exports.find = ( req, res ) => {
-
-	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
-
-		if ( err ) {
-			return res.status( 404 ).send( {
-				status: false,
-				message: 'Invalid Token',
-				data: {}
-			} );
-		}
-
-		var auth = jwtDecode( req.token );
-
-		url_query = req.query;
-		var url_query_length = Object.keys( url_query ).length;
 		
-		url_query.DELETE_USER = "";
-		url_query.DELETE_TIME = "";
+	};
+
+/**
+ * findAll
+ * Untuk menampilkan seluruh data tanpa batasan REFFERENCE_ROLE dan LOCATION_CODE
+ * --------------------------------------------------------------------------
+ */
+	exports.findAll = ( req, res ) => {
+
+		var url_query = req.query;
+		var url_query_length = Object.keys( url_query ).length;
+			url_query.DELETE_USER = "";
 
 		findingModel.find( url_query )
+		.select( {
+			_id: 0,
+			INSERT_USER: 0,
+			INSERT_TIME: 0,
+			UPDATE_USER: 0,
+			UPDATE_TIME: 0,
+			DELETE_USER: 0,
+			DELETE_TIME: 0,
+			__v: 0
+		} )
 		.then( data => {
 			if( !data ) {
-				return res.status( 404 ).send( {
+				return res.send( {
 					status: false,
-					message: 'Data not found 2',
+					message: config.error_message.find_404,
 					data: {}
 				} );
 			}
 			res.send( {
 				status: true,
-				message: 'Success',
+				message: config.error_message.find_200,
 				data: data
 			} );
 		} ).catch( err => {
-			if( err.kind === 'ObjectId' ) {
-				return res.status( 404 ).send( {
-					status: false,
-					message: 'Data not found 1',
-					data: {}
-				} );
-			}
-			return res.status( 500 ).send( {
+			res.send( {
 				status: false,
-				message: 'Error retrieving data',
+				message: config.error_message.find_500,
 				data: {}
 			} );
 		} );
-	} );
 
-};
+	};
+
+/**
+ * Find
+ * Untuk menampilkan data finding berdasarkan USER_AUTH_CODE dan ASSIGN_TO
+ * --------------------------------------------------------------------------
+ */
+	exports.find = ( req, res ) => {
+		
+		var auth = req.auth;
+		var url_query = req.query;
+		var url_query_length = Object.keys( url_query ).length;
+			url_query.DELETE_USER = "";
+
+		findingModel.find( {
+			DELETE_USER: "",
+			$or: [
+				{ UPDATE_USER: auth.USER_AUTH_CODE },
+				{ INSERT_USER: auth.USER_AUTH_CODE },
+				{ ASSIGN_TO: auth.USER_AUTH_CODE },
+			]
+		} )
+		.select( {
+			_id: 0,
+			INSERT_USER: 0,
+			INSERT_TIME: 0,
+			UPDATE_USER: 0,
+			UPDATE_TIME: 0,
+			DELETE_USER: 0,
+			DELETE_TIME: 0,
+			__v: 0
+		} )
+		.then( data => {
+			if( !data ) {
+				return res.send( {
+					status: false,
+					message: config.error_message.find_404,
+					data: {}
+				} );
+			}
+			res.send( {
+				status: true,
+				message: config.error_message.find_200,
+				data: data
+			} );
+		} ).catch( err => {
+			res.send( {
+				status: false,
+				message: config.error_message.find_500,
+				data: {}
+			} );
+		} );
+
+	};
+
+/**
+ * Find
+ * Untuk menampilkan data finding berdasarkan USER_AUTH_CODE dan ASSIGN_TO
+ * --------------------------------------------------------------------------
+ */
+	exports.findOne = ( req, res ) => {
+
+		findingModel.findOne( { 
+			FINDING_CODE : req.params.id,
+			DELETE_USER: ""
+		} )
+		.select( {
+			_id: 0,
+			INSERT_USER: 0,
+			INSERT_TIME: 0,
+			UPDATE_USER: 0,
+			UPDATE_TIME: 0,
+			DELETE_USER: 0,
+			DELETE_TIME: 0,
+			__v: 0
+		} )
+		.then( data => {
+			if( !data ) {
+				return res.send( {
+					status: false,
+					message: config.error_message.find_404,
+					data: {}
+				} );
+			}
+			res.send( {
+				status: true,
+				message: config.error_message.find_200,
+				data: data
+			} );
+		} ).catch( err => {
+			res.send( {
+				status: false,
+				message: config.error_message.find_500,
+				data: {}
+			} );
+		} );
+
+	};
 
 // Retrieve and return all notes from the database.
 exports.findByTokenAuthCode = ( req, res ) => {
@@ -225,54 +449,6 @@ exports.findByTokenAuthCode = ( req, res ) => {
 		} );
 	} );
 
-};
-
-// Find a single data with a ID
-exports.findOne = ( req, res ) => {
-	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
-
-		if ( err ) {
-			return res.status( 404 ).send( {
-				status: false,
-				message: 'Invalid Token',
-				data: {}
-			} );
-		}
-
-		var auth = jwtDecode( req.token );
-
-		findingModel.findOne( { 
-			FINDING_CODE : req.params.id,
-			DELETE_USER: "",
-			DELETE_TIME: ""
-		} ).then( data => {
-			if( !data ) {
-				return res.status(404).send({
-					status: false,
-					message: "Data not found 2 with id " + req.params.id,
-					data: data,
-				});
-			}
-			res.send( {
-				status: true,
-				message: 'Success',
-				data: data
-			} );
-		} ).catch( err => {
-			if( err.kind === 'ObjectId' ) {
-				return res.status( 404 ).send({
-					status: false,
-					message: "Data not found 1 with id " + req.params.id,
-					data: {}
-				});
-			}
-			return res.status( 500 ).send({
-				status: false,
-				message: "Error retrieving Data with id " + req.params.id,
-				data: {}
-			} );
-		} );
-	} );
 };
 
 // Update single data with ID
@@ -372,8 +548,6 @@ exports.update = ( req, res ) => {
 		});
 	});
 };
-
-
 
 // Delete data with the specified ID in the request
 exports.delete = ( req, res ) => {
