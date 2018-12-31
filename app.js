@@ -32,4 +32,11 @@ app.listen( config.app_port, () => {
 app.get( '/', ( req, res ) => {
 	res.json( { 'message': config.app_name } )
 } );
+
+
+
+
+
+
 require( './routes/route.js' )( app );
+
