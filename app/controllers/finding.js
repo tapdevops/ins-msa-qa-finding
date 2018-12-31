@@ -314,7 +314,7 @@
 			$or: [
 				{ UPDATE_USER: auth.USER_AUTH_CODE },
 				{ INSERT_USER: auth.USER_AUTH_CODE },
-				{ ASSIGN_TO: auth.USER_AUTH_CODE },
+				{ ASSIGN_TO: auth.USER_AUTH_CODE }
 			]
 		} )
 		.select( {
