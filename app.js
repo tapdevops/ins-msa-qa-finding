@@ -47,6 +47,5 @@ app.get( '/', ( req, res ) => {
 	res.json( { 'message': config.app_name } )
 } );
 
-// Require Bisnis Area Routes
 require( './routes/route.js' )( app );
 module.exports = app;
