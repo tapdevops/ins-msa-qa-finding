@@ -22,6 +22,10 @@ app.use( bodyParser.urlencoded( { extended: false } ) )
 // Parse request of content-type - application/json
 app.use( bodyParser.json() )
 
+
+
+
+
 // Setup Database
 mongoose.Promise = global.Promise;
 
