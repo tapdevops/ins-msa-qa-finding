@@ -1,4 +1,4 @@
-FROM node:8.2
+FROM node:8
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -16,7 +16,7 @@ RUN npm install
 COPY . /usr/src/app
 
 EXPOSE 3011
-CMD [ "npm", "start" ]
+CMD [ "node", "app.js" ]
 
 #RUN npm install
-#RUN node  app.js
+#RUN node app.js
