@@ -17,7 +17,7 @@ const config = require( './config/config.js' );
 const app = express();
 
 // Parse request of content-type - application/x-www-form-urlencoded
-app.use( bodyParser.urlencoded( { extended: true } ) )
+app.use( bodyParser.urlencoded( { extended: false } ) )
 
 // Parse request of content-type - application/json
 app.use( bodyParser.json() )
