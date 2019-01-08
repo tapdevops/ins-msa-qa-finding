@@ -193,12 +193,15 @@ exports.testutz = async ( req, res ) => {
 					query_search.push( q );
 				} );
 			break;
+			case 'NATIONAL':
+				key = 'NATIONAL';
+				query[key] = 'NATIONAL';
+			break;
 		}
-		
 
 		findingModel.find( {
 			WERKS: query_search,
-			//ASSIGN_TO: auth.USER_AUTH_CODE,
+			ASSIGN_TO: auth.USER_AUTH_CODE,
 			$and: [
 				{
 					$or: [
