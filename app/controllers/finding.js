@@ -29,22 +29,175 @@
 	const dateAndTimes = require( 'date-and-time' );
 	const randomTextLib = require( '../libraries/randomText' );
 
+	exports.syncMobileImages = async ( req, res ) => {
+
+		var auth = req.auth;
+		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
+		var ref_role = auth.REFFERENCE_ROLE;
+		var location_code_final = [];
+		var query_search = [];
+		var start_date = req.params.start_date;
+		var end_date = req.params.end_date;
+
+		if ( ref_role != 'ALL' ) {
+			location_code_group.forEach( function( data ) {
+				switch ( ref_role ) {
+					case 'REGION_CODE':
+						location_code_final.push( data.substr( 1, 1 ) );
+					break;
+					case 'COMP_CODE':
+						location_code_final.push( data.substr( 0, 2 ) );
+					break;
+					case 'AFD_CODE':
+						location_code_final.push( data.substr( 0, 4 ) );
+					break;
+					case 'BA_CODE':
+						location_code_final.push( data.substr( 0, 4 ) );
+					break;
+				}
+			} );
+		}
+
+		switch ( ref_role ) {
+			case 'REGION_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 1 ) ) );
+				} );
+			break;
+			case 'COMP_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 2 ) ) );
+				} );
+			break;
+			case 'AFD_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 4 ) ) )
+				} );
+			break;
+			case 'BA_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( q );
+				} );
+			break;
+		}
+
+		var query = await findingModel
+			.find( {
+				DELETE_USER: '',
+				WERKS: query_search,
+				//ASSIGN_TO: auth.USER_AUTH_CODE,
+				$and: [
+					{
+						$or: [
+							{
+								INSERT_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							}
+						]
+					}
+				]
+			} )
+			.limit( 3 )
+			.select( {
+				_id: 0,
+				FINDING_CODE: 1,
+				INSERT_TIME: 1
+			} )
+			.sort( { 'DUE_DATE': 1 } );
+
+		if ( query.length > 0 ) {
+
+			var results = [];
+			query.forEach( function( result ) {
+				results.push( String( result.FINDING_CODE ) );
+			} );
+
+			res.send( {
+				status: true,
+				message: config.error_message.find_200,
+				data: results
+			} );
+		}
+		else {
+			res.send( {
+				status: false,
+				message: config.error_message.find_404,
+				data: {}
+			} );
+		}
+
+	};
+
+exports.testutz = async ( req, res ) => {
+	var data = await findingModel.find().count();
+	console.log(data);
+	res.json( {
+		message: 'Hayhay',
+		dt: data
+	} );
+};
+
 /**
  * syncMobile
  * Untuk menyediakan data mobile
  * --------------------------------------------------------------------------
  */
 	exports.syncMobile = ( req, res ) => {
-		console.log('A');
-
-
 		var auth = req.auth;
 		var start_date = req.params.start_date;
 		var end_date = req.params.end_date;
+		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
+		var ref_role = auth.REFFERENCE_ROLE;
+		var location_code_final = [];
+		var query_search = [];
+
+		if ( ref_role != 'ALL' ) {
+			location_code_group.forEach( function( data ) {
+				switch ( ref_role ) {
+					case 'REGION_CODE':
+						location_code_final.push( data.substr( 1, 1 ) );
+					break;
+					case 'COMP_CODE':
+						location_code_final.push( data.substr( 0, 2 ) );
+					break;
+					case 'AFD_CODE':
+						location_code_final.push( data.substr( 0, 4 ) );
+					break;
+					case 'BA_CODE':
+						location_code_final.push( data.substr( 0, 4 ) );
+					break;
+				}
+			} );
+		}
+
+		switch ( ref_role ) {
+			case 'REGION_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 1 ) ) );
+				} );
+			break;
+			case 'COMP_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 2 ) ) );
+				} );
+			break;
+			case 'AFD_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 4 ) ) )
+				} );
+			break;
+			case 'BA_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( q );
+				} );
+			break;
+		}
 		
 
 		findingModel.find( {
-			WERKS: '4121',
+			WERKS: query_search,
 			//ASSIGN_TO: auth.USER_AUTH_CODE,
 			$and: [
 				{

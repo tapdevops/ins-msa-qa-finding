@@ -68,5 +68,6 @@ module.exports = ( app ) => {
 	app.put( '/finding/:id', verifyToken, finding.update );
 	app.delete( '/finding/:id', verifyToken, finding.delete );
 	app.get( '/sync-mobile/finding/:start_date/:end_date', token_verify, finding.syncMobile );
+	app.get( '/sync-mobile/finding-images/:start_date/:end_date', token_verify, finding.syncMobileImages );
 }
 
