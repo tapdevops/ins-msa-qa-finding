@@ -84,7 +84,7 @@
 		var query = await findingModel
 			.find( {
 				DELETE_USER: '',
-				WERKS: query_search,
+				//WERKS: query_search,
 				ASSIGN_TO: auth.USER_AUTH_CODE,
 				$and: [
 					{
