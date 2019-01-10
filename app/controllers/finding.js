@@ -302,15 +302,15 @@ exports.testutz = async ( req, res ) => {
 
 			} );
 			
-			res.json({
+			res.json( {
 				status: true,
 				message: 'Data Sync tanggal ' + date.convert( start_date, 'YYYY-MM-DD hh-mm-ss' ) + ' s/d ' + date.convert( end_date, 'YYYY-MM-DD hh-mm-ss' ),
 				data: {
 					"hapus": temp_delete,
 					"simpan": temp_insert,
-					"ubah": temp_update
+					"ubah": temp_update,
 				}
-			});
+			} );
 		} ).catch( err => {
 			res.send( {
 				status: false,
@@ -492,10 +492,29 @@ exports.testutz = async ( req, res ) => {
 					data: {}
 				} );
 			}
+			var results = [];
+			data.forEach( function( result ) {
+				results.push( {
+					FINDING_CODE: result.FINDING_CODE,
+					WERKS: result.WERKS,
+					AFD_CODEL: result.AFD_CODE,
+					BLOCK_CODE: result.BLOCK_CODE,
+					FINDING_CATEGORY: result.FINDING_CATEGORY,
+					FINDING_DESC: result.FINDING_DESC,
+					FINDING_PRIORITY: result.FINDING_PRIORITY,
+					DUE_DATE: date.convert( String( result.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+					ASSIGN_TO: result.ASSIGN_TO,
+					PROGRESS: result.PROGRESS,
+					LAT_FINDING: result.LAT_FINDING,
+					LONG_FINDING: result.LONG_FINDING,
+					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE
+				} );
+			} );
+
 			res.send( {
 				status: true,
 				message: config.error_message.find_200,
-				data: data
+				data: results
 			} );
 		} ).catch( err => {
 			res.send( {
