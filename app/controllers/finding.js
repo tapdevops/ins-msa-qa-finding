@@ -502,7 +502,7 @@ exports.testutz = async ( req, res ) => {
 					FINDING_CATEGORY: result.FINDING_CATEGORY,
 					FINDING_DESC: result.FINDING_DESC,
 					FINDING_PRIORITY: result.FINDING_PRIORITY,
-					DUE_DATE: String( date.convert( data.DUE_DATE, 'YYYY-MM-DD hh-mm-ss' ) ) ,
+					DUE_DATE: date.convert( String( result.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
 					ASSIGN_TO: result.ASSIGN_TO,
 					PROGRESS: result.PROGRESS,
 					LAT_FINDING: result.LAT_FINDING,
