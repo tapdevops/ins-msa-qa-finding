@@ -85,7 +85,7 @@
 			.find( {
 				DELETE_USER: '',
 				WERKS: query_search,
-				//ASSIGN_TO: auth.USER_AUTH_CODE,
+				ASSIGN_TO: auth.USER_AUTH_CODE,
 				$and: [
 					{
 						$or: [
@@ -99,7 +99,7 @@
 					}
 				]
 			} )
-			.limit( 3 )
+			.limit( 20 )
 			.select( {
 				_id: 0,
 				FINDING_CODE: 1,
