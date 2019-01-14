@@ -500,8 +500,6 @@ exports.testutz = async ( req, res ) => {
 
 
 
-
-			feew
 			var results = [];
 			data.forEach( function( result ) {
 				results.push( {
