@@ -28,6 +28,13 @@ module.exports.convert = function ( value, format ) {
 				result = '';
 			}
 		break;
+
+
+
+
+
+
+		
 		case 'YYYYMMDDhhmmss':
 			if ( value.length == 14 ) {
 				result = value.substr( 0, 4 ) + value.substr( 4, 2 ) + value.substr( 6, 2 ) + value.substr( 8, 2 ) + value.substr( 10, 2 ) + value.substr( 12, 2 );
