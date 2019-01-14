@@ -482,8 +482,6 @@ exports.testutz = async ( req, res ) => {
 		} )
 		.select( {
 			_id: 0,
-			INSERT_USER: 0,
-			INSERT_TIME: 0,
 			UPDATE_USER: 0,
 			UPDATE_TIME: 0,
 			DELETE_USER: 0,
@@ -498,6 +496,12 @@ exports.testutz = async ( req, res ) => {
 					data: {}
 				} );
 			}
+
+
+
+
+
+			feew
 			var results = [];
 			data.forEach( function( result ) {
 				results.push( {
@@ -514,7 +518,9 @@ exports.testutz = async ( req, res ) => {
 					PROGRESS: result.PROGRESS,
 					LAT_FINDING: result.LAT_FINDING,
 					LONG_FINDING: result.LONG_FINDING,
-					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE
+					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
+					INSERT_USER: result.INSERT_USER,
+					INSERT_TIME: result.INSERT_TIME
 				} );
 			} );
 
