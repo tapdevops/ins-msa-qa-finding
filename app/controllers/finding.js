@@ -548,10 +548,6 @@ exports.testutz = async ( req, res ) => {
 		} )
 		.select( {
 			_id: 0,
-			INSERT_USER: 1,
-			INSERT_TIME: 1,
-			UPDATE_USER: 1,
-			UPDATE_TIME: 1,
 			DELETE_USER: 0,
 			DELETE_TIME: 0,
 			__v: 0
