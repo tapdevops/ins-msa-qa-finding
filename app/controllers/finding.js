@@ -28,6 +28,7 @@
 
 	const dateAndTimes = require( 'date-and-time' );
 	const randomTextLib = require( '../libraries/randomText' );
+	const statusFinding = require( '../libraries/statusFinding' );
 
 	exports.syncMobileImages = async ( req, res ) => {
 
@@ -246,6 +247,8 @@ exports.testutz = async ( req, res ) => {
 			
 			data_insert.forEach( function( data ) {
 
+
+
 				if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
 					temp_delete.push( {
 						FINDING_CODE: data.FINDING_CODE,
@@ -256,6 +259,7 @@ exports.testutz = async ( req, res ) => {
 						FINDING_DESC: data.FINDING_DESC,
 						FINDING_PRIORITY: data.FINDING_PRIORITY,
 						DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+						STATUS: statusFinding.set( data.PROGRESS ),
 						ASSIGN_TO: data.ASSIGN_TO,
 						PROGRESS: data.PROGRESS,
 						LAT_FINDING: data.LAT_FINDING,
@@ -274,6 +278,7 @@ exports.testutz = async ( req, res ) => {
 						FINDING_DESC: data.FINDING_DESC,
 						FINDING_PRIORITY: data.FINDING_PRIORITY,
 						DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+						STATUS: statusFinding.set( data.PROGRESS ),
 						ASSIGN_TO: data.ASSIGN_TO,
 						PROGRESS: data.PROGRESS,
 						LAT_FINDING: data.LAT_FINDING,
@@ -292,6 +297,7 @@ exports.testutz = async ( req, res ) => {
 						FINDING_DESC: data.FINDING_DESC,
 						FINDING_PRIORITY: data.FINDING_PRIORITY,
 						DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+						STATUS: statusFinding.set( data.PROGRESS ),
 						ASSIGN_TO: data.ASSIGN_TO,
 						PROGRESS: data.PROGRESS,
 						LAT_FINDING: data.LAT_FINDING, 
@@ -503,6 +509,7 @@ exports.testutz = async ( req, res ) => {
 					FINDING_DESC: result.FINDING_DESC,
 					FINDING_PRIORITY: result.FINDING_PRIORITY,
 					DUE_DATE: date.convert( String( result.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+					STATUS: statusFinding.set( result.PROGRESS ),
 					ASSIGN_TO: result.ASSIGN_TO,
 					PROGRESS: result.PROGRESS,
 					LAT_FINDING: result.LAT_FINDING,
