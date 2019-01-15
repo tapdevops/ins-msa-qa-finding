@@ -471,7 +471,10 @@ exports.testutz = async ( req, res ) => {
 		var url_query_length = Object.keys( url_query ).length;
 			url_query.DELETE_USER = "";
 
-		
+
+			// kehgkwejkgjwkgj
+
+
 		findingModel.find( {
 			DELETE_USER: "",
 			ASSIGN_TO: auth.USER_AUTH_CODE
