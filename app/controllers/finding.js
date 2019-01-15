@@ -201,9 +201,8 @@ exports.testutz = async ( req, res ) => {
 		}
 
 		findingModel.find( {
-			WERKS: query_search,
 			ASSIGN_TO: auth.USER_AUTH_CODE,
-			$and: [
+			/*$and: [
 				{
 					$or: [
 						{
@@ -226,7 +225,7 @@ exports.testutz = async ( req, res ) => {
 						}
 					]
 				}
-			]
+			]*/
 		} )
 		.select( {
 			_id: 0,
@@ -472,13 +471,16 @@ exports.testutz = async ( req, res ) => {
 		var url_query_length = Object.keys( url_query ).length;
 			url_query.DELETE_USER = "";
 
+		
 		findingModel.find( {
 			DELETE_USER: "",
+			ASSIGN_TO: auth.USER_AUTH_CODE
+			/*
 			$or: [
 				{ UPDATE_USER: auth.USER_AUTH_CODE },
 				{ INSERT_USER: auth.USER_AUTH_CODE },
 				{ ASSIGN_TO: auth.USER_AUTH_CODE }
-			]
+			]*/
 		} )
 		.select( {
 			_id: 0,
@@ -496,9 +498,6 @@ exports.testutz = async ( req, res ) => {
 					data: {}
 				} );
 			}
-
-
-
 
 			var results = [];
 			data.forEach( function( result ) {
