@@ -85,8 +85,8 @@
 		var query = await findingModel
 			.find( {
 				DELETE_USER: "",
-				//WERKS: query_search,
-				ASSIGN_TO: auth.USER_AUTH_CODE,
+				WERKS: query_search,
+				//ASSIGN_TO: auth.USER_AUTH_CODE,
 				$and: [
 					{
 						$or: [
@@ -202,7 +202,7 @@ exports.testutz = async ( req, res ) => {
 
 		findingModel.find( {
 			DELETE_USER: "",
-			ASSIGN_TO: auth.USER_AUTH_CODE,
+			WERKS: query_search,
 			$and: [
 				{
 					$or: [
