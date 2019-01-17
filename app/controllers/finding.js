@@ -84,7 +84,7 @@
 
 		var query = await findingModel
 			.find( {
-				DELETE_USER: '',
+				DELETE_USER: "",
 				//WERKS: query_search,
 				ASSIGN_TO: auth.USER_AUTH_CODE,
 				$and: [
@@ -201,8 +201,9 @@ exports.testutz = async ( req, res ) => {
 		}
 
 		findingModel.find( {
+			DELETE_USER: "",
 			ASSIGN_TO: auth.USER_AUTH_CODE,
-			/*$and: [
+			$and: [
 				{
 					$or: [
 						{
@@ -225,7 +226,7 @@ exports.testutz = async ( req, res ) => {
 						}
 					]
 				}
-			]*/
+			]
 		} )
 		.select( {
 			_id: 0,
@@ -331,7 +332,7 @@ exports.testutz = async ( req, res ) => {
  * Untuk membuat dan menyimpan data finding baru
  * --------------------------------------------------------------------------
  */
-	exports.create = ( req, res ) => {
+	exports.create = async ( req, res ) => {
 			
 		if( !req.body.WERKS || !req.body.AFD_CODE || !req.body.BLOCK_CODE || !req.body.FINDING_CODE ) {
 			return res.send({
@@ -342,76 +343,156 @@ exports.testutz = async ( req, res ) => {
 		}
 
 		var auth = req.auth;
-		const set_data = new findingModel( {
-			FINDING_CODE: req.body.FINDING_CODE || "",
-			WERKS: req.body.WERKS || "",
-			AFD_CODE: req.body.AFD_CODE || "",
-			BLOCK_CODE: req.body.BLOCK_CODE || "",
-			FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
-			FINDING_DESC: req.body.FINDING_DESC || "",
-			FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-			DUE_DATE: date.convert( 'now', 'YYYYMMDDhhmmss' ) || "",
-			ASSIGN_TO: req.body.ASSIGN_TO || "",
-			PROGRESS: req.body.PROGRESS || "",
-			LAT_FINDING: req.body.LAT_FINDING || "",
-			LONG_FINDING: req.body.LONG_FINDING || "",
-			REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-			INSERT_USER: auth.USER_AUTH_CODE,
-			INSERT_TIME: date.convert( 'now', 'YYYYMMDDhhmmss' ),
-			UPDATE_USER: auth.USER_AUTH_CODE,
-			UPDATE_TIME: date.convert( 'now', 'YYYYMMDDhhmmss' ),
-			DELETE_USER: "",
-			DELETE_TIME: 0
-		} );
-
-		set_data.save()
-		.then( data => {
-			if ( !data ) {
-				return res.send( {
-					status: false,
-					message: config.error_message.create_404,
-					data: {}
-				} );
-			}
-			// Insert Finding Log
-			const set_log = new findingLogModel( {
-				FINDING_CODE: req.body.FINDING_CODE,
-				PROSES: 'INSERT',
-				PROGRESS: req.body.PROGRESS,
-				IMEI: auth.IMEI,
-				SYNC_TIME: date.convert( 'now', 'YYYYMMDDhhmmss' ),
-				SYNC_USER: auth.USER_AUTH_CODE
+		var check = await findingModel
+			.find( {
+				FINDING_CODE : req.body.FINDING_CODE
+			} )
+			.select( {
+				_id: 0,
+				FINDING_CODE: 1
 			} );
 
-			set_log.save()
-			.then( data_log => {
-				if ( !data_log ) {
+		// Update Data Finding
+		if ( check.length > 0 ) {
+			
+			
+			findingModel.findOneAndUpdate( { 
+				FINDING_CODE : req.body.FINDING_CODE
+			}, {
+				WERKS: req.body.WERKS || "",
+				BLOCK_CODE: req.body.BLOCK_CODE || "",
+				FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
+				FINDING_DESC: req.body.FINDING_DESC || "",
+				FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
+				DUE_DATE: date.convert( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+				ASSIGN_TO: req.body.ASSIGN_TO || "",
+				PROGRESS: req.body.PROGRESS || "",
+				LAT_FINDING: req.body.LAT_FINDING || "",
+				LONG_FINDING: req.body.LONG_FINDING || "",
+				REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
+				UPDATE_USER: req.body.INSERT_USER,
+				UPDATE_TIME: date.convert( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' )
+			}, { new: true } )
+			.then( data => {
+				if ( !data ) {
 					return res.send( {
 						status: false,
-						message: config.error_message.create_404 + ' - Log',
+						message: config.error_message.put_404,
 						data: {}
 					} );
 				}
-				res.send( {
-					status: true,
-					message: config.error_message.create_200,
-					data: {}
+				
+				// Insert Finding Log
+				const set_log = new findingLogModel( {
+					FINDING_CODE: req.body.FINDING_CODE,
+					PROSES: 'UPDATE',
+					PROGRESS: req.body.PROGRESS,
+					IMEI: auth.IMEI,
+					SYNC_TIME: date.convert( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
+					SYNC_USER: req.body.INSERT_USER,
+				} );
+
+				set_log.save()
+				.then( data_log => {
+					if ( !data_log ) {
+						return res.send( {
+							status: false,
+							message: config.error_message.create_404 + ' - Log',
+							data: {}
+						} );
+					}
+					res.send( {
+						status: true,
+						message: config.error_message.put_200 + 'Data berhasil diupdate.',
+						data: {}
+					} );
+				} ).catch( err => {
+					res.send( {
+						status: false,
+						message: config.error_message.create_500 + ' - 2',
+						data: {}
+					} );
 				} );
 			} ).catch( err => {
 				res.send( {
 					status: false,
-					message: config.error_message.create_500 + ' - 2',
+					message: config.error_message.put_500,
 					data: {}
 				} );
 			} );
-		} ).catch( err => {
-			res.send( {
-				status: false,
-				message: config.error_message.create_500,
-				data: {}
+		}
+		// Insert Data Finding
+		else {
+			const set_data = new findingModel( {
+				FINDING_CODE: req.body.FINDING_CODE || "",
+				WERKS: req.body.WERKS || "",
+				AFD_CODE: req.body.AFD_CODE || "",
+				BLOCK_CODE: req.body.BLOCK_CODE || "",
+				FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
+				FINDING_DESC: req.body.FINDING_DESC || "",
+				FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
+				DUE_DATE: date.convert( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+				ASSIGN_TO: req.body.ASSIGN_TO || "",
+				PROGRESS: req.body.PROGRESS || "",
+				LAT_FINDING: req.body.LAT_FINDING || "",
+				LONG_FINDING: req.body.LONG_FINDING || "",
+				REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
+				INSERT_USER: req.body.INSERT_USER,
+				INSERT_TIME: date.convert( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
+				UPDATE_USER: req.body.INSERT_USER,
+				UPDATE_TIME: date.convert( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
+				DELETE_USER: "",
+				DELETE_TIME: 0
 			} );
-		} );
-		
+
+			set_data.save()
+			.then( data => {
+				if ( !data ) {
+					return res.send( {
+						status: false,
+						message: config.error_message.create_404,
+						data: {}
+					} );
+				}
+				// Insert Finding Log
+				const set_log = new findingLogModel( {
+					FINDING_CODE: req.body.FINDING_CODE,
+					PROSES: 'INSERT',
+					PROGRESS: req.body.PROGRESS,
+					IMEI: auth.IMEI,
+					SYNC_TIME: date.convert( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
+					SYNC_USER: req.body.INSERT_USER,
+				} );
+
+				set_log.save()
+				.then( data_log => {
+					if ( !data_log ) {
+						return res.send( {
+							status: false,
+							message: config.error_message.create_404 + ' - Log',
+							data: {}
+						} );
+					}
+					res.send( {
+						status: true,
+						message: config.error_message.create_200,
+						data: {}
+					} );
+				} ).catch( err => {
+					res.send( {
+						status: false,
+						message: config.error_message.create_500 + ' - 2',
+						data: {}
+					} );
+				} );
+			} ).catch( err => {
+				res.send( {
+					status: false,
+					message: config.error_message.create_500,
+					data: {}
+				} );
+			} );
+		}
 	};
 
 /**
@@ -470,11 +551,6 @@ exports.testutz = async ( req, res ) => {
 		var url_query = req.query;
 		var url_query_length = Object.keys( url_query ).length;
 			url_query.DELETE_USER = "";
-
-
-			// kehgkwejkgjwkgj
-
-
 		findingModel.find( {
 			DELETE_USER: "",
 			ASSIGN_TO: auth.USER_AUTH_CODE
