@@ -505,17 +505,54 @@ exports.testutz = async ( req, res ) => {
 
 		var url_query = req.query;
 		var url_query_length = Object.keys( url_query ).length;
-			url_query.DELETE_USER = "";
+		var query = {};
+			query.DELETE_USER = "";
 
-		findingModel.find( url_query )
+		if ( req.query.WERKS ) {
+			var length_werks = String( req.query.WERKS ).length;
+
+			if ( length_werks < 4 ) {
+				query.WERKS = new RegExp( '^' + req.query.WERKS );
+			}
+			else {
+				query.WERKS = req.query.WERKS;
+			}
+		}
+
+		if ( req.query.AFD_CODE ) {
+			query.AFD_CODE = req.query.AFD_CODE;
+		}
+
+		if ( req.query.BLOCK_CODE ) {
+			query.BLOCK_CODE = req.query.BLOCK_CODE;
+		}
+		
+
+		/*
+		DELETE_USER: "",
+				WERKS: query_search,
+				//ASSIGN_TO: auth.USER_AUTH_CODE,
+				$and: [
+					{
+						$or: [
+							{
+								INSERT_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							}
+						]
+					}
+				]
+				*/
+			console.log(query);
+
+
+		findingModel.find( 
+			query 
+		)
 		.select( {
 			_id: 0,
-			INSERT_USER: 0,
-			INSERT_TIME: 0,
-			UPDATE_USER: 0,
-			UPDATE_TIME: 0,
-			DELETE_USER: 0,
-			DELETE_TIME: 0,
 			__v: 0
 		} )
 		.then( data => {
