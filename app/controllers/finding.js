@@ -259,8 +259,8 @@ exports.testutz = async ( req, res ) => {
 						FINDING_CATEGORY: data.FINDING_CATEGORY,
 						FINDING_DESC: data.FINDING_DESC,
 						FINDING_PRIORITY: data.FINDING_PRIORITY,
-						//DUE_DATE: parseInt( data.DUE_DATE ),
-						DUE_DATE: ( parseInt( data.DUE_DATE ) == null ) ? 0 : parseInt( data.DUE_DATE ),
+						//DUE_DATE: Number( data.DUE_DATE ),
+						DUE_DATE: Number( data.DUE_DATE ) || 0,
 						STATUS: statusFinding.set( data.PROGRESS ),
 						ASSIGN_TO: data.ASSIGN_TO,
 						PROGRESS: data.PROGRESS,
@@ -268,7 +268,7 @@ exports.testutz = async ( req, res ) => {
 						LONG_FINDING: data.LONG_FINDING,
 						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 						INSERT_USER: result.INSERT_USER,
-						INSERT_TIME: parseInt( result.INSERT_TIME )
+						INSERT_TIME: Number( result.INSERT_TIME )
 					} );
 				}
 
@@ -281,8 +281,8 @@ exports.testutz = async ( req, res ) => {
 						FINDING_CATEGORY: data.FINDING_CATEGORY,
 						FINDING_DESC: data.FINDING_DESC,
 						FINDING_PRIORITY: data.FINDING_PRIORITY,
-						//DUE_DATE: parseInt( data.DUE_DATE ),
-						DUE_DATE: ( parseInt( data.DUE_DATE ) == null ) ? 0 : parseInt( data.DUE_DATE ),
+						//DUE_DATE: Number( data.DUE_DATE ),
+						DUE_DATE: Number( data.DUE_DATE ) || 0,
 						STATUS: statusFinding.set( data.PROGRESS ),
 						ASSIGN_TO: data.ASSIGN_TO,
 						PROGRESS: data.PROGRESS,
@@ -290,7 +290,7 @@ exports.testutz = async ( req, res ) => {
 						LONG_FINDING: data.LONG_FINDING,
 						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 						INSERT_USER: result.INSERT_USER,
-						INSERT_TIME: parseInt( result.INSERT_TIME )
+						INSERT_TIME: Number( result.INSERT_TIME )
 					} );
 				}
 
@@ -304,8 +304,8 @@ exports.testutz = async ( req, res ) => {
 						FINDING_DESC: data.FINDING_DESC,
 						FINDING_PRIORITY: data.FINDING_PRIORITY,
 						//DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-						//DUE_DATE: parseInt( data.DUE_DATE ),
-						DUE_DATE: ( parseInt( data.DUE_DATE ) == null ) ? 0 : parseInt( data.DUE_DATE ),
+						//DUE_DATE: Number( data.DUE_DATE ),
+						DUE_DATE: Number( data.DUE_DATE ) || 0,
 						STATUS: statusFinding.set( data.PROGRESS ),
 						ASSIGN_TO: data.ASSIGN_TO,
 						PROGRESS: data.PROGRESS,
@@ -313,7 +313,7 @@ exports.testutz = async ( req, res ) => {
 						LONG_FINDING: data.LONG_FINDING,
 						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 						INSERT_USER: result.INSERT_USER,
-						INSERT_TIME: parseInt( result.INSERT_TIME )
+						INSERT_TIME: Number( result.INSERT_TIME )
 					} );
 				}
 
@@ -375,7 +375,7 @@ exports.testutz = async ( req, res ) => {
 				FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
 				FINDING_DESC: req.body.FINDING_DESC || "",
 				FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-				DUE_DATE: date.convert( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+				DUE_DATE: date.convert( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ) || "",
 				ASSIGN_TO: req.body.ASSIGN_TO || "",
 				PROGRESS: req.body.PROGRESS || "",
 				LAT_FINDING: req.body.LAT_FINDING || "",
@@ -653,6 +653,7 @@ exports.testutz = async ( req, res ) => {
 			var results = [];
 			data.forEach( function( result ) {
 				results.push( {
+					ABC: "DDD",
 					FINDING_CODE: result.FINDING_CODE,
 					WERKS: result.WERKS,
 					AFD_CODE: result.AFD_CODE,
@@ -661,17 +662,17 @@ exports.testutz = async ( req, res ) => {
 					FINDING_DESC: result.FINDING_DESC,
 					FINDING_PRIORITY: result.FINDING_PRIORITY,
 					//DUE_DATE: date.convert( String( result.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-					//DUE_DATE: parseInt( result.INSERT_TIME ),
-					DUE_DATE: ( parseInt( data.DUE_DATE ) == null ) ? 0 : parseInt( data.DUE_DATE ),
+					//DUE_DATE: Number( result.INSERT_TIME ),
+					DUE_DATE: Number( data.DUE_DATE ) || 0,
 					STATUS: statusFinding.set( result.PROGRESS ),
 					ASSIGN_TO: result.ASSIGN_TO,
 					//PROGRESS: result.PROGRESS,
-					PROGRESS: parseInt( result.PROGRESS ),
+					PROGRESS: Number( result.PROGRESS ),
 					LAT_FINDING: result.LAT_FINDING,
 					LONG_FINDING: result.LONG_FINDING,
 					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
 					INSERT_USER: result.INSERT_USER,
-					INSERT_TIME: parseInt( result.INSERT_TIME )
+					INSERT_TIME: Number( result.INSERT_TIME )
 					//INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 				} );
 			} );
