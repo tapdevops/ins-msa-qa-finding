@@ -131,14 +131,14 @@
 
 	};
 
-exports.testutz = async ( req, res ) => {
-	var data = await findingModel.find().count();
-	console.log(data);
-	res.json( {
-		message: 'Hayhay',
-		dt: data
-	} );
-};
+	exports.testutz = async ( req, res ) => {
+		var data = await findingModel.find().count();
+		console.log(data);
+		res.json( {
+			message: 'Hayhay',
+			dt: data
+		} );
+	};
 
 /**
  * syncMobile
@@ -378,14 +378,14 @@ exports.testutz = async ( req, res ) => {
 				FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
 				FINDING_DESC: req.body.FINDING_DESC || "",
 				FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-				DUE_DATE: date.convert( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ) || "",
+				DUE_DATE: req.body.DUE_DATE || 0,
 				ASSIGN_TO: req.body.ASSIGN_TO || "",
 				PROGRESS: req.body.PROGRESS || "",
 				LAT_FINDING: req.body.LAT_FINDING || "",
 				LONG_FINDING: req.body.LONG_FINDING || "",
 				REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
 				UPDATE_USER: req.body.INSERT_USER,
-				UPDATE_TIME: date.convert( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' )
+				UPDATE_TIME: req.body.UPDATE_TIME || 0
 			}, { new: true } )
 			.then( data => {
 				if ( !data ) {
@@ -402,7 +402,7 @@ exports.testutz = async ( req, res ) => {
 					PROSES: 'UPDATE',
 					PROGRESS: req.body.PROGRESS,
 					IMEI: auth.IMEI,
-					SYNC_TIME: date.convert( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
+					SYNC_TIME: req.body.INSERT_TIME || 0,
 					SYNC_USER: req.body.INSERT_USER,
 				} );
 
@@ -445,16 +445,16 @@ exports.testutz = async ( req, res ) => {
 				FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
 				FINDING_DESC: req.body.FINDING_DESC || "",
 				FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-				DUE_DATE: date.convert( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+				DUE_DATE: req.body.DUE_DATE || 0,
 				ASSIGN_TO: req.body.ASSIGN_TO || "",
 				PROGRESS: req.body.PROGRESS || "",
 				LAT_FINDING: req.body.LAT_FINDING || "",
 				LONG_FINDING: req.body.LONG_FINDING || "",
 				REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
 				INSERT_USER: req.body.INSERT_USER,
-				INSERT_TIME: date.convert( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
+				INSERT_TIME: req.body.INSERT_TIME || 0,
 				UPDATE_USER: req.body.INSERT_USER,
-				UPDATE_TIME: date.convert( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
+				UPDATE_TIME: req.body.UPDATE_TIME || 0,
 				DELETE_USER: "",
 				DELETE_TIME: 0
 			} );
@@ -539,7 +539,6 @@ exports.testutz = async ( req, res ) => {
 		if ( req.query.BLOCK_CODE ) {
 			query.BLOCK_CODE = req.query.BLOCK_CODE;
 		}
-		
 
 		/*
 		DELETE_USER: "",
@@ -623,18 +622,61 @@ exports.testutz = async ( req, res ) => {
 	exports.find = ( req, res ) => {
 		
 		var auth = req.auth;
-		var url_query = req.query;
-		var url_query_length = Object.keys( url_query ).length;
-			url_query.DELETE_USER = "";
+		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
+		var ref_role = auth.REFFERENCE_ROLE;
+		var location_code_final = [];
+		var query_search = [];
+
+		if ( ref_role != 'ALL' ) {
+			location_code_group.forEach( function( data ) {
+				switch ( ref_role ) {
+					case 'REGION_CODE':
+						location_code_final.push( data.substr( 1, 1 ) );
+					break;
+					case 'COMP_CODE':
+						location_code_final.push( data.substr( 0, 2 ) );
+					break;
+					case 'AFD_CODE':
+						location_code_final.push( data.substr( 0, 4 ) );
+					break;
+					case 'BA_CODE':
+						location_code_final.push( data.substr( 0, 4 ) );
+					break;
+				}
+			} );
+		}
+
+
+		switch ( ref_role ) {
+			case 'REGION_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 1 ) ) );
+				} );
+			break;
+			case 'COMP_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 2 ) ) );
+				} );
+			break;
+			case 'AFD_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 4 ) ) )
+				} );
+			break;
+			case 'BA_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( q );
+				} );
+			break;
+			case 'NATIONAL':
+				key = 'NATIONAL';
+				query[key] = 'NATIONAL';
+			break;
+		}
+
 		findingModel.find( {
 			DELETE_USER: "",
-			ASSIGN_TO: auth.USER_AUTH_CODE
-			/*
-			$or: [
-				{ UPDATE_USER: auth.USER_AUTH_CODE },
-				{ INSERT_USER: auth.USER_AUTH_CODE },
-				{ ASSIGN_TO: auth.USER_AUTH_CODE }
-			]*/
+			WERKS: query_search
 		} )
 		.select( {
 			_id: 0,
