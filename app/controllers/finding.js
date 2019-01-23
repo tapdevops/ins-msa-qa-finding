@@ -656,7 +656,6 @@ exports.testutz = async ( req, res ) => {
 			var results = [];
 			data.forEach( function( result ) {
 				results.push( {
-					ABC: "DDD",
 					FINDING_CODE: result.FINDING_CODE,
 					WERKS: result.WERKS,
 					AFD_CODE: result.AFD_CODE,
@@ -695,11 +694,6 @@ exports.testutz = async ( req, res ) => {
 		} );
 
 	};
-
-
-
-
-
 
 
 
