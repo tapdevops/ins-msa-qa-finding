@@ -259,13 +259,16 @@ exports.testutz = async ( req, res ) => {
 						FINDING_CATEGORY: data.FINDING_CATEGORY,
 						FINDING_DESC: data.FINDING_DESC,
 						FINDING_PRIORITY: data.FINDING_PRIORITY,
-						DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+						//DUE_DATE: parseInt( data.DUE_DATE ),
+						DUE_DATE: ( parseInt( data.DUE_DATE ) == null ) ? 0 : parseInt( data.DUE_DATE ),
 						STATUS: statusFinding.set( data.PROGRESS ),
 						ASSIGN_TO: data.ASSIGN_TO,
 						PROGRESS: data.PROGRESS,
 						LAT_FINDING: data.LAT_FINDING,
 						LONG_FINDING: data.LONG_FINDING,
-						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE
+						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+						INSERT_USER: result.INSERT_USER,
+						INSERT_TIME: parseInt( result.INSERT_TIME )
 					} );
 				}
 
@@ -278,13 +281,16 @@ exports.testutz = async ( req, res ) => {
 						FINDING_CATEGORY: data.FINDING_CATEGORY,
 						FINDING_DESC: data.FINDING_DESC,
 						FINDING_PRIORITY: data.FINDING_PRIORITY,
-						DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+						//DUE_DATE: parseInt( data.DUE_DATE ),
+						DUE_DATE: ( parseInt( data.DUE_DATE ) == null ) ? 0 : parseInt( data.DUE_DATE ),
 						STATUS: statusFinding.set( data.PROGRESS ),
 						ASSIGN_TO: data.ASSIGN_TO,
 						PROGRESS: data.PROGRESS,
 						LAT_FINDING: data.LAT_FINDING,
 						LONG_FINDING: data.LONG_FINDING,
-						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE
+						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+						INSERT_USER: result.INSERT_USER,
+						INSERT_TIME: parseInt( result.INSERT_TIME )
 					} );
 				}
 
@@ -297,13 +303,17 @@ exports.testutz = async ( req, res ) => {
 						FINDING_CATEGORY: data.FINDING_CATEGORY,
 						FINDING_DESC: data.FINDING_DESC,
 						FINDING_PRIORITY: data.FINDING_PRIORITY,
-						DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+						//DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+						//DUE_DATE: parseInt( data.DUE_DATE ),
+						DUE_DATE: ( parseInt( data.DUE_DATE ) == null ) ? 0 : parseInt( data.DUE_DATE ),
 						STATUS: statusFinding.set( data.PROGRESS ),
 						ASSIGN_TO: data.ASSIGN_TO,
 						PROGRESS: data.PROGRESS,
 						LAT_FINDING: data.LAT_FINDING, 
 						LONG_FINDING: data.LONG_FINDING,
-						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE
+						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+						INSERT_USER: result.INSERT_USER,
+						INSERT_TIME: parseInt( result.INSERT_TIME )
 					} );
 				}
 
@@ -650,15 +660,19 @@ exports.testutz = async ( req, res ) => {
 					FINDING_CATEGORY: result.FINDING_CATEGORY,
 					FINDING_DESC: result.FINDING_DESC,
 					FINDING_PRIORITY: result.FINDING_PRIORITY,
-					DUE_DATE: date.convert( String( result.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+					//DUE_DATE: date.convert( String( result.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+					//DUE_DATE: parseInt( result.INSERT_TIME ),
+					DUE_DATE: ( parseInt( data.DUE_DATE ) == null ) ? 0 : parseInt( data.DUE_DATE ),
 					STATUS: statusFinding.set( result.PROGRESS ),
 					ASSIGN_TO: result.ASSIGN_TO,
-					PROGRESS: result.PROGRESS,
+					//PROGRESS: result.PROGRESS,
+					PROGRESS: parseInt( result.PROGRESS ),
 					LAT_FINDING: result.LAT_FINDING,
 					LONG_FINDING: result.LONG_FINDING,
 					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
 					INSERT_USER: result.INSERT_USER,
-					INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+					INSERT_TIME: parseInt( result.INSERT_TIME )
+					//INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 				} );
 			} );
 
