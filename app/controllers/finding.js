@@ -33,12 +33,13 @@
 	exports.syncMobileImages = async ( req, res ) => {
 
 		var auth = req.auth;
+		var start_date = req.params.start_date;
+		var end_date = req.params.end_date;
 		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
 		var ref_role = auth.REFFERENCE_ROLE;
 		var location_code_final = [];
 		var query_search = [];
-		var start_date = req.params.start_date;
-		var end_date = req.params.end_date;
+		var afd_code = '';
 
 		if ( ref_role != 'ALL' ) {
 			location_code_group.forEach( function( data ) {
@@ -50,7 +51,7 @@
 						location_code_final.push( data.substr( 0, 2 ) );
 					break;
 					case 'AFD_CODE':
-						location_code_final.push( data.substr( 0, 4 ) );
+						location_code_final.push( data );
 					break;
 					case 'BA_CODE':
 						location_code_final.push( data.substr( 0, 4 ) );
@@ -73,6 +74,7 @@
 			case 'AFD_CODE':
 				location_code_final.forEach( function( q ) {
 					query_search.push( new RegExp( '^' + q.substr( 0, 4 ) ) )
+					afd_code = q.substr( 4, 10 );
 				} );
 			break;
 			case 'BA_CODE':
@@ -80,33 +82,69 @@
 					query_search.push( q );
 				} );
 			break;
+			case 'NATIONAL':
+				key = 'NATIONAL';
+				query[key] = 'NATIONAL';
+			break;
 		}
 
-		var query = await findingModel
-			.find( {
-				DELETE_USER: "",
-				WERKS: query_search,
-				//ASSIGN_TO: auth.USER_AUTH_CODE,
-				$and: [
-					{
-						$or: [
-							{
-								INSERT_TIME: {
-									$gte: start_date,
-									$lte: end_date
+
+		if ( ref_role != 'AFD_CODE' ) {
+			var query = await findingModel
+				.find( {
+					DELETE_USER: "",
+					WERKS: query_search,
+					//ASSIGN_TO: auth.USER_AUTH_CODE,
+					$and: [
+						{
+							$or: [
+								{
+									INSERT_TIME: {
+										$gte: start_date,
+										$lte: end_date
+									}
 								}
-							}
-						]
-					}
-				]
-			} )
-			.limit( 20 )
-			.select( {
-				_id: 0,
-				FINDING_CODE: 1,
-				INSERT_TIME: 1
-			} )
-			.sort( { 'DUE_DATE': 1 } );
+							]
+						}
+					]
+				} )
+				//.limit( 20 )
+				.select( {
+					_id: 0,
+					FINDING_CODE: 1,
+					INSERT_TIME: 1
+				} )
+				.sort( { 'DUE_DATE': 1 } );
+		}
+		else {
+			var query = await findingModel
+				.find( {
+					DELETE_USER: "",
+					WERKS: query_search,
+					AFD_CODE: afd_code,
+					//ASSIGN_TO: auth.USER_AUTH_CODE,
+					$and: [
+						{
+							$or: [
+								{
+									INSERT_TIME: {
+										$gte: start_date,
+										$lte: end_date
+									}
+								}
+							]
+						}
+					]
+				} )
+				//.limit( 20 )
+				.select( {
+					_id: 0,
+					FINDING_CODE: 1,
+					INSERT_TIME: 1
+				} )
+				.sort( { 'DUE_DATE': 1 } );
+		}
+		
 
 		if ( query.length > 0 ) {
 
