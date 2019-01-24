@@ -1106,6 +1106,8 @@
 					INSERT_TIME: Number( result.INSERT_TIME ),
 					STATUS_SYNC: ""
 					//INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+
+					
 				} );
 			} );
 
