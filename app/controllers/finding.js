@@ -385,7 +385,7 @@
 				LONG_FINDING: req.body.LONG_FINDING || "",
 				REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
 				UPDATE_USER: req.body.INSERT_USER,
-				UPDATE_TIME: req.body.UPDATE_TIME || 0
+				UPDATE_TIME: req.body.INSERT_TIME || 0
 			}, { new: true } )
 			.then( data => {
 				if ( !data ) {
@@ -454,7 +454,7 @@
 				INSERT_USER: req.body.INSERT_USER,
 				INSERT_TIME: req.body.INSERT_TIME || 0,
 				UPDATE_USER: req.body.INSERT_USER,
-				UPDATE_TIME: req.body.UPDATE_TIME || 0,
+				UPDATE_TIME: req.body.INSERT_TIME || 0,
 				DELETE_USER: "",
 				DELETE_TIME: 0
 			} );
