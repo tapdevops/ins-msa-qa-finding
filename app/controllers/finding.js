@@ -145,7 +145,336 @@
  * Untuk menyediakan data mobile
  * --------------------------------------------------------------------------
  */
-	exports.syncMobile = ( req, res ) => {
+
+ 	exports.syncMobile = ( req, res ) => {
+		var auth = req.auth;
+		var start_date = req.params.start_date;
+		var end_date = req.params.end_date;
+		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
+		var ref_role = auth.REFFERENCE_ROLE;
+		var location_code_final = [];
+		var query_search = [];
+		var afd_code = '';
+
+		if ( ref_role != 'ALL' ) {
+			location_code_group.forEach( function( data ) {
+				switch ( ref_role ) {
+					case 'REGION_CODE':
+						location_code_final.push( data.substr( 1, 1 ) );
+					break;
+					case 'COMP_CODE':
+						location_code_final.push( data.substr( 0, 2 ) );
+					break;
+					case 'AFD_CODE':
+						location_code_final.push( data );
+					break;
+					case 'BA_CODE':
+						location_code_final.push( data.substr( 0, 4 ) );
+					break;
+				}
+			} );
+		}
+
+		switch ( ref_role ) {
+			case 'REGION_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 1 ) ) );
+				} );
+			break;
+			case 'COMP_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 2 ) ) );
+				} );
+			break;
+			case 'AFD_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 4 ) ) )
+					afd_code = q.substr( 4, 10 );
+				} );
+			break;
+			case 'BA_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( q );
+				} );
+			break;
+			case 'NATIONAL':
+				key = 'NATIONAL';
+				query[key] = 'NATIONAL';
+			break;
+		}
+
+		if ( ref_role != 'AFD_CODE' ) {
+			findingModel.find( {
+				DELETE_USER: "",
+				WERKS: query_search,
+				$and: [
+					{
+						$or: [
+							{
+								INSERT_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							},
+							{
+								UPDATE_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							},
+							{
+								DELETE_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							}
+						]
+					}
+				]
+			} )
+			.select( {
+				_id: 0,
+				__v: 0
+			} )
+			.then( data_insert => {
+				if( !data_insert ) {
+					return res.send( {
+						status: false,
+						message: config.error_message.find_404,
+						data: {}
+					} );
+				}
+
+				var temp_insert = [];
+				var temp_update = [];
+				var temp_delete = [];
+				
+				data_insert.forEach( function( data ) {
+
+					if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
+						temp_delete.push( {
+							FINDING_CODE: data.FINDING_CODE,
+							WERKS: data.WERKS,
+							AFD_CODE: data.AFD_CODE,
+							BLOCK_CODE: data.BLOCK_CODE,
+							FINDING_CATEGORY: data.FINDING_CATEGORY,
+							FINDING_DESC: data.FINDING_DESC,
+							FINDING_PRIORITY: data.FINDING_PRIORITY,
+							DUE_DATE: Number( data.DUE_DATE ) || 0,
+							STATUS: statusFinding.set( data.PROGRESS ),
+							ASSIGN_TO: data.ASSIGN_TO,
+							PROGRESS: data.PROGRESS,
+							LAT_FINDING: data.LAT_FINDING,
+							LONG_FINDING: data.LONG_FINDING,
+							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							INSERT_USER: data.INSERT_USER,
+							INSERT_TIME: Number( data.INSERT_TIME ),
+							STATUS_SYNC: ""
+						} );
+					}
+
+					if ( data.INSERT_TIME >= start_date && data.INSERT_TIME <= end_date ) {
+						temp_insert.push( {
+							FINDING_CODE: data.FINDING_CODE,
+							WERKS: data.WERKS,
+							AFD_CODE: data.AFD_CODE,
+							BLOCK_CODE: data.BLOCK_CODE,
+							FINDING_CATEGORY: data.FINDING_CATEGORY,
+							FINDING_DESC: data.FINDING_DESC,
+							FINDING_PRIORITY: data.FINDING_PRIORITY,
+							DUE_DATE: Number( data.DUE_DATE ) || 0,
+							STATUS: statusFinding.set( data.PROGRESS ),
+							ASSIGN_TO: data.ASSIGN_TO,
+							PROGRESS: data.PROGRESS,
+							LAT_FINDING: data.LAT_FINDING,
+							LONG_FINDING: data.LONG_FINDING,
+							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							INSERT_USER: data.INSERT_USER,
+							INSERT_TIME: Number( data.INSERT_TIME ),
+							STATUS_SYNC: ""
+						} );
+					}
+
+					if ( data.UPDATE_TIME >= start_date && data.UPDATE_TIME <= end_date ) {
+						temp_update.push( {
+							FINDING_CODE: data.FINDING_CODE,
+							WERKS: data.WERKS,
+							AFD_CODE: data.AFD_CODE,
+							BLOCK_CODE: data.BLOCK_CODE,
+							FINDING_CATEGORY: data.FINDING_CATEGORY,
+							FINDING_DESC: data.FINDING_DESC,
+							FINDING_PRIORITY: data.FINDING_PRIORITY,
+							DUE_DATE: Number( data.DUE_DATE ) || 0,
+							STATUS: statusFinding.set( data.PROGRESS ),
+							ASSIGN_TO: data.ASSIGN_TO,
+							PROGRESS: data.PROGRESS,
+							LAT_FINDING: data.LAT_FINDING, 
+							LONG_FINDING: data.LONG_FINDING,
+							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							INSERT_USER: data.INSERT_USER,
+							INSERT_TIME: Number( data.INSERT_TIME ),
+							STATUS_SYNC: ""
+						} );
+					}
+
+				} );
+
+				res.json( {
+					status: true,
+					message: 'Data Sync tanggal ' + date.convert( start_date, 'YYYY-MM-DD hh-mm-ss' ) + ' s/d ' + date.convert( end_date, 'YYYY-MM-DD hh-mm-ss' ),
+					data: {
+						"hapus": temp_delete,
+						"simpan": temp_insert,
+						"ubah": temp_update,
+					}
+				} );
+			} ).catch( err => {
+				res.send( {
+					status: false,
+					message: config.error_message.find_500,
+					data: {}
+				} );
+			} );
+		}
+		else {
+			findingModel.find( {
+				DELETE_USER: "",
+				WERKS: query_search,
+				AFD_CODE: afd_code,
+				$and: [
+					{
+						$or: [
+							{
+								INSERT_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							},
+							{
+								UPDATE_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							},
+							{
+								DELETE_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							}
+						]
+					}
+				]
+			} )
+			.select( {
+				_id: 0,
+				__v: 0
+			} )
+			.then( data_insert => {
+				if( !data_insert ) {
+					return res.send( {
+						status: false,
+						message: config.error_message.find_404,
+						data: {}
+					} );
+				}
+
+				var temp_insert = [];
+				var temp_update = [];
+				var temp_delete = [];
+				
+				data_insert.forEach( function( data ) {
+
+					if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
+						temp_delete.push( {
+							FINDING_CODE: data.FINDING_CODE,
+							WERKS: data.WERKS,
+							AFD_CODE: data.AFD_CODE,
+							BLOCK_CODE: data.BLOCK_CODE,
+							FINDING_CATEGORY: data.FINDING_CATEGORY,
+							FINDING_DESC: data.FINDING_DESC,
+							FINDING_PRIORITY: data.FINDING_PRIORITY,
+							DUE_DATE: Number( data.DUE_DATE ) || 0,
+							STATUS: statusFinding.set( data.PROGRESS ),
+							ASSIGN_TO: data.ASSIGN_TO,
+							PROGRESS: data.PROGRESS,
+							LAT_FINDING: data.LAT_FINDING,
+							LONG_FINDING: data.LONG_FINDING,
+							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							INSERT_USER: data.INSERT_USER,
+							INSERT_TIME: Number( data.INSERT_TIME ),
+							STATUS_SYNC: ""
+						} );
+					}
+
+					if ( data.INSERT_TIME >= start_date && data.INSERT_TIME <= end_date ) {
+						temp_insert.push( {
+							FINDING_CODE: data.FINDING_CODE,
+							WERKS: data.WERKS,
+							AFD_CODE: data.AFD_CODE,
+							BLOCK_CODE: data.BLOCK_CODE,
+							FINDING_CATEGORY: data.FINDING_CATEGORY,
+							FINDING_DESC: data.FINDING_DESC,
+							FINDING_PRIORITY: data.FINDING_PRIORITY,
+							DUE_DATE: Number( data.DUE_DATE ) || 0,
+							STATUS: statusFinding.set( data.PROGRESS ),
+							ASSIGN_TO: data.ASSIGN_TO,
+							PROGRESS: data.PROGRESS,
+							LAT_FINDING: data.LAT_FINDING,
+							LONG_FINDING: data.LONG_FINDING,
+							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							INSERT_USER: data.INSERT_USER,
+							INSERT_TIME: Number( data.INSERT_TIME ),
+							STATUS_SYNC: ""
+						} );
+					}
+
+					if ( data.UPDATE_TIME >= start_date && data.UPDATE_TIME <= end_date ) {
+						temp_update.push( {
+							FINDING_CODE: data.FINDING_CODE,
+							WERKS: data.WERKS,
+							AFD_CODE: data.AFD_CODE,
+							BLOCK_CODE: data.BLOCK_CODE,
+							FINDING_CATEGORY: data.FINDING_CATEGORY,
+							FINDING_DESC: data.FINDING_DESC,
+							FINDING_PRIORITY: data.FINDING_PRIORITY,
+							DUE_DATE: Number( data.DUE_DATE ) || 0,
+							STATUS: statusFinding.set( data.PROGRESS ),
+							ASSIGN_TO: data.ASSIGN_TO,
+							PROGRESS: data.PROGRESS,
+							LAT_FINDING: data.LAT_FINDING, 
+							LONG_FINDING: data.LONG_FINDING,
+							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							INSERT_USER: data.INSERT_USER,
+							INSERT_TIME: Number( data.INSERT_TIME ),
+							STATUS_SYNC: ""
+						} );
+					}
+
+				} );
+
+				res.json( {
+					status: true,
+					message: 'Data Sync tanggal ' + date.convert( start_date, 'YYYY-MM-DD hh-mm-ss' ) + ' s/d ' + date.convert( end_date, 'YYYY-MM-DD hh-mm-ss' ),
+					data: {
+						"hapus": temp_delete,
+						"simpan": temp_insert,
+						"ubah": temp_update,
+					}
+				} );
+			} ).catch( err => {
+				res.send( {
+					status: false,
+					message: config.error_message.find_500,
+					data: {}
+				} );
+			} );
+		}
+
+		
+
+	};
+	exports.syncMobile2 = ( req, res ) => {
 		var auth = req.auth;
 		var start_date = req.params.start_date;
 		var end_date = req.params.end_date;
@@ -173,7 +502,6 @@
 			} );
 		}
 
-
 		switch ( ref_role ) {
 			case 'REGION_CODE':
 				location_code_final.forEach( function( q ) {
@@ -200,6 +528,8 @@
 				query[key] = 'NATIONAL';
 			break;
 		}
+
+		console.log( query_search );
 
 		findingModel.find( {
 			DELETE_USER: "",
@@ -248,8 +578,6 @@
 			
 			data_insert.forEach( function( data ) {
 
-
-
 				if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
 					temp_delete.push( {
 						FINDING_CODE: data.FINDING_CODE,
@@ -259,7 +587,6 @@
 						FINDING_CATEGORY: data.FINDING_CATEGORY,
 						FINDING_DESC: data.FINDING_DESC,
 						FINDING_PRIORITY: data.FINDING_PRIORITY,
-						//DUE_DATE: Number( data.DUE_DATE ),
 						DUE_DATE: Number( data.DUE_DATE ) || 0,
 						STATUS: statusFinding.set( data.PROGRESS ),
 						ASSIGN_TO: data.ASSIGN_TO,
@@ -267,8 +594,8 @@
 						LAT_FINDING: data.LAT_FINDING,
 						LONG_FINDING: data.LONG_FINDING,
 						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-						INSERT_USER: result.INSERT_USER,
-						INSERT_TIME: Number( result.INSERT_TIME ),
+						INSERT_USER: data.INSERT_USER,
+						INSERT_TIME: Number( data.INSERT_TIME ),
 						STATUS_SYNC: ""
 					} );
 				}
@@ -282,7 +609,6 @@
 						FINDING_CATEGORY: data.FINDING_CATEGORY,
 						FINDING_DESC: data.FINDING_DESC,
 						FINDING_PRIORITY: data.FINDING_PRIORITY,
-						//DUE_DATE: Number( data.DUE_DATE ),
 						DUE_DATE: Number( data.DUE_DATE ) || 0,
 						STATUS: statusFinding.set( data.PROGRESS ),
 						ASSIGN_TO: data.ASSIGN_TO,
@@ -290,8 +616,8 @@
 						LAT_FINDING: data.LAT_FINDING,
 						LONG_FINDING: data.LONG_FINDING,
 						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-						INSERT_USER: result.INSERT_USER,
-						INSERT_TIME: Number( result.INSERT_TIME ),
+						INSERT_USER: data.INSERT_USER,
+						INSERT_TIME: Number( data.INSERT_TIME ),
 						STATUS_SYNC: ""
 					} );
 				}
@@ -305,8 +631,6 @@
 						FINDING_CATEGORY: data.FINDING_CATEGORY,
 						FINDING_DESC: data.FINDING_DESC,
 						FINDING_PRIORITY: data.FINDING_PRIORITY,
-						//DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-						//DUE_DATE: Number( data.DUE_DATE ),
 						DUE_DATE: Number( data.DUE_DATE ) || 0,
 						STATUS: statusFinding.set( data.PROGRESS ),
 						ASSIGN_TO: data.ASSIGN_TO,
@@ -314,14 +638,14 @@
 						LAT_FINDING: data.LAT_FINDING, 
 						LONG_FINDING: data.LONG_FINDING,
 						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-						INSERT_USER: result.INSERT_USER,
-						INSERT_TIME: Number( result.INSERT_TIME ),
+						INSERT_USER: data.INSERT_USER,
+						INSERT_TIME: Number( data.INSERT_TIME ),
 						STATUS_SYNC: ""
 					} );
 				}
 
 			} );
-			
+
 			res.json( {
 				status: true,
 				message: 'Data Sync tanggal ' + date.convert( start_date, 'YYYY-MM-DD hh-mm-ss' ) + ' s/d ' + date.convert( end_date, 'YYYY-MM-DD hh-mm-ss' ),
@@ -369,6 +693,8 @@
 		// Update Data Finding
 		if ( check.length > 0 ) {
 			
+			console.log( 'UPDATE' );
+			console.log( req.body );
 			
 			findingModel.findOneAndUpdate( { 
 				FINDING_CODE : req.body.FINDING_CODE
@@ -378,14 +704,14 @@
 				FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
 				FINDING_DESC: req.body.FINDING_DESC || "",
 				FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-				DUE_DATE: req.body.DUE_DATE || 0,
+				DUE_DATE: Number( req.body.DUE_DATE ) || 0,
 				ASSIGN_TO: req.body.ASSIGN_TO || "",
 				PROGRESS: req.body.PROGRESS || "",
 				LAT_FINDING: req.body.LAT_FINDING || "",
 				LONG_FINDING: req.body.LONG_FINDING || "",
 				REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
 				UPDATE_USER: req.body.INSERT_USER,
-				UPDATE_TIME: req.body.INSERT_TIME || 0
+				UPDATE_TIME: Number( req.body.INSERT_TIME ) || 0
 			}, { new: true } )
 			.then( data => {
 				if ( !data ) {
@@ -437,6 +763,8 @@
 		}
 		// Insert Data Finding
 		else {
+			console.log( 'INSERT' );
+			console.log( req.body );
 			const set_data = new findingModel( {
 				FINDING_CODE: req.body.FINDING_CODE || "",
 				WERKS: req.body.WERKS || "",
@@ -626,6 +954,7 @@
 		var ref_role = auth.REFFERENCE_ROLE;
 		var location_code_final = [];
 		var query_search = [];
+		var afd_code = '';
 
 		if ( ref_role != 'ALL' ) {
 			location_code_group.forEach( function( data ) {
@@ -637,7 +966,7 @@
 						location_code_final.push( data.substr( 0, 2 ) );
 					break;
 					case 'AFD_CODE':
-						location_code_final.push( data.substr( 0, 4 ) );
+						location_code_final.push( data );
 					break;
 					case 'BA_CODE':
 						location_code_final.push( data.substr( 0, 4 ) );
@@ -645,7 +974,6 @@
 				}
 			} );
 		}
-
 
 		switch ( ref_role ) {
 			case 'REGION_CODE':
@@ -661,6 +989,7 @@
 			case 'AFD_CODE':
 				location_code_final.forEach( function( q ) {
 					query_search.push( new RegExp( '^' + q.substr( 0, 4 ) ) )
+					afd_code = q.substr( 4, 10 );
 				} );
 			break;
 			case 'BA_CODE':
@@ -674,10 +1003,22 @@
 			break;
 		}
 
-		findingModel.find( {
-			DELETE_USER: "",
-			WERKS: query_search
-		} )
+		if ( ref_role != 'AFD_CODE' ) {
+			var qs = {
+				DELETE_USER: "",
+				WERKS: query_search
+			}
+		}
+		else {
+			var qs = {
+				DELETE_USER: "",
+				WERKS: query_search,
+				AFD_CODE: afd_code
+			}
+		}
+
+
+		findingModel.find( qs )
 		.select( {
 			_id: 0,
 			UPDATE_USER: 0,
