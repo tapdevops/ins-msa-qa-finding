@@ -179,6 +179,113 @@
 	};
 
 /**
+ * findReport
+ * Untuk menampilkan seluruh data tanpa batasan REFFERENCE_ROLE dan LOCATION_CODE
+ * --------------------------------------------------------------------------
+ */
+	exports.findReport = ( req, res ) => {
+
+		var url_query = req.query;
+		var url_query_length = Object.keys( url_query ).length;
+		var query = {};
+			query.DELETE_USER = "";
+
+		if ( req.query.WERKS ) {
+			var length_werks = String( req.query.WERKS ).length;
+
+			if ( length_werks < 4 ) {
+				query.WERKS = new RegExp( '^' + req.query.WERKS );
+			}
+			else {
+				query.WERKS = req.query.WERKS;
+			}
+		}
+
+		if ( req.query.AFD_CODE ) {
+			query.AFD_CODE = req.query.AFD_CODE;
+		}
+
+		if ( req.query.BLOCK_CODE ) {
+			query.BLOCK_CODE = req.query.BLOCK_CODE;
+		}
+
+		/*
+		DELETE_USER: "",
+				WERKS: query_search,
+				//ASSIGN_TO: auth.USER_AUTH_CODE,
+				$and: [
+					{
+						$or: [
+							{
+								INSERT_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							}
+						]
+					}
+				]
+				*/
+			console.log(query);
+
+
+		findingModel.find( 
+			query 
+		)
+		.select( {
+			_id: 0,
+			__v: 0
+		} )
+		.then( data => {
+			if( !data ) {
+				return res.send( {
+					status: false,
+					message: config.error_message.find_404,
+					data: {}
+				} );
+			}
+			var results = [];
+			data.forEach( function( result ) {
+				results.push( {
+					FINDING_CODE: result.FINDING_CODE,
+					WERKS: result.WERKS,
+					AFD_CODE: result.AFD_CODE,
+					BLOCK_CODE: result.BLOCK_CODE,
+					FINDING_CATEGORY: result.FINDING_CATEGORY,
+					FINDING_DESC: result.FINDING_DESC,
+					FINDING_PRIORITY: result.FINDING_PRIORITY,
+					DUE_DATE: date.convert( String( result.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+					STATUS: statusFinding.set( result.PROGRESS ),
+					ASSIGN_TO: result.ASSIGN_TO,
+					PROGRESS: result.PROGRESS,
+					LAT_FINDING: result.LAT_FINDING,
+					LONG_FINDING: result.LONG_FINDING,
+					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
+					INSERT_USER: result.INSERT_USER,
+					INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+					UPDATE_USER: result.UPDATE_USER,
+					UPDATE_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+				} );
+			} );
+			//XXX
+			//////////
+
+			res.send( {
+				status: true,
+				message: config.error_message.find_200,
+				data: results
+			} );
+		} ).catch( err => {
+			res.send( {
+				status: false,
+				message: config.error_message.find_500,
+				data: {}
+			} );
+		} );
+
+	};
+
+/**
  * syncMobile
  * Untuk menyediakan data mobile
  * --------------------------------------------------------------------------

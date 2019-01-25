@@ -62,6 +62,8 @@ module.exports = ( app ) => {
 	app.post( '/finding', token_verify, finding.create );
 	app.get( '/finding/all', token_verify, finding.findAll );
 	app.get( '/finding/q', token_verify, finding.findAll );
+	app.get( '/finding-report/all', token_verify, finding.findReport );
+	app.get( '/finding-report/q', token_verify, finding.findReport );
 	app.get( '/finding', token_verify, finding.find );
 	app.get( '/finding/:id', token_verify, finding.findOne );
 	app.get( '/finding-history', verifyToken, finding.findByTokenAuthCode );
