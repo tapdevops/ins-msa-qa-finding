@@ -255,10 +255,33 @@
 		}
 
 		if ( results.length > 0 ) {
+			var set_data = [];
+			results.forEach( function( result ) {
+				set_data.push( {
+					FINDING_CODE: result.FINDING_CODE,
+					WERKS: result.WERKS,
+					AFD_CODE: result.AFD_CODE,
+					BLOCK_CODE: result.BLOCK_CODE,
+					FINDING_CATEGORY: result.FINDING_CATEGORY,
+					FINDING_DESC: result.FINDING_DESC,
+					FINDING_PRIORITY: result.FINDING_PRIORITY,
+					DUE_DATE: date.convert( String( result.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+					STATUS: statusFinding.set( result.PROGRESS ),
+					ASSIGN_TO: result.ASSIGN_TO,
+					PROGRESS: result.PROGRESS,
+					LAT_FINDING: result.LAT_FINDING,
+					LONG_FINDING: result.LONG_FINDING,
+					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
+					INSERT_USER: result.INSERT_USER,
+					INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+					UPDATE_USER: result.UPDATE_USER,
+					UPDATE_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+				} );
+			} );
 			res.send( {
 				status: true,
 				message: config.error_message.find_200,
-				data: results
+				data: set_data
 			} );
 		}
 		else {
