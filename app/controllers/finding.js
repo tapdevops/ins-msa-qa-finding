@@ -183,7 +183,171 @@
  * Untuk menampilkan seluruh data tanpa batasan REFFERENCE_ROLE dan LOCATION_CODE
  * --------------------------------------------------------------------------
  */
-	exports.findReport = ( req, res ) => {
+
+ 	exports.findReport = async ( req, res ) => {
+
+		var url_query = req.query;
+		var url_query_length = Object.keys( url_query ).length;
+		var query = {};
+			query.DELETE_USER = "";
+
+		// Find By Region Code
+		if ( req.query.REGION_CODE && !req.query.COMP_CODE ) {
+			console.log( 'Find By Region Code' );
+			var results = await findingModel.find( {
+				WERKS: new RegExp( '^' + req.query.REGION_CODE.substr( 1, 2 ) ),
+				INSERT_TIME: {
+					$gte: Number( req.query.START_DATE ),
+					$lte: Number( req.query.END_DATE )
+				}
+			} );
+		}
+
+		// Find By Comp Code
+		if ( req.query.COMP_CODE && !req.query.WERKS ) {
+			console.log( 'Find By Comp Code' );
+			var results = await findingModel.find( {
+				WERKS: new RegExp( '^' + req.query.COMP_CODE.substr( 0, 2 ) ),
+				INSERT_TIME: {
+					$gte: Number( req.query.START_DATE ),
+					$lte: Number( req.query.END_DATE )
+				}
+			} );
+		}
+
+		// Find By BA Code / WERKS
+		if ( req.query.WERKS && !req.query.AFD_CODE ) {
+			console.log( 'Find By BA Code / WERKS' );
+			var results = await findingModel.find( {
+				WERKS: new RegExp( '^' + req.query.WERKS.substr( 0, 4 ) ),
+				INSERT_TIME: {
+					$gte: Number( req.query.START_DATE ),
+					$lte: Number( req.query.END_DATE )
+				}
+			} );
+		}
+
+		// Find By AFD Code
+		if ( req.query.AFD_CODE && req.query.WERKS && !req.query.BLOCK_CODE ) {
+			console.log( 'Find By AFD Code' );
+			var results = await findingModel.find( {
+				WERKS: req.query.WERKS,
+				AFD_CODE: req.query.AFD_CODE,
+				INSERT_TIME: {
+					$gte: Number( req.query.START_DATE ),
+					$lte: Number( req.query.END_DATE )
+				}
+			} );
+		}
+
+		// Find By Block Code
+		if ( req.query.BLOCK_CODE && req.query.AFD_CODE && req.query.WERKS ) {
+			console.log( 'Find By Block Code' );
+			var results = await findingModel.find( {
+				WERKS: req.query.WERKS,
+				AFD_CODE: req.query.AFD_CODE,
+				BLOCK_CODE: req.query.BLOCK_CODE,
+				INSERT_TIME: {
+					$gte: Number( req.query.START_DATE ),
+					$lte: Number( req.query.END_DATE )
+				}
+			} );
+		}
+
+		if ( results.length > 0 ) {
+			res.send( {
+				status: true,
+				message: config.error_message.find_200,
+				data: results
+			} );
+		}
+		else {
+			return res.send( {
+				status: true,
+				message: config.error_message.find_200,
+				data: {}
+			} );
+		}
+
+
+
+		/*
+		DELETE_USER: "",
+				WERKS: query_search,
+				//ASSIGN_TO: auth.USER_AUTH_CODE,
+				$and: [
+					{
+						$or: [
+							{
+								INSERT_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							}
+						]
+					}
+				]
+				*/
+
+		/*
+		findingModel.find( 
+			query 
+		)
+		.select( {
+			_id: 0,
+			__v: 0
+		} )
+		.then( data => {
+			if( !data ) {
+				return res.send( {
+					status: false,
+					message: config.error_message.find_404,
+					data: {}
+				} );
+			}
+			var results = [];
+			data.forEach( function( result ) {
+				results.push( {
+					FINDING_CODE: result.FINDING_CODE,
+					WERKS: result.WERKS,
+					AFD_CODE: result.AFD_CODE,
+					BLOCK_CODE: result.BLOCK_CODE,
+					FINDING_CATEGORY: result.FINDING_CATEGORY,
+					FINDING_DESC: result.FINDING_DESC,
+					FINDING_PRIORITY: result.FINDING_PRIORITY,
+					DUE_DATE: date.convert( String( result.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+					STATUS: statusFinding.set( result.PROGRESS ),
+					ASSIGN_TO: result.ASSIGN_TO,
+					PROGRESS: result.PROGRESS,
+					LAT_FINDING: result.LAT_FINDING,
+					LONG_FINDING: result.LONG_FINDING,
+					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
+					INSERT_USER: result.INSERT_USER,
+					INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+					UPDATE_USER: result.UPDATE_USER,
+					UPDATE_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+				} );
+			} );
+			//XXX
+			//////////
+
+			res.send( {
+				status: true,
+				message: config.error_message.find_200,
+				data: results
+			} );
+		} ).catch( err => {
+			res.send( {
+				status: false,
+				message: config.error_message.find_500,
+				data: {}
+			} );
+		} );
+		*/
+
+	};
+
+	exports.findReport2 = ( req, res ) => {
 
 		var url_query = req.query;
 		var url_query_length = Object.keys( url_query ).length;
@@ -208,6 +372,8 @@
 		if ( req.query.BLOCK_CODE ) {
 			query.BLOCK_CODE = req.query.BLOCK_CODE;
 		}
+
+
 
 		/*
 		DELETE_USER: "",
