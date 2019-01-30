@@ -604,7 +604,7 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: Number( data.INSERT_TIME ),
-							STATUS_SYNC: ""
+							STATUS_SYNC: "N"
 						} );
 					}
 
@@ -627,7 +627,7 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: Number( data.INSERT_TIME ),
-							STATUS_SYNC: ""
+							STATUS_SYNC: "N"
 						} );
 					}
 
@@ -650,7 +650,7 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: Number( data.INSERT_TIME ),
-							STATUS_SYNC: ""
+							STATUS_SYNC: "N"
 						} );
 					}
 
@@ -741,7 +741,7 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: Number( data.INSERT_TIME ),
-							STATUS_SYNC: ""
+							STATUS_SYNC: "N"
 						} );
 					}
 
@@ -764,7 +764,7 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: Number( data.INSERT_TIME ),
-							STATUS_SYNC: ""
+							STATUS_SYNC: "N"
 						} );
 					}
 
@@ -787,7 +787,7 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: Number( data.INSERT_TIME ),
-							STATUS_SYNC: ""
+							STATUS_SYNC: "N"
 						} );
 					}
 
