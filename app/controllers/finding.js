@@ -32,6 +32,8 @@
 
 	exports.syncMobileImages = async ( req, res ) => {
 
+		console.log('A');
+
 		var auth = req.auth;
 		var start_date = req.params.start_date;
 		var end_date = req.params.end_date;
@@ -83,17 +85,18 @@
 				} );
 			break;
 			case 'NATIONAL':
-				key = 'NATIONAL';
-				query[key] = 'NATIONAL';
+				//key = 'NATIONAL';
+				//query[key] = 'NATIONAL';
 			break;
 		}
 
 
-		if ( ref_role != 'AFD_CODE' ) {
+		if ( ref_role == 'AFD_CODE' ) {
 			var query = await findingModel
 				.find( {
 					DELETE_USER: "",
 					WERKS: query_search,
+					AFD_CODE: afd_code,
 					//ASSIGN_TO: auth.USER_AUTH_CODE,
 					$and: [
 						{
@@ -115,13 +118,37 @@
 					INSERT_TIME: 1
 				} )
 				.sort( { 'DUE_DATE': 1 } );
+			
+		}
+		else if ( ref_role == 'NATIONAL' ) {
+			var query = await findingModel
+				.find( {
+					DELETE_USER: "",
+					$and: [
+						{
+							$or: [
+								{
+									INSERT_TIME: {
+										$gte: start_date,
+										$lte: end_date
+									}
+								}
+							]
+						}
+					]
+				} )
+				.select( {
+					_id: 0,
+					FINDING_CODE: 1,
+					INSERT_TIME: 1
+				} )
+				.sort( { 'DUE_DATE': 1 } );
 		}
 		else {
 			var query = await findingModel
 				.find( {
 					DELETE_USER: "",
 					WERKS: query_search,
-					AFD_CODE: afd_code,
 					//ASSIGN_TO: auth.USER_AUTH_CODE,
 					$and: [
 						{
@@ -1317,8 +1344,6 @@
 			} );
 		}
 
-
-
 		switch ( ref_role ) {
 			case 'REGION_CODE':
 				location_code_final.forEach( function( q ) {
@@ -1345,8 +1370,6 @@
 		}
 
 		if ( ref_role == 'AFD_CODE' ) {
-			
-			console.log('B')
 			var qs = {
 				DELETE_USER: "",
 				WERKS: query_search,
@@ -1354,14 +1377,11 @@
 			}
 		}
 		else if ( ref_role == 'NATIONAL' ) {
-			
-			console.log('B')
 			var qs = {
 				DELETE_USER: ""
 			}
 		}
 		else {
-			console.log('A');
 			var qs = {
 				DELETE_USER: "",
 				WERKS: query_search
