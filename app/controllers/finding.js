@@ -1296,7 +1296,7 @@
 		var ref_role = auth.REFFERENCE_ROLE;
 		var location_code_final = [];
 		var query_search = [];
-		var afd_code = '';
+		var afd_code = [];
 
 		if ( ref_role != 'ALL' ) {
 			location_code_group.forEach( function( data ) {
@@ -1316,6 +1316,8 @@
 				}
 			} );
 		}
+
+
 
 		switch ( ref_role ) {
 			case 'REGION_CODE':
@@ -1339,23 +1341,30 @@
 					query_search.push( q );
 				} );
 			break;
-			case 'NATIONAL':
-				key = 'NATIONAL';
-				query[key] = 'NATIONAL';
-			break;
+		
 		}
 
-		if ( ref_role != 'AFD_CODE' ) {
-			var qs = {
-				DELETE_USER: "",
-				WERKS: query_search
-			}
-		}
-		else {
+		if ( ref_role == 'AFD_CODE' ) {
+			
+			console.log('B')
 			var qs = {
 				DELETE_USER: "",
 				WERKS: query_search,
 				AFD_CODE: afd_code
+			}
+		}
+		else if ( ref_role == 'NATIONAL' ) {
+			
+			console.log('B')
+			var qs = {
+				DELETE_USER: ""
+			}
+		}
+		else {
+			console.log('A');
+			var qs = {
+				DELETE_USER: "",
+				WERKS: query_search
 			}
 		}
 
