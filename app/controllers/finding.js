@@ -1078,8 +1078,8 @@
 				LAT_FINDING: req.body.LAT_FINDING || "",
 				LONG_FINDING: req.body.LONG_FINDING || "",
 				REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-				UPDATE_USER: req.body.INSERT_USER,
-				UPDATE_TIME: Number( req.body.INSERT_TIME ) || 0
+				UPDATE_USER: auth.USER_AUTH_CODE,
+				UPDATE_TIME: date.convert( 'now', 'YYYYMMDDhhmmss' ),
 			}, { new: true } )
 			.then( data => {
 				if ( !data ) {
