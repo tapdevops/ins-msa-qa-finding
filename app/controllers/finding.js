@@ -768,7 +768,7 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: Number( data.INSERT_TIME ),
-							STATUS_SYNC: "N"
+							STATUS_SYNC: "Y"
 						} );
 					}
 
@@ -791,7 +791,7 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: Number( data.INSERT_TIME ),
-							STATUS_SYNC: "N"
+							STATUS_SYNC: "Y"
 						} );
 					}
 
@@ -814,7 +814,7 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: Number( data.INSERT_TIME ),
-							STATUS_SYNC: "N"
+							STATUS_SYNC: "Y"
 						} );
 					}
 
@@ -1429,7 +1429,7 @@
 					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
 					INSERT_USER: result.INSERT_USER,
 					INSERT_TIME: Number( result.INSERT_TIME ),
-					STATUS_SYNC: ""
+					STATUS_SYNC: "Y"
 					//INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 
 					
