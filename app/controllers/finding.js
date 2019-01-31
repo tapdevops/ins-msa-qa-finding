@@ -681,7 +681,7 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: data.INSERT_TIME || 0,
-							STATUS_SYNC: "N"
+							STATUS_SYNC: "Y"
 						} );
 					}
 
