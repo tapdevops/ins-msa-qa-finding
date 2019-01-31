@@ -763,7 +763,7 @@
 							FINDING_DESC: data.FINDING_DESC,
 							FINDING_PRIORITY: data.FINDING_PRIORITY,
 							//DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: date.convert( data.DUE_DATE, 'YYYYMMDDhhmmss' ),
+							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS: statusFinding.set( data.PROGRESS ),
 							ASSIGN_TO: data.ASSIGN_TO,
 							PROGRESS: data.PROGRESS,
@@ -786,7 +786,7 @@
 							FINDING_DESC: data.FINDING_DESC,
 							FINDING_PRIORITY: data.FINDING_PRIORITY,
 							//DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: date.convert( data.DUE_DATE, 'YYYYMMDDhhmmss' ),
+							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS: statusFinding.set( data.PROGRESS ),
 							ASSIGN_TO: data.ASSIGN_TO,
 							PROGRESS: data.PROGRESS,
@@ -795,7 +795,7 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: Number( data.INSERT_TIME ),
-							STATUS_SYNC: "Y"
+							STATUS_SYNC: "N"
 						} );
 					}
 
@@ -809,7 +809,7 @@
 							FINDING_DESC: data.FINDING_DESC,
 							FINDING_PRIORITY: data.FINDING_PRIORITY,
 							//DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: date.convert( data.DUE_DATE, 'YYYYMMDDhhmmss' ),
+							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS: statusFinding.set( data.PROGRESS ),
 							ASSIGN_TO: data.ASSIGN_TO,
 							PROGRESS: data.PROGRESS,
