@@ -564,6 +564,9 @@
 			break;
 		}
 
+		console.log(query_search);
+		
+
 		if ( ref_role != 'AFD_CODE' ) {
 			findingModel.find( {
 				DELETE_USER: "",
@@ -598,6 +601,7 @@
 				__v: 0
 			} )
 			.then( data_insert => {
+				
 				if( !data_insert ) {
 					return res.send( {
 						status: false,
@@ -622,7 +626,7 @@
 							FINDING_DESC: data.FINDING_DESC,
 							FINDING_PRIORITY: data.FINDING_PRIORITY,
 							//DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: date.convert( data.DUE_DATE, 'YYYYMMDDhhmmss' ),
+							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS: statusFinding.set( data.PROGRESS ),
 							ASSIGN_TO: data.ASSIGN_TO,
 							PROGRESS: data.PROGRESS,
@@ -630,7 +634,7 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: Number( data.INSERT_TIME ),
+							INSERT_TIME: data.INSERT_TIME,
 							STATUS_SYNC: "N"
 						} );
 					}
@@ -645,7 +649,7 @@
 							FINDING_DESC: data.FINDING_DESC,
 							FINDING_PRIORITY: data.FINDING_PRIORITY,
 							//DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: date.convert( data.DUE_DATE, 'YYYYMMDDhhmmss' ),
+							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS: statusFinding.set( data.PROGRESS ),
 							ASSIGN_TO: data.ASSIGN_TO,
 							PROGRESS: data.PROGRESS,
@@ -653,7 +657,7 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: Number( data.INSERT_TIME ),
+							INSERT_TIME: data.INSERT_TIME || 0,
 							STATUS_SYNC: "N"
 						} );
 					}
@@ -668,7 +672,7 @@
 							FINDING_DESC: data.FINDING_DESC,
 							FINDING_PRIORITY: data.FINDING_PRIORITY,
 							//DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: date.convert( data.DUE_DATE, 'YYYYMMDDhhmmss' ),
+							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS: statusFinding.set( data.PROGRESS ),
 							ASSIGN_TO: data.ASSIGN_TO,
 							PROGRESS: data.PROGRESS,
@@ -676,7 +680,7 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: Number( data.INSERT_TIME ),
+							INSERT_TIME: data.INSERT_TIME || 0,
 							STATUS_SYNC: "N"
 						} );
 					}
@@ -837,6 +841,7 @@
 				} );
 			} );
 		}
+		
 
 		
 
