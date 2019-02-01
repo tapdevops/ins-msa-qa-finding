@@ -509,8 +509,7 @@
 
  	exports.syncMobile = ( req, res ) => {
 		var auth = req.auth;
-		//var start_date = req.params.start_date;
-		var start_date = date.convert( String( req.params.start_date ), 'YYYYMMDD' );
+		var start_date = req.params.start_date;
 		var end_date = req.params.end_date;
 		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
 		var ref_role = auth.REFFERENCE_ROLE;
