@@ -610,9 +610,13 @@
 					} );
 				}
 
+				//console.log( data_insert );
+
 				var temp_insert = [];
 				var temp_update = [];
 				var temp_delete = [];
+
+				//console.log(data_insert);
 				
 				data_insert.forEach( function( data ) {
 
@@ -627,7 +631,7 @@
 							FINDING_PRIORITY: data.FINDING_PRIORITY,
 							//DUE_DATE: Number( data.DUE_DATE ) || 0,
 							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: statusFinding.set( data.PROGRESS ),
+							STATUS: statusFinding.set( String( data.PROGRESS ) ),
 							ASSIGN_TO: data.ASSIGN_TO,
 							PROGRESS: data.PROGRESS,
 							LAT_FINDING: data.LAT_FINDING,
@@ -640,6 +644,7 @@
 					}
 
 					if ( data.INSERT_TIME >= start_date && data.INSERT_TIME <= end_date ) {
+						//console.log(result.PROGRESS );
 						temp_insert.push( {
 							FINDING_CODE: data.FINDING_CODE,
 							WERKS: data.WERKS,
@@ -650,7 +655,7 @@
 							FINDING_PRIORITY: data.FINDING_PRIORITY,
 							//DUE_DATE: Number( data.DUE_DATE ) || 0,
 							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: statusFinding.set( data.PROGRESS ),
+							STATUS: statusFinding.set( String( data.PROGRESS ) ),
 							ASSIGN_TO: data.ASSIGN_TO,
 							PROGRESS: data.PROGRESS,
 							LAT_FINDING: data.LAT_FINDING,
@@ -673,7 +678,7 @@
 							FINDING_PRIORITY: data.FINDING_PRIORITY,
 							//DUE_DATE: Number( data.DUE_DATE ) || 0,
 							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: statusFinding.set( data.PROGRESS ),
+							STATUS: statusFinding.set( String( data.PROGRESS ) ),
 							ASSIGN_TO: data.ASSIGN_TO,
 							PROGRESS: data.PROGRESS,
 							LAT_FINDING: data.LAT_FINDING, 
@@ -684,7 +689,6 @@
 							STATUS_SYNC: "Y"
 						} );
 					}
-
 				} );
 
 				res.json( {
@@ -697,6 +701,7 @@
 					}
 				} );
 			} ).catch( err => {
+				console.log(err);
 				res.send( {
 					status: false,
 					message: config.error_message.find_500,
@@ -764,7 +769,7 @@
 							FINDING_PRIORITY: data.FINDING_PRIORITY,
 							//DUE_DATE: Number( data.DUE_DATE ) || 0,
 							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: statusFinding.set( data.PROGRESS ),
+							STATUS: statusFinding.set( String( data.PROGRESS ) ),
 							ASSIGN_TO: data.ASSIGN_TO,
 							PROGRESS: data.PROGRESS,
 							LAT_FINDING: data.LAT_FINDING,
@@ -774,6 +779,8 @@
 							INSERT_TIME: Number( data.INSERT_TIME ),
 							STATUS_SYNC: "Y"
 						} );
+
+
 					}
 
 					if ( data.INSERT_TIME >= start_date && data.INSERT_TIME <= end_date ) {
@@ -787,7 +794,7 @@
 							FINDING_PRIORITY: data.FINDING_PRIORITY,
 							//DUE_DATE: Number( data.DUE_DATE ) || 0,
 							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: statusFinding.set( data.PROGRESS ),
+							STATUS: statusFinding.set( String( data.PROGRESS ) ),
 							ASSIGN_TO: data.ASSIGN_TO,
 							PROGRESS: data.PROGRESS,
 							LAT_FINDING: data.LAT_FINDING,
@@ -808,9 +815,9 @@
 							FINDING_CATEGORY: data.FINDING_CATEGORY,
 							FINDING_DESC: data.FINDING_DESC,
 							FINDING_PRIORITY: data.FINDING_PRIORITY,
-							//DUE_DATE: Number( data.DUE_DATE ) || 0,
+							DUE_DATE: Number( data.DUE_DATE ) || 0,
 							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: statusFinding.set( data.PROGRESS ),
+							STATUS: statusFinding.set( String( data.PROGRESS ) ),
 							ASSIGN_TO: data.ASSIGN_TO,
 							PROGRESS: data.PROGRESS,
 							LAT_FINDING: data.LAT_FINDING, 
@@ -1044,7 +1051,7 @@
  */
 	exports.create = async ( req, res ) => {
 			
-		if( !req.body.WERKS || !req.body.AFD_CODE || !req.body.BLOCK_CODE || !req.body.FINDING_CODE ) {
+		if( !req.body.WERKS || !req.body.AFD_CODE || !req.body.BLOCK_CODE || !req.body.FINDING_CODE || !req.body.PROGRESS || !req.body.DUE_DATE ) {
 			return res.send({
 				status: false,
 				message: config.error_message.invalid_input,
