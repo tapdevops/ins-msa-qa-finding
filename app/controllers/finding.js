@@ -43,6 +43,7 @@
 		var query_search = [];
 		var afd_code = '';
 
+
 		if ( ref_role != 'ALL' ) {
 			location_code_group.forEach( function( data ) {
 				switch ( ref_role ) {
@@ -302,7 +303,7 @@
 					INSERT_USER: result.INSERT_USER,
 					INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 					UPDATE_USER: result.UPDATE_USER,
-					UPDATE_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+					UPDATE_TIME: date.convert( String( result.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 				} );
 			} );
 			res.send( {
@@ -442,7 +443,6 @@
 					}
 				]
 				*/
-			console.log(query);
 
 
 		findingModel.find( 
@@ -483,9 +483,7 @@
 					UPDATE_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 				} );
 			} );
-			//XXX
-			//////////
-
+			
 			res.send( {
 				status: true,
 				message: config.error_message.find_200,
@@ -848,11 +846,8 @@
 				} );
 			} );
 		}
-		
-
-		
-
 	};
+
 	exports.syncMobile2 = ( req, res ) => {
 		var auth = req.auth;
 		var start_date = req.params.start_date;
