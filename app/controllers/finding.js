@@ -92,7 +92,10 @@
 		}
 
 
+
+
 		if ( ref_role == 'AFD_CODE' ) {
+			console.log( 'AFD_CODE' );
 			var query = await findingModel
 				.find( {
 					DELETE_USER: "",
@@ -122,19 +125,16 @@
 			
 		}
 		else if ( ref_role == 'NATIONAL' ) {
+			console.log( 'NATIONAL' );
 			var query = await findingModel
 				.find( {
 					DELETE_USER: "",
 					$and: [
 						{
-							$or: [
-								{
-									INSERT_TIME: {
-										$gte: start_date,
-										$lte: end_date
-									}
-								}
-							]
+							INSERT_TIME: {
+								$gte: start_date,
+								$lte: end_date
+							}
 						}
 					]
 				} )
@@ -144,8 +144,10 @@
 					INSERT_TIME: 1
 				} )
 				.sort( { 'DUE_DATE': 1 } );
+			console.log(query);
 		}
 		else {
+			console.log( 'BA_CODE, AFD_CODE, NATIONAL' );
 			var query = await findingModel
 				.find( {
 					DELETE_USER: "",
