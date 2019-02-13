@@ -557,15 +557,293 @@
 				} );
 			break;
 			case 'NATIONAL':
-				key = 'NATIONAL';
-				query[key] = 'NATIONAL';
+				//key = 'NATIONAL';
+				//query[key] = 'NATIONAL';
 			break;
 		}
 
-		console.log(query_search);
-		
+		//console.log(query_search);
+		//console.log( 'ABC: ' + ref_role );
 
-		if ( ref_role != 'AFD_CODE' ) {
+		
+		if ( ref_role == 'NATIONAL' ) {
+			console.log( ref_role );
+			findingModel.find( {
+				DELETE_USER: "",
+				$and: [
+					{
+						$or: [
+							{
+								INSERT_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							},
+							{
+								UPDATE_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							},
+							{
+								DELETE_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							}
+						]
+					}
+				]
+			} )
+			.select( {
+				_id: 0,
+				__v: 0
+			} )
+			.then( data_insert => {
+				if( !data_insert ) {
+					return res.send( {
+						status: false,
+						message: config.error_message.find_404,
+						data: {}
+					} );
+				}
+
+				var temp_insert = [];
+				var temp_update = [];
+				var temp_delete = [];
+				
+				data_insert.forEach( function( data ) {
+
+					if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
+						temp_delete.push( {
+							FINDING_CODE: data.FINDING_CODE,
+							WERKS: data.WERKS,
+							AFD_CODE: data.AFD_CODE,
+							BLOCK_CODE: data.BLOCK_CODE,
+							FINDING_CATEGORY: data.FINDING_CATEGORY,
+							FINDING_DESC: data.FINDING_DESC,
+							FINDING_PRIORITY: data.FINDING_PRIORITY,
+							//DUE_DATE: Number( data.DUE_DATE ) || 0,
+							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+							STATUS: statusFinding.set( String( data.PROGRESS ) ),
+							ASSIGN_TO: data.ASSIGN_TO,
+							PROGRESS: data.PROGRESS,
+							LAT_FINDING: data.LAT_FINDING,
+							LONG_FINDING: data.LONG_FINDING,
+							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							INSERT_USER: data.INSERT_USER,
+							INSERT_TIME: Number( data.INSERT_TIME ),
+							STATUS_SYNC: "Y"
+						} );
+
+
+					}
+
+					if ( data.INSERT_TIME >= start_date && data.INSERT_TIME <= end_date ) {
+						temp_insert.push( {
+							FINDING_CODE: data.FINDING_CODE,
+							WERKS: data.WERKS,
+							AFD_CODE: data.AFD_CODE,
+							BLOCK_CODE: data.BLOCK_CODE,
+							FINDING_CATEGORY: data.FINDING_CATEGORY,
+							FINDING_DESC: data.FINDING_DESC,
+							FINDING_PRIORITY: data.FINDING_PRIORITY,
+							//DUE_DATE: Number( data.DUE_DATE ) || 0,
+							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+							STATUS: statusFinding.set( String( data.PROGRESS ) ),
+							ASSIGN_TO: data.ASSIGN_TO,
+							PROGRESS: data.PROGRESS,
+							LAT_FINDING: data.LAT_FINDING,
+							LONG_FINDING: data.LONG_FINDING,
+							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							INSERT_USER: data.INSERT_USER,
+							INSERT_TIME: Number( data.INSERT_TIME ),
+							STATUS_SYNC: "N"
+						} );
+					}
+
+					if ( data.UPDATE_TIME >= start_date && data.UPDATE_TIME <= end_date ) {
+						temp_update.push( {
+							FINDING_CODE: data.FINDING_CODE,
+							WERKS: data.WERKS,
+							AFD_CODE: data.AFD_CODE,
+							BLOCK_CODE: data.BLOCK_CODE,
+							FINDING_CATEGORY: data.FINDING_CATEGORY,
+							FINDING_DESC: data.FINDING_DESC,
+							FINDING_PRIORITY: data.FINDING_PRIORITY,
+							DUE_DATE: Number( data.DUE_DATE ) || 0,
+							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+							STATUS: statusFinding.set( String( data.PROGRESS ) ),
+							ASSIGN_TO: data.ASSIGN_TO,
+							PROGRESS: data.PROGRESS,
+							LAT_FINDING: data.LAT_FINDING, 
+							LONG_FINDING: data.LONG_FINDING,
+							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							INSERT_USER: data.INSERT_USER,
+							INSERT_TIME: Number( data.INSERT_TIME ),
+							STATUS_SYNC: "Y"
+						} );
+					}
+
+				} );
+
+				res.json( {
+					status: true,
+					message: 'Data Sync tanggal ' + date.convert( start_date, 'YYYY-MM-DD hh-mm-ss' ) + ' s/d ' + date.convert( end_date, 'YYYY-MM-DD hh-mm-ss' ),
+					data: {
+						"hapus": temp_delete,
+						"simpan": temp_insert,
+						"ubah": temp_update,
+					}
+				} );
+			} ).catch( err => {
+				res.send( {
+					status: false,
+					message: config.error_message.find_500,
+					data: {}
+				} );
+			} );
+		}
+		else if ( ref_role == 'AFD_CODE' ) {
+			findingModel.find( {
+				DELETE_USER: "",
+				WERKS: query_search,
+				AFD_CODE: afd_code,
+				$and: [
+					{
+						$or: [
+							{
+								INSERT_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							},
+							{
+								UPDATE_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							},
+							{
+								DELETE_TIME: {
+									$gte: start_date,
+									$lte: end_date
+								}
+							}
+						]
+					}
+				]
+			} )
+			.select( {
+				_id: 0,
+				__v: 0
+			} )
+			.then( data_insert => {
+				if( !data_insert ) {
+					return res.send( {
+						status: false,
+						message: config.error_message.find_404,
+						data: {}
+					} );
+				}
+
+				var temp_insert = [];
+				var temp_update = [];
+				var temp_delete = [];
+				
+				data_insert.forEach( function( data ) {
+
+					if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
+						temp_delete.push( {
+							FINDING_CODE: data.FINDING_CODE,
+							WERKS: data.WERKS,
+							AFD_CODE: data.AFD_CODE,
+							BLOCK_CODE: data.BLOCK_CODE,
+							FINDING_CATEGORY: data.FINDING_CATEGORY,
+							FINDING_DESC: data.FINDING_DESC,
+							FINDING_PRIORITY: data.FINDING_PRIORITY,
+							//DUE_DATE: Number( data.DUE_DATE ) || 0,
+							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+							STATUS: statusFinding.set( String( data.PROGRESS ) ),
+							ASSIGN_TO: data.ASSIGN_TO,
+							PROGRESS: data.PROGRESS,
+							LAT_FINDING: data.LAT_FINDING,
+							LONG_FINDING: data.LONG_FINDING,
+							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							INSERT_USER: data.INSERT_USER,
+							INSERT_TIME: Number( data.INSERT_TIME ),
+							STATUS_SYNC: "Y"
+						} );
+
+
+					}
+
+					if ( data.INSERT_TIME >= start_date && data.INSERT_TIME <= end_date ) {
+						temp_insert.push( {
+							FINDING_CODE: data.FINDING_CODE,
+							WERKS: data.WERKS,
+							AFD_CODE: data.AFD_CODE,
+							BLOCK_CODE: data.BLOCK_CODE,
+							FINDING_CATEGORY: data.FINDING_CATEGORY,
+							FINDING_DESC: data.FINDING_DESC,
+							FINDING_PRIORITY: data.FINDING_PRIORITY,
+							//DUE_DATE: Number( data.DUE_DATE ) || 0,
+							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+							STATUS: statusFinding.set( String( data.PROGRESS ) ),
+							ASSIGN_TO: data.ASSIGN_TO,
+							PROGRESS: data.PROGRESS,
+							LAT_FINDING: data.LAT_FINDING,
+							LONG_FINDING: data.LONG_FINDING,
+							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							INSERT_USER: data.INSERT_USER,
+							INSERT_TIME: Number( data.INSERT_TIME ),
+							STATUS_SYNC: "N"
+						} );
+					}
+
+					if ( data.UPDATE_TIME >= start_date && data.UPDATE_TIME <= end_date ) {
+						temp_update.push( {
+							FINDING_CODE: data.FINDING_CODE,
+							WERKS: data.WERKS,
+							AFD_CODE: data.AFD_CODE,
+							BLOCK_CODE: data.BLOCK_CODE,
+							FINDING_CATEGORY: data.FINDING_CATEGORY,
+							FINDING_DESC: data.FINDING_DESC,
+							FINDING_PRIORITY: data.FINDING_PRIORITY,
+							DUE_DATE: Number( data.DUE_DATE ) || 0,
+							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+							STATUS: statusFinding.set( String( data.PROGRESS ) ),
+							ASSIGN_TO: data.ASSIGN_TO,
+							PROGRESS: data.PROGRESS,
+							LAT_FINDING: data.LAT_FINDING, 
+							LONG_FINDING: data.LONG_FINDING,
+							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							INSERT_USER: data.INSERT_USER,
+							INSERT_TIME: Number( data.INSERT_TIME ),
+							STATUS_SYNC: "Y"
+						} );
+					}
+
+				} );
+
+				res.json( {
+					status: true,
+					message: 'Data Sync tanggal ' + date.convert( start_date, 'YYYY-MM-DD hh-mm-ss' ) + ' s/d ' + date.convert( end_date, 'YYYY-MM-DD hh-mm-ss' ),
+					data: {
+						"hapus": temp_delete,
+						"simpan": temp_insert,
+						"ubah": temp_update,
+					}
+				} );
+			} ).catch( err => {
+				res.send( {
+					status: false,
+					message: config.error_message.find_500,
+					data: {}
+				} );
+			} );
+		}
+		else {
 			findingModel.find( {
 				DELETE_USER: "",
 				WERKS: query_search,
@@ -700,145 +978,6 @@
 				} );
 			} ).catch( err => {
 				console.log(err);
-				res.send( {
-					status: false,
-					message: config.error_message.find_500,
-					data: {}
-				} );
-			} );
-		}
-		else {
-			findingModel.find( {
-				DELETE_USER: "",
-				WERKS: query_search,
-				AFD_CODE: afd_code,
-				$and: [
-					{
-						$or: [
-							{
-								INSERT_TIME: {
-									$gte: start_date,
-									$lte: end_date
-								}
-							},
-							{
-								UPDATE_TIME: {
-									$gte: start_date,
-									$lte: end_date
-								}
-							},
-							{
-								DELETE_TIME: {
-									$gte: start_date,
-									$lte: end_date
-								}
-							}
-						]
-					}
-				]
-			} )
-			.select( {
-				_id: 0,
-				__v: 0
-			} )
-			.then( data_insert => {
-				if( !data_insert ) {
-					return res.send( {
-						status: false,
-						message: config.error_message.find_404,
-						data: {}
-					} );
-				}
-
-				var temp_insert = [];
-				var temp_update = [];
-				var temp_delete = [];
-				
-				data_insert.forEach( function( data ) {
-
-					if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
-						temp_delete.push( {
-							FINDING_CODE: data.FINDING_CODE,
-							WERKS: data.WERKS,
-							AFD_CODE: data.AFD_CODE,
-							BLOCK_CODE: data.BLOCK_CODE,
-							FINDING_CATEGORY: data.FINDING_CATEGORY,
-							FINDING_DESC: data.FINDING_DESC,
-							FINDING_PRIORITY: data.FINDING_PRIORITY,
-							//DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: statusFinding.set( String( data.PROGRESS ) ),
-							ASSIGN_TO: data.ASSIGN_TO,
-							PROGRESS: data.PROGRESS,
-							LAT_FINDING: data.LAT_FINDING,
-							LONG_FINDING: data.LONG_FINDING,
-							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: Number( data.INSERT_TIME ),
-							STATUS_SYNC: "Y"
-						} );
-
-
-					}
-
-					if ( data.INSERT_TIME >= start_date && data.INSERT_TIME <= end_date ) {
-						temp_insert.push( {
-							FINDING_CODE: data.FINDING_CODE,
-							WERKS: data.WERKS,
-							AFD_CODE: data.AFD_CODE,
-							BLOCK_CODE: data.BLOCK_CODE,
-							FINDING_CATEGORY: data.FINDING_CATEGORY,
-							FINDING_DESC: data.FINDING_DESC,
-							FINDING_PRIORITY: data.FINDING_PRIORITY,
-							//DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: statusFinding.set( String( data.PROGRESS ) ),
-							ASSIGN_TO: data.ASSIGN_TO,
-							PROGRESS: data.PROGRESS,
-							LAT_FINDING: data.LAT_FINDING,
-							LONG_FINDING: data.LONG_FINDING,
-							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: Number( data.INSERT_TIME ),
-							STATUS_SYNC: "N"
-						} );
-					}
-
-					if ( data.UPDATE_TIME >= start_date && data.UPDATE_TIME <= end_date ) {
-						temp_update.push( {
-							FINDING_CODE: data.FINDING_CODE,
-							WERKS: data.WERKS,
-							AFD_CODE: data.AFD_CODE,
-							BLOCK_CODE: data.BLOCK_CODE,
-							FINDING_CATEGORY: data.FINDING_CATEGORY,
-							FINDING_DESC: data.FINDING_DESC,
-							FINDING_PRIORITY: data.FINDING_PRIORITY,
-							DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: statusFinding.set( String( data.PROGRESS ) ),
-							ASSIGN_TO: data.ASSIGN_TO,
-							PROGRESS: data.PROGRESS,
-							LAT_FINDING: data.LAT_FINDING, 
-							LONG_FINDING: data.LONG_FINDING,
-							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: Number( data.INSERT_TIME ),
-							STATUS_SYNC: "Y"
-						} );
-					}
-
-				} );
-
-				res.json( {
-					status: true,
-					message: 'Data Sync tanggal ' + date.convert( start_date, 'YYYY-MM-DD hh-mm-ss' ) + ' s/d ' + date.convert( end_date, 'YYYY-MM-DD hh-mm-ss' ),
-					data: {
-						"hapus": temp_delete,
-						"simpan": temp_insert,
-						"ubah": temp_update,
-					}
-				} );
-			} ).catch( err => {
 				res.send( {
 					status: false,
 					message: config.error_message.find_500,
