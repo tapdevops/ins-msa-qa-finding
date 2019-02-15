@@ -32,8 +32,6 @@
 
 	exports.syncMobileImages = async ( req, res ) => {
 
-		console.log('A');
-
 		var auth = req.auth;
 		var start_date = req.params.start_date;
 		var end_date = req.params.end_date;
@@ -91,9 +89,6 @@
 			break;
 		}
 
-
-
-
 		if ( ref_role == 'AFD_CODE' ) {
 			console.log( 'AFD_CODE' );
 			var query = await findingModel
@@ -121,7 +116,9 @@
 					FINDING_CODE: 1,
 					INSERT_TIME: 1
 				} )
-				.sort( { 'DUE_DATE': 1 } );
+				.sort( {
+					INSERT_TIME:-1
+				} );
 			
 		}
 		else if ( ref_role == 'NATIONAL' ) {
@@ -143,7 +140,9 @@
 					FINDING_CODE: 1,
 					INSERT_TIME: 1
 				} )
-				.sort( { 'DUE_DATE': 1 } );
+				.sort( {
+					INSERT_TIME:-1
+				} );
 			console.log(query);
 		}
 		else {
@@ -172,7 +171,9 @@
 					FINDING_CODE: 1,
 					INSERT_TIME: 1
 				} )
-				.sort( { 'DUE_DATE': 1 } );
+				.sort( {
+					INSERT_TIME:-1
+				} );
 		}
 		
 
@@ -600,6 +601,9 @@
 			.select( {
 				_id: 0,
 				__v: 0
+			} )
+			.sort( {
+				INSERT_TIME:-1
 			} )
 			.then( data_insert => {
 				if( !data_insert ) {
