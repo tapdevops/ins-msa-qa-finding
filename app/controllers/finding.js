@@ -105,6 +105,12 @@
 										$gte: start_date,
 										$lte: end_date
 									}
+								},
+								{
+									UPDATE_TIME: {
+										$gte: start_date,
+										$lte: end_date
+									}
 								}
 							]
 						}
@@ -129,6 +135,12 @@
 					$and: [
 						{
 							INSERT_TIME: {
+								$gte: start_date,
+								$lte: end_date
+							}
+						},
+						{
+							UPDATE_TIME: {
 								$gte: start_date,
 								$lte: end_date
 							}
@@ -157,6 +169,12 @@
 							$or: [
 								{
 									INSERT_TIME: {
+										$gte: start_date,
+										$lte: end_date
+									}
+								},
+								{
+									UPDATE_TIME: {
 										$gte: start_date,
 										$lte: end_date
 									}
