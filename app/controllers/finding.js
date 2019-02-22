@@ -41,7 +41,6 @@
 		var query_search = [];
 		var afd_code = '';
 
-
 		if ( ref_role != 'ALL' ) {
 			location_code_group.forEach( function( data ) {
 				switch ( ref_role ) {
@@ -193,15 +192,12 @@
 					INSERT_TIME:-1
 				} );
 		}
-		
 
 		if ( query.length > 0 ) {
-
 			var results = [];
 			query.forEach( function( result ) {
 				results.push( String( result.FINDING_CODE ) );
 			} );
-
 			res.send( {
 				status: true,
 				message: config.error_message.find_200,
@@ -216,15 +212,6 @@
 			} );
 		}
 
-	};
-
-	exports.testutz = async ( req, res ) => {
-		var data = await findingModel.find().count();
-		console.log(data);
-		res.json( {
-			message: 'Hayhay',
-			dt: data
-		} );
 	};
 
 /**
@@ -341,183 +328,6 @@
 			} );
 		}
 
-
-
-		/*
-		DELETE_USER: "",
-				WERKS: query_search,
-				//ASSIGN_TO: auth.USER_AUTH_CODE,
-				$and: [
-					{
-						$or: [
-							{
-								INSERT_TIME: {
-									$gte: start_date,
-									$lte: end_date
-								}
-							}
-						]
-					}
-				]
-				*/
-
-		/*
-		findingModel.find( 
-			query 
-		)
-		.select( {
-			_id: 0,
-			__v: 0
-		} )
-		.then( data => {
-			if( !data ) {
-				return res.send( {
-					status: false,
-					message: config.error_message.find_404,
-					data: {}
-				} );
-			}
-			var results = [];
-			data.forEach( function( result ) {
-				results.push( {
-					FINDING_CODE: result.FINDING_CODE,
-					WERKS: result.WERKS,
-					AFD_CODE: result.AFD_CODE,
-					BLOCK_CODE: result.BLOCK_CODE,
-					FINDING_CATEGORY: result.FINDING_CATEGORY,
-					FINDING_DESC: result.FINDING_DESC,
-					FINDING_PRIORITY: result.FINDING_PRIORITY,
-					DUE_DATE: date.convert( String( result.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-					STATUS: statusFinding.set( result.PROGRESS ),
-					ASSIGN_TO: result.ASSIGN_TO,
-					PROGRESS: result.PROGRESS,
-					LAT_FINDING: result.LAT_FINDING,
-					LONG_FINDING: result.LONG_FINDING,
-					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
-					INSERT_USER: result.INSERT_USER,
-					INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-					UPDATE_USER: result.UPDATE_USER,
-					UPDATE_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-				} );
-			} );
-			//XXX
-			//////////
-
-			res.send( {
-				status: true,
-				message: config.error_message.find_200,
-				data: results
-			} );
-		} ).catch( err => {
-			res.send( {
-				status: false,
-				message: config.error_message.find_500,
-				data: {}
-			} );
-		} );
-		*/
-
-	};
-
-	exports.findReport2 = ( req, res ) => {
-
-		var url_query = req.query;
-		var url_query_length = Object.keys( url_query ).length;
-		var query = {};
-			query.DELETE_USER = "";
-
-		if ( req.query.WERKS ) {
-			var length_werks = String( req.query.WERKS ).length;
-
-			if ( length_werks < 4 ) {
-				query.WERKS = new RegExp( '^' + req.query.WERKS );
-			}
-			else {
-				query.WERKS = req.query.WERKS;
-			}
-		}
-
-		if ( req.query.AFD_CODE ) {
-			query.AFD_CODE = req.query.AFD_CODE;
-		}
-
-		if ( req.query.BLOCK_CODE ) {
-			query.BLOCK_CODE = req.query.BLOCK_CODE;
-		}
-
-
-
-		/*
-		DELETE_USER: "",
-				WERKS: query_search,
-				//ASSIGN_TO: auth.USER_AUTH_CODE,
-				$and: [
-					{
-						$or: [
-							{
-								INSERT_TIME: {
-									$gte: start_date,
-									$lte: end_date
-								}
-							}
-						]
-					}
-				]
-				*/
-
-
-		findingModel.find( 
-			query 
-		)
-		.select( {
-			_id: 0,
-			__v: 0
-		} )
-		.then( data => {
-			if( !data ) {
-				return res.send( {
-					status: false,
-					message: config.error_message.find_404,
-					data: {}
-				} );
-			}
-			var results = [];
-			data.forEach( function( result ) {
-				results.push( {
-					FINDING_CODE: result.FINDING_CODE,
-					WERKS: result.WERKS,
-					AFD_CODE: result.AFD_CODE,
-					BLOCK_CODE: result.BLOCK_CODE,
-					FINDING_CATEGORY: result.FINDING_CATEGORY,
-					FINDING_DESC: result.FINDING_DESC,
-					FINDING_PRIORITY: result.FINDING_PRIORITY,
-					DUE_DATE: date.convert( String( result.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-					STATUS: statusFinding.set( result.PROGRESS ),
-					ASSIGN_TO: result.ASSIGN_TO,
-					PROGRESS: result.PROGRESS,
-					LAT_FINDING: result.LAT_FINDING,
-					LONG_FINDING: result.LONG_FINDING,
-					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
-					INSERT_USER: result.INSERT_USER,
-					INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-					UPDATE_USER: result.UPDATE_USER,
-					UPDATE_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-				} );
-			} );
-			
-			res.send( {
-				status: true,
-				message: config.error_message.find_200,
-				data: results
-			} );
-		} ).catch( err => {
-			res.send( {
-				status: false,
-				message: config.error_message.find_500,
-				data: {}
-			} );
-		} );
-
 	};
 
 /**
@@ -583,12 +393,8 @@
 			break;
 		}
 
-		//console.log(query_search);
-		//console.log( 'ABC: ' + ref_role );
-
 		
 		if ( ref_role == 'NATIONAL' ) {
-			console.log( ref_role );
 			findingModel.find( {
 				DELETE_USER: "",
 				$and: [
@@ -762,6 +568,9 @@
 				_id: 0,
 				__v: 0
 			} )
+			.sort( {
+				INSERT_TIME:-1
+			} )
 			.then( data_insert => {
 				if( !data_insert ) {
 					return res.send( {
@@ -900,6 +709,9 @@
 				_id: 0,
 				__v: 0
 			} )
+			.sort( {
+				INSERT_TIME:-1
+			} )
 			.then( data_insert => {
 				
 				if( !data_insert ) {
@@ -1009,197 +821,6 @@
 				} );
 			} );
 		}
-	};
-
-	exports.syncMobile2 = ( req, res ) => {
-		var auth = req.auth;
-		var start_date = req.params.start_date;
-		var end_date = req.params.end_date;
-		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
-		var ref_role = auth.REFFERENCE_ROLE;
-		var location_code_final = [];
-		var query_search = [];
-
-		if ( ref_role != 'ALL' ) {
-			location_code_group.forEach( function( data ) {
-				switch ( ref_role ) {
-					case 'REGION_CODE':
-						location_code_final.push( data.substr( 1, 1 ) );
-					break;
-					case 'COMP_CODE':
-						location_code_final.push( data.substr( 0, 2 ) );
-					break;
-					case 'AFD_CODE':
-						location_code_final.push( data.substr( 0, 4 ) );
-					break;
-					case 'BA_CODE':
-						location_code_final.push( data.substr( 0, 4 ) );
-					break;
-				}
-			} );
-		}
-
-		switch ( ref_role ) {
-			case 'REGION_CODE':
-				location_code_final.forEach( function( q ) {
-					query_search.push( new RegExp( '^' + q.substr( 0, 1 ) ) );
-				} );
-			break;
-			case 'COMP_CODE':
-				location_code_final.forEach( function( q ) {
-					query_search.push( new RegExp( '^' + q.substr( 0, 2 ) ) );
-				} );
-			break;
-			case 'AFD_CODE':
-				location_code_final.forEach( function( q ) {
-					query_search.push( new RegExp( '^' + q.substr( 0, 4 ) ) )
-				} );
-			break;
-			case 'BA_CODE':
-				location_code_final.forEach( function( q ) {
-					query_search.push( q );
-				} );
-			break;
-			case 'NATIONAL':
-				key = 'NATIONAL';
-				query[key] = 'NATIONAL';
-			break;
-		}
-
-		console.log( query_search );
-
-		findingModel.find( {
-			DELETE_USER: "",
-			WERKS: query_search,
-			$and: [
-				{
-					$or: [
-						{
-							INSERT_TIME: {
-								$gte: start_date,
-								$lte: end_date
-							}
-						},
-						{
-							UPDATE_TIME: {
-								$gte: start_date,
-								$lte: end_date
-							}
-						},
-						{
-							DELETE_TIME: {
-								$gte: start_date,
-								$lte: end_date
-							}
-						}
-					]
-				}
-			]
-		} )
-		.select( {
-			_id: 0,
-			__v: 0
-		} )
-		.then( data_insert => {
-			if( !data_insert ) {
-				return res.send( {
-					status: false,
-					message: config.error_message.find_404,
-					data: {}
-				} );
-			}
-
-			var temp_insert = [];
-			var temp_update = [];
-			var temp_delete = [];
-			
-			data_insert.forEach( function( data ) {
-
-				if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
-					temp_delete.push( {
-						FINDING_CODE: data.FINDING_CODE,
-						WERKS: data.WERKS,
-						AFD_CODE: data.AFD_CODE,
-						BLOCK_CODE: data.BLOCK_CODE,
-						FINDING_CATEGORY: data.FINDING_CATEGORY,
-						FINDING_DESC: data.FINDING_DESC,
-						FINDING_PRIORITY: data.FINDING_PRIORITY,
-						DUE_DATE: Number( data.DUE_DATE ) || 0,
-						STATUS: statusFinding.set( data.PROGRESS ),
-						ASSIGN_TO: data.ASSIGN_TO,
-						PROGRESS: data.PROGRESS,
-						LAT_FINDING: data.LAT_FINDING,
-						LONG_FINDING: data.LONG_FINDING,
-						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-						INSERT_USER: data.INSERT_USER,
-						INSERT_TIME: Number( data.INSERT_TIME ),
-						STATUS_SYNC: ""
-					} );
-				}
-
-				if ( data.INSERT_TIME >= start_date && data.INSERT_TIME <= end_date ) {
-					temp_insert.push( {
-						FINDING_CODE: data.FINDING_CODE,
-						WERKS: data.WERKS,
-						AFD_CODE: data.AFD_CODE,
-						BLOCK_CODE: data.BLOCK_CODE,
-						FINDING_CATEGORY: data.FINDING_CATEGORY,
-						FINDING_DESC: data.FINDING_DESC,
-						FINDING_PRIORITY: data.FINDING_PRIORITY,
-						DUE_DATE: Number( data.DUE_DATE ) || 0,
-						STATUS: statusFinding.set( data.PROGRESS ),
-						ASSIGN_TO: data.ASSIGN_TO,
-						PROGRESS: data.PROGRESS,
-						LAT_FINDING: data.LAT_FINDING,
-						LONG_FINDING: data.LONG_FINDING,
-						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-						INSERT_USER: data.INSERT_USER,
-						INSERT_TIME: Number( data.INSERT_TIME ),
-						STATUS_SYNC: ""
-					} );
-				}
-
-				if ( data.UPDATE_TIME >= start_date && data.UPDATE_TIME <= end_date ) {
-					temp_update.push( {
-						FINDING_CODE: data.FINDING_CODE,
-						WERKS: data.WERKS,
-						AFD_CODE: data.AFD_CODE,
-						BLOCK_CODE: data.BLOCK_CODE,
-						FINDING_CATEGORY: data.FINDING_CATEGORY,
-						FINDING_DESC: data.FINDING_DESC,
-						FINDING_PRIORITY: data.FINDING_PRIORITY,
-						DUE_DATE: Number( data.DUE_DATE ) || 0,
-						STATUS: statusFinding.set( data.PROGRESS ),
-						ASSIGN_TO: data.ASSIGN_TO,
-						PROGRESS: data.PROGRESS,
-						LAT_FINDING: data.LAT_FINDING, 
-						LONG_FINDING: data.LONG_FINDING,
-						REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-						INSERT_USER: data.INSERT_USER,
-						INSERT_TIME: Number( data.INSERT_TIME ),
-						STATUS_SYNC: ""
-					} );
-				}
-
-			} );
-
-			res.json( {
-				status: true,
-				message: 'Data Sync tanggal ' + date.convert( start_date, 'YYYY-MM-DD hh-mm-ss' ) + ' s/d ' + date.convert( end_date, 'YYYY-MM-DD hh-mm-ss' ),
-				data: {
-					"hapus": temp_delete,
-					"simpan": temp_insert,
-					"ubah": temp_update,
-				}
-			} );
-		} ).catch( err => {
-			res.send( {
-				status: false,
-				message: config.error_message.find_500,
-				data: {}
-			} );
-		} );
-
 	};
 
 /**
@@ -1621,10 +1242,6 @@
 
 	};
 
-
-
-
-
 /**
  * Find
  * Untuk menampilkan data finding berdasarkan USER_AUTH_CODE dan ASSIGN_TO
@@ -1665,7 +1282,6 @@
 
 	};
 
-// Retrieve and return all notes from the database.
 exports.findByTokenAuthCode = ( req, res ) => {
 
 	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
@@ -1726,6 +1342,7 @@ exports.findByTokenAuthCode = ( req, res ) => {
 exports.update = ( req, res ) => {
 
 	nJwt.verify( req.token, config.secret_key, config.token_algorithm, ( err, authData ) => {
+
 		// Validation
 		if( !req.body.WERKS || !req.body.AFD_CODE || !req.body.BLOCK_CODE ) {
 			return res.status( 400 ).send({
@@ -1736,7 +1353,6 @@ exports.update = ( req, res ) => {
 		}
 
 		var auth = jwtDecode( req.token );
-		console.log( auth );
 		
 		findingModel.findOneAndUpdate( { 
 			FINDING_CODE : req.params.id 
@@ -1763,7 +1379,6 @@ exports.update = ( req, res ) => {
 				} );
 			}
 
-		
 			const setLog = new findingLogModel( {
 				FINDING_CODE: req.params.id,
 				PROSES: 'UPDATE',
@@ -1795,7 +1410,6 @@ exports.update = ( req, res ) => {
 					data: {}
 				} );
 			} );
-
 
 			res.send( {
 					status: true,
@@ -1898,37 +1512,3 @@ exports.delete = ( req, res ) => {
 		});
 	});
 };
-
-// Delete data with the specified ID in the request
-/*
-exports.delete = ( req, res ) => {
-	findingModel.findOneAndRemove( { FINDING_CODE : req.params.id } )
-	.then( data => {
-		if( !data ) {
-			return res.status( 404 ).send( {
-				status: false,
-				message: "Data not found 2 with id " + req.params.id,
-				data: {}
-			} );
-		}
-		res.send( {
-			status: true,
-			message: 'Success',
-			data: {}
-		} );
-	}).catch( err => {
-		if( err.kind === 'ObjectId' || err.name === 'NotFound' ) {
-			return res.status(404).send({
-				status: false,
-				message: "Data not found 1 with id " + req.params.id,
-				data: {}
-			} );
-		}
-		return res.status( 500 ).send( {
-			status: false,
-			message: "Could not delete data with id " + req.params.id,
-			data: {}
-		} );
-	} );
-};
-*/
