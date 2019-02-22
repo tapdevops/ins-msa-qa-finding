@@ -190,6 +190,7 @@
 			query.forEach( function( result ) {
 				results.push( String( result.FINDING_CODE ) );
 			} );
+			console.log(results);
 			res.send( {
 				status: true,
 				message: config.error_message.find_200,
@@ -248,6 +249,7 @@
 				query.forEach( function( result ) {
 					results.push( String( result.FINDING_CODE ) );
 				} );
+				console.log(results);
 				res.send( {
 					status: true,
 					message: config.error_message.find_200,
