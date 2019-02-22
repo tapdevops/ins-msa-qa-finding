@@ -479,7 +479,7 @@
 				__v: 0
 			} )
 			.sort( {
-				INSERT_TIME:1
+				INSERT_TIME:-1
 			} )
 			.then( data_insert => {
 				if( !data_insert ) {
@@ -621,7 +621,7 @@
 				__v: 0
 			} )
 			.sort( {
-				INSERT_TIME:1
+				INSERT_TIME:-1
 			} )
 			.then( data_insert => {
 				if( !data_insert ) {
