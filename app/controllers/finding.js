@@ -89,13 +89,11 @@
 		}
 
 		if ( ref_role == 'AFD_CODE' ) {
-			console.log( 'AFD_CODE' );
 			var query = await findingModel
 				.find( {
 					DELETE_USER: "",
 					WERKS: query_search,
 					AFD_CODE: afd_code,
-					//ASSIGN_TO: auth.USER_AUTH_CODE,
 					$and: [
 						{
 							$or: [
@@ -115,19 +113,17 @@
 						}
 					]
 				} )
-				//.limit( 20 )
 				.select( {
 					_id: 0,
 					FINDING_CODE: 1,
 					INSERT_TIME: 1
 				} )
 				.sort( {
-					INSERT_TIME:-1
+					FINDING_CODE: -1
 				} );
 			
 		}
 		else if ( ref_role == 'NATIONAL' ) {
-			console.log( 'NATIONAL' );
 			var query = await findingModel
 				.find( {
 					DELETE_USER: "",
@@ -152,17 +148,14 @@
 					INSERT_TIME: 1
 				} )
 				.sort( {
-					INSERT_TIME:-1
+					FINDING_CODE:-1
 				} );
-			console.log(query);
 		}
 		else {
-			console.log( 'BA_CODE, AFD_CODE, NATIONAL' );
 			var query = await findingModel
 				.find( {
 					DELETE_USER: "",
 					WERKS: query_search,
-					//ASSIGN_TO: auth.USER_AUTH_CODE,
 					$and: [
 						{
 							$or: [
@@ -182,14 +175,13 @@
 						}
 					]
 				} )
-				//.limit( 20 )
 				.select( {
 					_id: 0,
 					FINDING_CODE: 1,
 					INSERT_TIME: 1
 				} )
 				.sort( {
-					INSERT_TIME:-1
+					FINDING_CODE:-1
 				} );
 		}
 
@@ -205,11 +197,71 @@
 			} );
 		}
 		else {
-			res.send( {
-				status: false,
-				message: config.error_message.find_404,
-				data: {}
-			} );
+			if ( ref_role == 'AFD_CODE' ) {
+				var query = await findingModel
+					.find( {
+						DELETE_USER: "",
+						WERKS: query_search,
+						AFD_CODE: afd_code
+					} )
+					.select( {
+						_id: 0,
+						FINDING_CODE: 1,
+						INSERT_TIME: 1
+					} )
+					.sort( {
+						FINDING_CODE: -1
+					} );
+			}
+			else if ( ref_role == 'NATIONAL' ) {
+				var query = await findingModel
+					.find( {
+						DELETE_USER: ""
+					} )
+					.select( {
+						_id: 0,
+						FINDING_CODE: 1,
+						INSERT_TIME: 1
+					} )
+					.sort( {
+						FINDING_CODE:-1
+					} );
+			}
+			else {
+				var query = await findingModel
+					.find( {
+						DELETE_USER: "",
+						WERKS: query_search
+					} )
+					.select( {
+						_id: 0,
+						FINDING_CODE: 1,
+						INSERT_TIME: 1
+					} )
+					.sort( {
+						FINDING_CODE:-1
+					} );
+			}
+
+			if ( query.length > 0 ) {
+				var results = [];
+				query.forEach( function( result ) {
+					results.push( String( result.FINDING_CODE ) );
+				} );
+				res.send( {
+					status: true,
+					message: config.error_message.find_200,
+					data: results
+				} );
+			}
+			else {
+				res.send( {
+					status: false,
+					message: config.error_message.find_404,
+					data: {}
+				} );
+			}
+			
 		}
 
 	};
@@ -427,7 +479,7 @@
 				__v: 0
 			} )
 			.sort( {
-				INSERT_TIME:-1
+				FINDING_CODE:-1
 			} )
 			.then( data_insert => {
 				if( !data_insert ) {
@@ -569,7 +621,7 @@
 				__v: 0
 			} )
 			.sort( {
-				INSERT_TIME:-1
+				FINDING_CODE:-1
 			} )
 			.then( data_insert => {
 				if( !data_insert ) {
@@ -710,7 +762,7 @@
 				__v: 0
 			} )
 			.sort( {
-				INSERT_TIME:-1
+				FINDING_CODE:-1
 			} )
 			.then( data_insert => {
 				
