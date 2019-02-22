@@ -119,7 +119,7 @@
 					INSERT_TIME: 1
 				} )
 				.sort( {
-					FINDING_CODE: -1
+					INSERT_TIME: -1
 				} );
 			
 		}
@@ -148,7 +148,7 @@
 					INSERT_TIME: 1
 				} )
 				.sort( {
-					FINDING_CODE:-1
+					INSERT_TIME:-1
 				} );
 		}
 		else {
@@ -181,7 +181,7 @@
 					INSERT_TIME: 1
 				} )
 				.sort( {
-					FINDING_CODE:-1
+					INSERT_TIME:-1
 				} );
 		}
 
@@ -224,7 +224,7 @@
 						INSERT_TIME: 1
 					} )
 					.sort( {
-						FINDING_CODE:-1
+						INSERT_TIME:-1
 					} );
 			}
 			else {
@@ -239,7 +239,7 @@
 						INSERT_TIME: 1
 					} )
 					.sort( {
-						FINDING_CODE:-1
+						INSERT_TIME:-1
 					} );
 			}
 
