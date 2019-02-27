@@ -884,7 +884,7 @@
  */
 	exports.create = async ( req, res ) => {
 			
-		if( !req.body.WERKS || !req.body.AFD_CODE || !req.body.BLOCK_CODE || !req.body.FINDING_CODE || !req.body.PROGRESS || !req.body.DUE_DATE ) {
+		if( !req.body.WERKS || !req.body.AFD_CODE || !req.body.BLOCK_CODE || !req.body.FINDING_CODE || !req.body.PROGRESS ) {
 			return res.send({
 				status: false,
 				message: config.error_message.invalid_input,
@@ -917,7 +917,7 @@
 				FINDING_DESC: req.body.FINDING_DESC || "",
 				FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
 				//DUE_DATE: Number( req.body.DUE_DATE ) || 0,
-				DUE_DATE: date.convert( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+				DUE_DATE: ( req.body.DUE_DATE == "" ) ? 0 : date.convert( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
 				ASSIGN_TO: req.body.ASSIGN_TO || "",
 				PROGRESS: req.body.PROGRESS || "",
 				LAT_FINDING: req.body.LAT_FINDING || "",
