@@ -1,9 +1,69 @@
-const jwt = require( 'jsonwebtoken' );
-const config = require( '../config/config.js' );
-const uuid = require( 'uuid' );
-const nJwt = require( 'njwt' );
-const jwtDecode = require( 'jwt-decode' );
+/*
+|--------------------------------------------------------------------------
+| Variable
+|--------------------------------------------------------------------------
+*/
+	// Config
+	const config = require( _directory_base + '/config/config.js' );
 
+	// Node Modules
+	const jwt = require( 'jsonwebtoken' );
+	const uuid = require( 'uuid' );
+	const nJwt = require( 'njwt' );
+	const jwtDecode = require( 'jwt-decode' );
+
+	// Declare Controllers
+	const FindingController = require( _directory_base + '/app/controllers/FindingController.js' );
+
+/*
+ |--------------------------------------------------------------------------
+ | Routing
+ |--------------------------------------------------------------------------
+ */
+	module.exports = ( app ) => {
+
+		/*
+		 |--------------------------------------------------------------------------
+		 | Finding
+		 |--------------------------------------------------------------------------
+		 */
+			app.post( '/finding', token_verify, FindingController.create );
+			app.get( '/finding/all', token_verify, FindingController.findAll );
+			app.get( '/finding/q', token_verify, FindingController.findAll );
+			app.get( '/finding', token_verify, FindingController.find );
+			app.get( '/finding/:id', token_verify, FindingController.findOne );
+			app.put( '/finding/:id', verifyToken, FindingController.update );
+			app.delete( '/finding/:id', verifyToken, FindingController.delete );
+
+		/*
+		 |--------------------------------------------------------------------------
+		 | Finding Sync Mobile
+		 |--------------------------------------------------------------------------
+		 */
+			app.get( '/sync-mobile/finding/:start_date/:end_date', token_verify, FindingController.syncMobile );
+			app.get( '/sync-mobile/finding-images/:start_date/:end_date', token_verify, FindingController.syncMobileImages );
+
+		/*
+		 |--------------------------------------------------------------------------
+		 | Finding Report
+		 |--------------------------------------------------------------------------
+		 */
+			app.get( '/finding-report/all', token_verify, FindingController.findReport );
+			app.get( '/finding-report/q', token_verify, FindingController.findReport );
+
+		/*
+		 |--------------------------------------------------------------------------
+		 | Finding Etc
+		 |--------------------------------------------------------------------------
+		 */
+			app.get( '/finding-history', verifyToken, FindingController.findByTokenAuthCode );
+	}
+
+/*
+|--------------------------------------------------------------------------
+| Token Verify
+|--------------------------------------------------------------------------
+*/
 function verifyToken( req, res, next ) {
 	// Get auth header value
 	const bearerHeader = req.headers['authorization'];
@@ -53,23 +113,3 @@ function token_verify( req, res, next ) {
 		res.sendStatus( 403 );
 	}
 }
-
-module.exports = ( app ) => {
-	// Declare Controllers
-	const finding = require( '../app/controllers/finding.js' );
-
-	// ROUTE - FINDING
-	app.post( '/finding', token_verify, finding.create );
-	app.get( '/finding/all', token_verify, finding.findAll );
-	app.get( '/finding/q', token_verify, finding.findAll );
-	app.get( '/finding-report/all', token_verify, finding.findReport );
-	app.get( '/finding-report/q', token_verify, finding.findReport );
-	app.get( '/finding', token_verify, finding.find );
-	app.get( '/finding/:id', token_verify, finding.findOne );
-	app.get( '/finding-history', verifyToken, finding.findByTokenAuthCode );
-	app.put( '/finding/:id', verifyToken, finding.update );
-	app.delete( '/finding/:id', verifyToken, finding.delete );
-	app.get( '/sync-mobile/finding/:start_date/:end_date', token_verify, finding.syncMobile );
-	app.get( '/sync-mobile/finding-images/:start_date/:end_date', token_verify, finding.syncMobileImages );
-}
-
