@@ -5,8 +5,9 @@ module.exports = {
 	| App Config
 	|--------------------------------------------------------------------------
 	*/
-	app_port: process.env.PORT || 3011,
-	app_name: 'Microservice Finding (08-01-2019 16:26)',
+	port: process.env.PORT || 3011,
+	name: 'Microservice Finding',
+	env: 'development', // production, qa, development
 
 	/*
 	|--------------------------------------------------------------------------
@@ -31,9 +32,10 @@ module.exports = {
 	*/
 	error_message: {
 		invalid_token: 'Token expired! ',
+		invalid_request: 'Invalid Request! ',
 		create_200: 'Success! ',
 		create_403: 'Forbidden ',
-		create_404: 'Error! Data gagal diproses ',
+		create_404: 'Error! Data gagal diproses. ',
 		create_500: 'Error! Terjadi kesalahan dalam pembuatan data ',
 		find_200: 'Success! ',
 		find_403: 'Forbidden ',
