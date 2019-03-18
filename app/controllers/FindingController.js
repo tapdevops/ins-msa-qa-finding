@@ -254,7 +254,6 @@
 				query.forEach( function( result ) {
 					results.push( String( result.FINDING_CODE ) );
 				} );
-				console.log(results);
 				res.send( {
 					status: true,
 					message: config.error_message.find_200,
@@ -515,7 +514,7 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: Number( data.INSERT_TIME ),
+							INSERT_TIME: date.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "Y"
 						} );
 
@@ -540,7 +539,7 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: Number( data.INSERT_TIME ),
+							INSERT_TIME: date.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "N"
 						} );
 					}
@@ -563,7 +562,7 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: Number( data.INSERT_TIME ),
+							INSERT_TIME: date.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "Y"
 						} );
 					}
@@ -657,7 +656,7 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: Number( data.INSERT_TIME ),
+							INSERT_TIME: date.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "Y"
 						} );
 
@@ -682,7 +681,7 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: Number( data.INSERT_TIME ),
+							INSERT_TIME: date.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "N"
 						} );
 					}
@@ -705,7 +704,7 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: Number( data.INSERT_TIME ),
+							INSERT_TIME: date.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "Y"
 						} );
 					}
@@ -803,7 +802,7 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: data.INSERT_TIME,
+							INSERT_TIME: date.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "N"
 						} );
 					}
@@ -827,7 +826,7 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: data.INSERT_TIME || 0,
+							INSERT_TIME: date.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "N"
 						} );
 					}
@@ -850,7 +849,7 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: data.INSERT_TIME || 0,
+							INSERT_TIME: date.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "Y"
 						} );
 					}
@@ -1245,7 +1244,7 @@
 					LONG_FINDING: result.LONG_FINDING,
 					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
 					INSERT_USER: result.INSERT_USER,
-					INSERT_TIME: Number( result.INSERT_TIME ),
+					INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 					STATUS_SYNC: "Y"
 					//INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 				} );
@@ -1290,10 +1289,29 @@
 					data: {}
 				} );
 			}
+			var rowdata = {
+				FINDING_CODE: data.FINDING_CODE,
+				WERKS: data.WERKS,
+				AFD_CODE: data.AFD_CODE,
+				BLOCK_CODE: data.BLOCK_CODE,
+				FINDING_CATEGORY: data.FINDING_CATEGORY,
+				FINDING_DESC: data.FINDING_DESC,
+				FINDING_PRIORITY: data.FINDING_PRIORITY,
+				DUE_DATE: date.convert( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+				STATUS: statusFinding.set( data.PROGRESS ),
+				ASSIGN_TO: data.ASSIGN_TO,
+				PROGRESS: Number( data.PROGRESS ),
+				LAT_FINDING: data.LAT_FINDING,
+				LONG_FINDING: data.LONG_FINDING,
+				REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+				INSERT_USER: data.INSERT_USER,
+				INSERT_TIME: date.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+				STATUS_SYNC: "Y"
+			};
 			res.send( {
 				status: true,
 				message: config.error_message.find_200,
-				data: data
+				data: rowdata
 			} );
 		} ).catch( err => {
 			res.send( {
