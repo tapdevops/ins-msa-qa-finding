@@ -12,6 +12,7 @@
     "body-parser": "^1.18.3",
     "date-and-time": "^0.6.3",
     "express": "^4.16.4",
+    "ferds-validator": "^1.0.4",
     "jsonwebtoken": "^8.4.0",
     "jwt-decode": "^2.2.0",
     "moment": "^2.23.0",
