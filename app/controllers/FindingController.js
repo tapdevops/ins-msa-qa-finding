@@ -894,17 +894,19 @@
 			{ "name": "PROGRESS", "value": req.body.PROGRESS, "rules": "required|numeric" },
 			{ "name": "LAT_FINDING", "value": parseFloat( req.body.LAT_FINDING ), "rules": "required|latitude" },
 			{ "name": "LONG_FINDING", "value": parseFloat( req.body.LONG_FINDING ), "rules": "required|longitude" },
+			{ "name": "INSERT_USER", "value": req.body.INSERT_USER, "rules": "required|alpha_numeric" },
+			{ "name": "INSERT_TIME", "value": req.body.INSERT_TIME.toString(), "rules": "required|exact_length(14)|numeric" }
 		];
 
-		var run_validator = validator.run( rules ); // Set to variable
-		console.log( run_validator ); // Raw output
+		var run_validator = validator.run( rules );
+		console.log( run_validator );
 
 		if ( run_validator.status == false ) {
-			res.json({
+			res.json( {
 				status: false,
 				message: "Error! Periksa kembali inputan anda.",
 				data: []
-			})
+			} );
 		}
 		else {
 			var auth = req.auth;
@@ -934,8 +936,8 @@
 					LAT_FINDING: req.body.LAT_FINDING || "",
 					LONG_FINDING: req.body.LONG_FINDING || "",
 					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-					UPDATE_USER: auth.USER_AUTH_CODE,
-					UPDATE_TIME: date.convert( 'now', 'YYYYMMDDhhmmss' ),
+					UPDATE_USER: req.body.UPDATE_USER,
+					UPDATE_TIME: req.body.UPDATE_TIME
 				}, { new: true } )
 				.then( data => {
 					if ( !data ) {
@@ -1004,8 +1006,8 @@
 					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
 					INSERT_USER: req.body.INSERT_USER,
 					INSERT_TIME: req.body.INSERT_TIME || 0,
-					UPDATE_USER: req.body.INSERT_USER,
-					UPDATE_TIME: req.body.INSERT_TIME || 0,
+					UPDATE_USER: "",
+					UPDATE_TIME: 0,
 					DELETE_USER: "",
 					DELETE_TIME: 0
 				} );
