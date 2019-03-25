@@ -515,7 +515,8 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: date.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+							//INSERT_TIME: date.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+							INSERT_TIME: data.INSERT_TIME,
 							STATUS_SYNC: "Y"
 						} );
 
@@ -540,7 +541,7 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: date.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+							INSERT_TIME: data.INSERT_TIME,
 							STATUS_SYNC: "N"
 						} );
 					}
@@ -563,7 +564,7 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: date.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+							INSERT_TIME: data.INSERT_TIME,
 							STATUS_SYNC: "Y"
 						} );
 					}
@@ -1265,7 +1266,8 @@
 					LONG_FINDING: result.LONG_FINDING,
 					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
 					INSERT_USER: result.INSERT_USER,
-					INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+					//INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+					INSERT_TIME: data.INSERT_TIME,
 					STATUS_SYNC: "Y"
 					//INSERT_TIME: date.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 				} );
