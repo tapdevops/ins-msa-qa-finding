@@ -1205,14 +1205,14 @@
 		
 		}
 
-		if ( ref_role == 'AFD_CODE' ) {
+		/*if ( ref_role == 'AFD_CODE' ) {
 			var qs = {
 				DELETE_USER: "",
 				WERKS: query_search,
 				AFD_CODE: afd_code
 			}
 		}
-		else if ( ref_role == 'NATIONAL' ) {
+		else */if ( ref_role == 'NATIONAL' ) {
 			var qs = {
 				DELETE_USER: ""
 			}
@@ -1223,6 +1223,8 @@
 				WERKS: query_search
 			}
 		}
+
+		console.log(qs);
 
 		findingModel.find( qs )
 		.select( {
