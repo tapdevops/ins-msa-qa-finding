@@ -391,6 +391,7 @@
  * --------------------------------------------------------------------------
  */
  	exports.syncMobile = ( req, res ) => {
+ 		console.log( 'Sync Mobile' );
 		var auth = req.auth;
 		var start_date = req.params.start_date;
 		var end_date = req.params.end_date;
@@ -883,7 +884,7 @@
  * --------------------------------------------------------------------------
  */
 	exports.create = async ( req, res ) => {
-
+		console.log( 'Create' );
 		var rules = [
 			{ "name": "FINDING_CODE", "value": req.body.FINDING_CODE, "rules": "required|alpha_numeric" },
 			{ "name": "WERKS", "value": req.body.WERKS, "rules": "required|numeric" },
@@ -1071,7 +1072,7 @@
  * --------------------------------------------------------------------------
  */
 	exports.findAll = ( req, res ) => {
-
+		console.log( 'Find All' );
 		var url_query = req.query;
 		var url_query_length = Object.keys( url_query ).length;
 		var query = {};
@@ -1153,7 +1154,7 @@
  * --------------------------------------------------------------------------
  */
 	exports.find = ( req, res ) => {
-		
+		console.log( 'Find' );
 		var auth = req.auth;
 		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
 		var ref_role = auth.REFFERENCE_ROLE;
