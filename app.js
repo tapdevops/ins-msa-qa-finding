@@ -56,4 +56,5 @@
 	} );
 
 	require( './routes/route.js' )( app );
+	
 	module.exports = app;
