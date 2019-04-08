@@ -18,6 +18,11 @@ module.exports = {
 	token_expiration: 7, // Days
 	token_algorithm: 'HS256',
 
+
+
+
+
+
 	/*
 	|--------------------------------------------------------------------------
 	| URL
