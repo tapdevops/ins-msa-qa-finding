@@ -40,6 +40,7 @@
 		useNewUrlParser: true,
 		ssl: config.database.ssl
 	} ).then( () => {
+		console.log( 'Connect to: ' + config.database.url );
 		console.log( 'Successfully connected to the Database' );
 	} ).catch( err => {
 		console.log( 'Could not connect to the Database. Exiting application.' )
