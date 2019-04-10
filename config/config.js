@@ -7,7 +7,7 @@ module.exports = {
 	*/
 	port: process.env.PORT || 3011,
 	name: 'Microservice Finding',
-	env: 'development', // production, qa, development
+	env: 'production', // production, qa, development
 
 	/*
 	|--------------------------------------------------------------------------
@@ -17,10 +17,6 @@ module.exports = {
 	secret_key: 'T4pagri123#',
 	token_expiration: 7, // Days
 	token_algorithm: 'HS256',
-
-
-
-
 
 
 	/*
