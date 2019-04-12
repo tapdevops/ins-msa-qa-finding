@@ -7,7 +7,7 @@ module.exports = {
 	*/
 	port: process.env.PORT || 3011,
 	name: 'Microservice Finding',
-	env: 'production', // production, qa, development
+	env: 'development', // production, qa, development
 
 	/*
 	|--------------------------------------------------------------------------
@@ -51,6 +51,4 @@ module.exports = {
 		delete_404: 'Error! Data gagal dihapus ',
 		delete_500: 'Error! Terjadi kesalahan dalam penghapusan data ',
 	}
-
-
 }

@@ -2,7 +2,7 @@
   "name": "ms-finding",
   "version": "1.0.0",
   "description": "Microservice Finding",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,8 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.3",
-    "date-and-time": "^0.6.3",
     "express": "^4.16.4",
+    "express-routes-versioning": "^1.0.1",
     "ferds-validator": "^1.0.4",
     "jsonwebtoken": "^8.4.0",
     "jwt-decode": "^2.2.0",

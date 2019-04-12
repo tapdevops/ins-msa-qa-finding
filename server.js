@@ -1,5 +1,15 @@
 /*
 |--------------------------------------------------------------------------
+| Global APP Init
+|--------------------------------------------------------------------------
+*/
+	global._directory_base = __dirname;
+	global.config = {};
+		  config.app = require( './config/app.js' );
+		  config.database = require( './config/database.js' )[config.app.env];
+
+/*
+|--------------------------------------------------------------------------
 | APP Setup
 |--------------------------------------------------------------------------
 */
@@ -10,18 +20,6 @@
 
 	// Primary Variable
 	const app = express();
-
-	// Config
-	const config = {};
-		  config.app = require( './config/config.js' );
-		  config.database = require( './config/database.js' )[config.app.env];
-
-/*
-|--------------------------------------------------------------------------
-| Global APP Init
-|--------------------------------------------------------------------------
-*/
-	global._directory_base = __dirname;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,8 +38,7 @@
 		useNewUrlParser: true,
 		ssl: config.database.ssl
 	} ).then( () => {
-		console.log( 'Connect to: ' + config.database.url );
-		console.log( 'Successfully connected to the Database' );
+		console.log( 'Successfully connected to the Database (' + config.database.url + ')' );
 	} ).catch( err => {
 		console.log( 'Could not connect to the Database. Exiting application.' )
 	} );
@@ -52,10 +49,5 @@
 	} );
 
 	// Routing
-	app.get( '/', ( req, res ) => {
-		res.json( { 'message': config.app.name } )
-	} );
-
-	require( './routes/route.js' )( app );
-	
+	require( './routes/api.js' )( app );
 	module.exports = app;
