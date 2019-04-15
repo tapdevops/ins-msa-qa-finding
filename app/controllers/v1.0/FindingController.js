@@ -633,6 +633,8 @@
 		var query_search = [];
 		var afd_code = '';
 
+
+
 		if ( ref_role != 'ALL' ) {
 			location_code_group.forEach( function( data ) {
 				switch ( ref_role ) {
@@ -677,6 +679,8 @@
 			case 'NATIONAL':
 			break;
 		}
+
+		console.log(query_search);
 
 		if ( ref_role == 'NATIONAL' ) {
 			FindingModel.find( {
@@ -823,7 +827,6 @@
 			FindingModel.find( {
 				DELETE_USER: "",
 				WERKS: query_search,
-				AFD_CODE: afd_code,
 				$and: [
 					{
 						$or: [
