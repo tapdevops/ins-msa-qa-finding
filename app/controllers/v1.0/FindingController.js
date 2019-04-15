@@ -283,8 +283,6 @@
 		FindingModel.find( qs )
 		.select( {
 			_id: 0,
-			UPDATE_USER: 0,
-			UPDATE_TIME: 0,
 			DELETE_USER: 0,
 			DELETE_TIME: 0,
 			__v: 0
@@ -293,6 +291,8 @@
 			INSERT_TIME: -1
 		})
 		.then( data => {
+
+			console.log(data);
 			if( !data ) {
 				return res.send( {
 					status: false,
@@ -322,8 +322,9 @@
 					LONG_FINDING: result.LONG_FINDING,
 					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
 					INSERT_USER: result.INSERT_USER,
-					//INSERT_TIME: DateLib.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-					INSERT_TIME: data.INSERT_TIME,
+					INSERT_TIME: DateLib.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+					UPDATE_USER: result.UPDATE_USER || '',
+					UPDATE_TIME: DateLib.convert( String( result.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 					STATUS_SYNC: "Y"
 					//INSERT_TIME: DateLib.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 				} );
@@ -410,6 +411,8 @@
 					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
 					INSERT_USER: result.INSERT_USER,
 					INSERT_TIME: DateLib.convert( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+					UPDATE_USER: result.UPDATE_USER,
+					UPDATE_TIME: DateLib.convert( String( result.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 				} );
 			} );
 
@@ -750,8 +753,9 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							//INSERT_TIME: DateLib.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							INSERT_TIME: data.INSERT_TIME,
+							INSERT_TIME: DateLib.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+							UPDATE_USER: data.UPDATE_USER || '',
+							UPDATE_TIME: DateLib.convert( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "Y"
 						} );
 
@@ -776,7 +780,9 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: data.INSERT_TIME,
+							INSERT_TIME: DateLib.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+							UPDATE_USER: data.UPDATE_USER || '',
+							UPDATE_TIME: DateLib.convert( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "N"
 						} );
 					}
@@ -799,7 +805,9 @@
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: data.INSERT_TIME,
+							INSERT_TIME: DateLib.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+							UPDATE_USER: data.UPDATE_USER || '',
+							UPDATE_TIME: DateLib.convert( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "Y"
 						} );
 					}
@@ -893,6 +901,8 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: DateLib.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+							UPDATE_USER: data.UPDATE_USER || '',
+							UPDATE_TIME: DateLib.convert( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "Y"
 						} );
 
@@ -918,6 +928,8 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: DateLib.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+							UPDATE_USER: data.UPDATE_USER || '',
+							UPDATE_TIME: DateLib.convert( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "N"
 						} );
 					}
@@ -941,6 +953,8 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: DateLib.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+							UPDATE_USER: data.UPDATE_USER || '',
+							UPDATE_TIME: DateLib.convert( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "Y"
 						} );
 					}
@@ -1039,6 +1053,8 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: DateLib.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+							UPDATE_USER: data.UPDATE_USER || '',
+							UPDATE_TIME: DateLib.convert( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "N"
 						} );
 					}
@@ -1063,6 +1079,8 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: DateLib.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+							UPDATE_USER: data.UPDATE_USER || '',
+							UPDATE_TIME: DateLib.convert( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "N"
 						} );
 					}
@@ -1086,6 +1104,8 @@
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: DateLib.convert( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+							UPDATE_USER: data.UPDATE_USER || '',
+							UPDATE_TIME: DateLib.convert( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "Y"
 						} );
 					}
