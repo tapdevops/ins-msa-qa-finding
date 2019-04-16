@@ -11,7 +11,9 @@
 	// Controllers
 	const Controllers = {
 		v_1_0: {
-			Finding: require( _directory_base + '/app/controllers/v1.0/FindingController.js' )
+			Finding: require( _directory_base + '/app/v1.0/Http/Controllers/FindingController.js' ),
+			Report: require( _directory_base + '/app/v1.0/Http/Controllers/ReportController.js' ),
+			SyncMobile: require( _directory_base + '/app/v1.0/Http/Controllers/SyncMobileController.js' )
 		}
 	}
 
@@ -35,6 +37,7 @@
 		 | Finding
 		 |--------------------------------------------------------------------------
 		 */
+			
 			app.get( '/finding', verifyToken, RoutesVersioning( {
 				"1.0.0": Controllers.v_1_0.Finding.find
 			} ) );
@@ -46,13 +49,13 @@
 			app.get( '/finding/q', verifyToken, RoutesVersioning( {
 				"1.0.0": Controllers.v_1_0.Finding.findAll
 			} ) );
-
+			
 			app.get( '/finding/:id', verifyToken, RoutesVersioning( {
 				"1.0.0": Controllers.v_1_0.Finding.findOne
 			} ) );
 
 			app.post( '/finding', verifyToken, RoutesVersioning( {
-				"1.0.0": Controllers.v_1_0.Finding.create
+				"1.0.0": Controllers.v_1_0.Finding.create_or_update
 			} ) );
 
 		/*
@@ -60,24 +63,27 @@
 		 | Finding Sync Mobile
 		 |--------------------------------------------------------------------------
 		 */
+			
 			app.get( '/sync-mobile/finding/:start_date/:end_date', verifyToken, RoutesVersioning( {
-				"1.0.0": Controllers.v_1_0.Finding.syncMobile
+				"1.0.0": Controllers.v_1_0.SyncMobile.synchronize
 			} ) );
 
 			app.get( '/sync-mobile/finding-images/:start_date/:end_date', verifyToken, RoutesVersioning( {
-				"1.0.0": Controllers.v_1_0.Finding.syncMobileImages
+				"1.0.0": Controllers.v_1_0.SyncMobile.synchronize_images
 			} ) );
+			
 		/*
 		 |--------------------------------------------------------------------------
 		 | Finding Report
 		 |--------------------------------------------------------------------------
 		 */
+			
 			app.get( '/finding-report/all', verifyToken, RoutesVersioning( {
-				"1.0.0": Controllers.v_1_0.Finding.findReport
+				"1.0.0": Controllers.v_1_0.Report.find
 			} ) );
 
 			app.get( '/finding-report/q', verifyToken, RoutesVersioning( {
-				"1.0.0": Controllers.v_1_0.Finding.findReport
+				"1.0.0": Controllers.v_1_0.Report.find
 			} ) );
 	}
 
