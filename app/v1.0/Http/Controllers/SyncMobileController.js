@@ -36,8 +36,6 @@
 		var query_search = [];
 		var afd_code = '';
 
-
-
 		if ( ref_role != 'ALL' ) {
 			location_code_group.forEach( function( data ) {
 				switch ( ref_role ) {
@@ -88,153 +86,6 @@
 		if ( ref_role == 'NATIONAL' ) {
 			FindingModel.find( {
 				DELETE_USER: "",
-				$and: [
-					{
-						$or: [
-							{
-								INSERT_TIME: {
-									$gte: start_date,
-									$lte: end_date
-								}
-							},
-							{
-								UPDATE_TIME: {
-									$gte: start_date,
-									$lte: end_date
-								}
-							},
-							{
-								DELETE_TIME: {
-									$gte: start_date,
-									$lte: end_date
-								}
-							}
-						]
-					}
-				]
-			} )
-			.select( {
-				_id: 0,
-				__v: 0
-			} )
-			.sort( {
-				INSERT_TIME:-1
-			} )
-			.then( data_insert => {
-				if( !data_insert ) {
-					return res.send( {
-						status: false,
-						message: config.app.error_message.find_404,
-						data: {}
-					} );
-				}
-
-				var temp_insert = [];
-				var temp_update = [];
-				var temp_delete = [];
-				
-				data_insert.forEach( function( data ) {
-
-					if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
-						temp_delete.push( {
-							FINDING_CODE: data.FINDING_CODE,
-							WERKS: data.WERKS,
-							AFD_CODE: data.AFD_CODE,
-							BLOCK_CODE: data.BLOCK_CODE,
-							FINDING_CATEGORY: data.FINDING_CATEGORY,
-							FINDING_DESC: data.FINDING_DESC,
-							FINDING_PRIORITY: data.FINDING_PRIORITY,
-							//DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: HelperLib.date_format( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: HelperLib.status_finding( String( data.PROGRESS ) ),
-							ASSIGN_TO: data.ASSIGN_TO,
-							PROGRESS: data.PROGRESS,
-							LAT_FINDING: data.LAT_FINDING,
-							LONG_FINDING: data.LONG_FINDING,
-							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							UPDATE_USER: data.UPDATE_USER || '',
-							UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS_SYNC: "Y"
-						} );
-
-
-					}
-
-					if ( data.INSERT_TIME >= start_date && data.INSERT_TIME <= end_date ) {
-						temp_insert.push( {
-							FINDING_CODE: data.FINDING_CODE,
-							WERKS: data.WERKS,
-							AFD_CODE: data.AFD_CODE,
-							BLOCK_CODE: data.BLOCK_CODE,
-							FINDING_CATEGORY: data.FINDING_CATEGORY,
-							FINDING_DESC: data.FINDING_DESC,
-							FINDING_PRIORITY: data.FINDING_PRIORITY,
-							//DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: HelperLib.date_format( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: HelperLib.status_finding( String( data.PROGRESS ) ),
-							ASSIGN_TO: data.ASSIGN_TO,
-							PROGRESS: data.PROGRESS,
-							LAT_FINDING: data.LAT_FINDING,
-							LONG_FINDING: data.LONG_FINDING,
-							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							UPDATE_USER: data.UPDATE_USER || '',
-							UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS_SYNC: "N"
-						} );
-					}
-
-					if ( data.UPDATE_TIME >= start_date && data.UPDATE_TIME <= end_date ) {
-						temp_update.push( {
-							FINDING_CODE: data.FINDING_CODE,
-							WERKS: data.WERKS,
-							AFD_CODE: data.AFD_CODE,
-							BLOCK_CODE: data.BLOCK_CODE,
-							FINDING_CATEGORY: data.FINDING_CATEGORY,
-							FINDING_DESC: data.FINDING_DESC,
-							FINDING_PRIORITY: data.FINDING_PRIORITY,
-							DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: HelperLib.date_format( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: HelperLib.status_finding( String( data.PROGRESS ) ),
-							ASSIGN_TO: data.ASSIGN_TO,
-							PROGRESS: data.PROGRESS,
-							LAT_FINDING: data.LAT_FINDING, 
-							LONG_FINDING: data.LONG_FINDING,
-							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							UPDATE_USER: data.UPDATE_USER || '',
-							UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS_SYNC: "Y"
-						} );
-					}
-
-				} );
-
-				res.json( {
-					status: true,
-					message: 'Data Sync tanggal ' + HelperLib.date_format( start_date, 'YYYY-MM-DD hh-mm-ss' ) + ' s/d ' + HelperLib.date_format( end_date, 'YYYY-MM-DD hh-mm-ss' ),
-					data: {
-						"hapus": temp_delete,
-						"simpan": temp_insert,
-						"ubah": temp_update,
-					}
-				} );
-			} ).catch( err => {
-				res.send( {
-					status: false,
-					message: config.app.error_message.find_500,
-					data: {}
-				} );
-			} );
-		}
-		else if ( ref_role == 'AFD_CODE' ) {
-			FindingModel.find( {
-				DELETE_USER: "",
-				WERKS: query_search,
 				$and: [
 					{
 						$or: [
@@ -531,6 +382,12 @@
 		}
 	};
 
+	/** 
+ 	  * Sync
+	  * Untuk mencari data Finding Code berdasar range data tertentu, untuk
+	  * kemudian digunakan pada Microservice Images.
+	  * --------------------------------------------------------------------
+	*/
 	exports.synchronize_images = async ( req, res ) => {
 
 		var auth = req.auth;
@@ -585,42 +442,7 @@
 			break;
 		}
 
-		if ( ref_role == 'AFD_CODE' ) {
-			var query = await FindingModel
-				.find( {
-					DELETE_USER: "",
-					WERKS: query_search,
-					AFD_CODE: afd_code,
-					$and: [
-						{
-							$or: [
-								{
-									INSERT_TIME: {
-										$gte: start_date,
-										$lte: end_date
-									}
-								},
-								{
-									UPDATE_TIME: {
-										$gte: start_date,
-										$lte: end_date
-									}
-								}
-							]
-						}
-					]
-				} )
-				.select( {
-					_id: 0,
-					FINDING_CODE: 1,
-					INSERT_TIME: 1
-				} )
-				.sort( {
-					INSERT_TIME: -1
-				} );
-			
-		}
-		else if ( ref_role == 'NATIONAL' ) {
+		if ( ref_role == 'NATIONAL' ) {
 			var query = await FindingModel
 				.find( {
 					DELETE_USER: "",
@@ -695,23 +517,7 @@
 			} );
 		}
 		else {
-			if ( ref_role == 'AFD_CODE' ) {
-				var query = await FindingModel
-					.find( {
-						DELETE_USER: "",
-						WERKS: query_search,
-						AFD_CODE: afd_code
-					} )
-					.select( {
-						_id: 0,
-						FINDING_CODE: 1,
-						INSERT_TIME: 1
-					} )
-					.sort( {
-						FINDING_CODE: -1
-					} );
-			}
-			else if ( ref_role == 'NATIONAL' ) {
+			if ( ref_role == 'NATIONAL' ) {
 				var query = await FindingModel
 					.find( {
 						DELETE_USER: ""

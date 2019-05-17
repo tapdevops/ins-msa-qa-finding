@@ -42,7 +42,7 @@
 			{ "name": "LAT_FINDING", "value": parseFloat( req.body.LAT_FINDING ), "rules": "required|latitude" },
 			{ "name": "LONG_FINDING", "value": parseFloat( req.body.LONG_FINDING ), "rules": "required|longitude" },
 			{ "name": "INSERT_USER", "value": req.body.INSERT_USER, "rules": "required|alpha_numeric" },
-			{ "name": "INSERT_TIME", "value": req.body.INSERT_TIME.toString(), "rules": "required|exact_length(14)|numeric" }
+			//{ "name": "INSERT_TIME", "value": req.body.INSERT_TIME.toString(), "rules": "required|exact_length(14)|numeric" }
 		];
 		var run_validator = Validator.run( rules );
 		console.log( run_validator );
@@ -82,8 +82,8 @@
 					LAT_FINDING: req.body.LAT_FINDING || "",
 					LONG_FINDING: req.body.LONG_FINDING || "",
 					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-					UPDATE_USER: req.body.UPDATE_USER,
-					UPDATE_TIME: req.body.UPDATE_TIME
+					//UPDATE_USER: req.body.UPDATE_USER,
+					//UPDATE_TIME: req.body.UPDATE_TIME
 				}, { new: true } )
 				.then( data => {
 					if ( !data ) {

@@ -4,8 +4,6 @@
 |--------------------------------------------------------------------------
 */
 	// Node Modules
-	const NJWT = require( 'njwt' );
-	const JWTDecode = require( 'jwt-decode' );
 	const RoutesVersioning = require( 'express-routes-versioning' )();
 	
 	// Controllers
@@ -17,106 +15,96 @@
 		}
 	}
 
+	// Middleware
+	const Middleware = {
+		v_1_0: {
+			VerifyToken: require( _directory_base + '/app/v1.0/Http/Middleware/VerifyToken.js' )
+		}
+	}
+
 /*
  |--------------------------------------------------------------------------
  | Routing
  |--------------------------------------------------------------------------
  */
 	module.exports = ( app ) => {
-
 		/*
 		 |--------------------------------------------------------------------------
-		 | Default
+		 | Welcome Message
 		 |--------------------------------------------------------------------------
 		 */
 			app.get( '/', ( req, res ) => {
-				res.json( { 'message': config.app.name } )
+				res.json( { 
+					application: {
+						name : config.app.name,
+						port : config.app.port,
+						environment : config.app.env
+					} 
+				} )
 			} );
+
 		/*
 		 |--------------------------------------------------------------------------
-		 | Finding
+		 | API Versi 1.0
 		 |--------------------------------------------------------------------------
 		 */
-			
-			app.get( '/finding', verifyToken, RoutesVersioning( {
+			// Finding
+			app.get( '/api/v1.0/finding', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.find );
+			app.get( '/api/v1.0/finding/all', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.findAll );
+			app.get( '/api/v1.0/finding/q', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.findAll );
+			app.get( '/api/v1.0/finding/:id', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.findOne );
+			app.post( '/api/v1.0/finding', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.create_or_update );
+
+			// Report
+			app.get( '/api/v1.0/report/web/finding/all', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Report.find );
+			app.get( '/api/v1.0/report/web/finding/q', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Report.find );
+
+			// Sync Mobile
+			app.get( '/api/v1.0/sync-mobile/finding/:start_date/:end_date', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.SyncMobile.synchronize );
+			app.get( '/api/v1.0/sync-mobile/finding-images/:start_date/:end_date', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.SyncMobile.synchronize_images );
+
+		/*
+		 |--------------------------------------------------------------------------
+		 | Old API
+		 |--------------------------------------------------------------------------
+		 */
+			// Finding
+			app.get( '/finding', Middleware.v_1_0.VerifyToken, RoutesVersioning( {
 				"1.0.0": Controllers.v_1_0.Finding.find
 			} ) );
 
-			app.get( '/finding/all', verifyToken, RoutesVersioning( {
+			app.get( '/finding/all', Middleware.v_1_0.VerifyToken, RoutesVersioning( {
 				"1.0.0": Controllers.v_1_0.Finding.findAll
 			} ) );
 
-			app.get( '/finding/q', verifyToken, RoutesVersioning( {
+			app.get( '/finding/q', Middleware.v_1_0.VerifyToken, RoutesVersioning( {
 				"1.0.0": Controllers.v_1_0.Finding.findAll
 			} ) );
 			
-			app.get( '/finding/:id', verifyToken, RoutesVersioning( {
+			app.get( '/finding/:id', Middleware.v_1_0.VerifyToken, RoutesVersioning( {
 				"1.0.0": Controllers.v_1_0.Finding.findOne
 			} ) );
 
-			app.post( '/finding', verifyToken, RoutesVersioning( {
+			app.post( '/finding', Middleware.v_1_0.VerifyToken, RoutesVersioning( {
 				"1.0.0": Controllers.v_1_0.Finding.create_or_update
 			} ) );
 
-		/*
-		 |--------------------------------------------------------------------------
-		 | Finding Sync Mobile
-		 |--------------------------------------------------------------------------
-		 */
-			
-			app.get( '/sync-mobile/finding/:start_date/:end_date', verifyToken, RoutesVersioning( {
+			// Report
+			app.get( '/finding-report/all', Middleware.v_1_0.VerifyToken, RoutesVersioning( {
+				"1.0.0": Controllers.v_1_0.Report.find
+			} ) );
+
+			app.get( '/finding-report/q', Middleware.v_1_0.VerifyToken, RoutesVersioning( {
+				"1.0.0": Controllers.v_1_0.Report.find
+			} ) );
+
+			// Sync Mobile
+			app.get( '/sync-mobile/finding/:start_date/:end_date', Middleware.v_1_0.VerifyToken, RoutesVersioning( {
 				"1.0.0": Controllers.v_1_0.SyncMobile.synchronize
 			} ) );
 
-			app.get( '/sync-mobile/finding-images/:start_date/:end_date', verifyToken, RoutesVersioning( {
+			app.get( '/sync-mobile/finding-images/:start_date/:end_date', Middleware.v_1_0.VerifyToken, RoutesVersioning( {
 				"1.0.0": Controllers.v_1_0.SyncMobile.synchronize_images
 			} ) );
 			
-		/*
-		 |--------------------------------------------------------------------------
-		 | Finding Report
-		 |--------------------------------------------------------------------------
-		 */
-			
-			app.get( '/finding-report/all', verifyToken, RoutesVersioning( {
-				"1.0.0": Controllers.v_1_0.Report.find
-			} ) );
-
-			app.get( '/finding-report/q', verifyToken, RoutesVersioning( {
-				"1.0.0": Controllers.v_1_0.Report.find
-			} ) );
-	}
-
-/*
-|--------------------------------------------------------------------------
-| Verify Token
-|--------------------------------------------------------------------------
-*/
-	function verifyToken( req, res, next ) {
-		// Get auth header value
-		const bearer_header = req.headers['authorization'];
-		if ( typeof bearer_header !== 'undefined' ) {
-			const bearer = bearer_header.split( ' ' );
-			const bearer_token = bearer[1];
-			req.token = bearer_token;
-			NJWT.verify( bearer_token, config.app.secret_key, config.app.token_algorithm, ( err, authData ) => {
-				if ( err ) {
-					res.send({
-						status: false,
-						message: "Invalid Token",
-						data: []
-					} );
-				}
-				else {
-					req.auth = JWTDecode( req.token );
-					req.auth.LOCATION_CODE_GROUP = req.auth.LOCATION_CODE.split( ',' );
-					req.config = config;
-					next();
-				}
-			} );
-		}
-		else {
-			// Forbidden
-			res.sendStatus( 403 );
-		}
 	}
