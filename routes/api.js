@@ -11,7 +11,8 @@
 		v_1_0: {
 			Finding: require( _directory_base + '/app/v1.0/Http/Controllers/FindingController.js' ),
 			Report: require( _directory_base + '/app/v1.0/Http/Controllers/ReportController.js' ),
-			SyncMobile: require( _directory_base + '/app/v1.0/Http/Controllers/SyncMobileController.js' )
+			SyncMobile: require( _directory_base + '/app/v1.0/Http/Controllers/SyncMobileController.js' ),
+			Summary: require( _directory_base + '/app/v1.0/Http/Controllers/SummaryController.js' )
 		}
 	}
 
@@ -37,8 +38,8 @@
 				res.json( { 
 					application: {
 						name : config.app.name,
-						port : config.app.port,
-						environment : config.app.env
+						env : config.app.env,
+						port : config.app.port[config.app.env]
 					} 
 				} )
 			} );
@@ -54,6 +55,9 @@
 			app.get( '/api/v1.0/finding/q', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.findAll );
 			app.get( '/api/v1.0/finding/:id', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.findOne );
 			app.post( '/api/v1.0/finding', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.create_or_update );
+
+			// Summary
+			app.get( '/api/v1.0/summary/total', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Summary.total );
 
 			// Report
 			app.get( '/api/v1.0/report/web/finding/all', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Report.find );

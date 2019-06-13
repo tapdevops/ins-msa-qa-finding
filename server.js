@@ -14,12 +14,12 @@
 |--------------------------------------------------------------------------
 */
 	// Node Modules
-	const body_parser = require( 'body-parser' );
-	const express = require( 'express' );
-	const mongoose = require( 'mongoose' );
+	const BodyParser = require( 'body-parser' );
+	const Express = require( 'express' );
+	const Mongoose = require( 'mongoose' );
 
 	// Primary Variable
-	const app = express();
+	const App = Express();
 
 /*
 |--------------------------------------------------------------------------
@@ -27,14 +27,14 @@
 |--------------------------------------------------------------------------
 */
 	// Parse request of content-type - application/x-www-form-urlencoded
-	app.use( body_parser.urlencoded( { extended: false } ) );
+	App.use( BodyParser.urlencoded( { extended: false } ) );
 
 	// Parse request of content-type - application/json
-	app.use( body_parser.json() );
+	App.use( BodyParser.json() );
 
 	// Setup Database
-	mongoose.Promise = global.Promise;
-	mongoose.connect( config.database.url, {
+	Mongoose.Promise = global.Promise;
+	Mongoose.connect( config.database.url, {
 		useNewUrlParser: true,
 		ssl: config.database.ssl
 	} ).then( () => {
@@ -48,7 +48,7 @@
 	} );
 
 	// Server Running Message
-	app.listen( parseInt( config.app.port[config.app.env] ), () => {
+	App.listen( parseInt( config.app.port[config.app.env] ), () => {
 		console.log( "Server :" );
 		console.log( "\tStatus \t\t: OK" );
 		console.log( "\tService \t: " + config.app.name + " (" + config.app.env + ")" );
@@ -56,5 +56,5 @@
 	} );
 
 	// Routing
-	require( './routes/api.js' )( app );
-	module.exports = app;
+	require( './routes/api.js' )( App );
+	module.exports = App;

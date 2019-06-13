@@ -12,11 +12,11 @@
 		*/
 			//port: process.env.PORT || 3011,
 			name: 'Microservice Finding',
-			env: 'development', // production, qa, development
+			env: 'dev', // prod, qa, dev
 			port: {
-				development: process.env.PORT || 4011,
-				quality_assurance: process.env.PORT || 5011,
-				production: process.env.PORT || 3011,
+				dev: process.env.PORT || 4011,
+				qa: process.env.PORT || 5011,
+				prod: process.env.PORT || 3011,
 			},
 
 		/*
