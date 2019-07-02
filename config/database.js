@@ -14,7 +14,7 @@
 			ssl: false
 		},
 		qa: {
-			url: 'mongodb://s_finding:s_finding@dbappdev.tap-agri.com:4848/s_finding?authSource=s_finding',
+			url: 'mongodb://s_finding:f1n2019@dbappqa.tap-agri.com:4848/s_finding?authSource=s_finding',
 			ssl: false
 		},
 		prod: {
