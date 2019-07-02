@@ -6,6 +6,7 @@
  | Untuk menghandle models, libraries, helper, node modules, dan lain-lain
  |
  */
+ 
  	// Models
 	const FindingModel = require( _directory_base + '/app/v1.0/Http/Models/Finding.js' );
 	const FindingLogModel = require( _directory_base + '/app/v1.0/Http/Models/FindingLog.js' );
