@@ -14,7 +14,7 @@ RUN npm install
 COPY . /usr/src/app
 
 # Setup port
-EXPOSE 3011
+EXPOSE 4011
 
 # Running command
 CMD [ "node", "server.js" ]
