@@ -82,8 +82,8 @@
 					LAT_FINDING: req.body.LAT_FINDING || "",
 					LONG_FINDING: req.body.LONG_FINDING || "",
 					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-					//UPDATE_USER: req.body.UPDATE_USER,
-					//UPDATE_TIME: req.body.UPDATE_TIME
+					UPDATE_USER: req.body.UPDATE_USER,
+					UPDATE_TIME: req.body.UPDATE_TIME
 				}, { new: true } )
 				.then( data => {
 					if ( !data ) {
@@ -152,8 +152,8 @@
 					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
 					INSERT_USER: req.body.INSERT_USER,
 					INSERT_TIME: req.body.INSERT_TIME || 0,
-					UPDATE_USER: "",
-					UPDATE_TIME: 0,
+					UPDATE_USER: req.body.UPDATE_USER,
+					UPDATE_TIME: req.body.UPDATE_TIME || 0,
 					DELETE_USER: "",
 					DELETE_TIME: 0
 				} );
