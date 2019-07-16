@@ -10,6 +10,8 @@
  	// Models
 	const FindingModel = require( _directory_base + '/app/v1.0/Http/Models/Finding.js' );
 	const FindingLogModel = require( _directory_base + '/app/v1.0/Http/Models/FindingLog.js' );
+	const RatingModel = require( _directory_base + '/app/v1.0/Http/Models/Rating.js' );
+	const RatingLogModel = require( _directory_base + '/app/v1.0/Http/Models/RatingLog.js' );
 
 	// Node Module
 	const Validator = require( 'ferds-validator');
@@ -112,6 +114,57 @@
 								status: false,
 								message: config.app.error_message.create_404 + ' - Log',
 								data: {}
+							} );
+						}
+						if(req.body.RATING){
+							// Insert Rating
+							const set_rating = new RatingModel( {
+								FINDING_CODE: req.body.RATING.FINDING_CODE,
+								RATE: req.body.RATING.RATE,
+								MESSAGE: req.body.RATING.MESSAGE
+							} );
+							set_rating.save().then(data=>{
+								if ( !data ) {
+									return res.send( {
+										status: false,
+										message: config.app.error_message.create_404 + ' - Rating',
+										data: {}
+									} );
+								}
+								// Insert Rating Log
+								const set_rating_log = new RatingLogModel( {
+									FINDING_CODE: req.body.FINDING_CODE,
+									PROSES: 'INSERT',
+									IMEI: auth.IMEI,
+									SYNC_TIME: req.body.INSERT_TIME || 0,
+									SYNC_USER: req.body.INSERT_USER,
+								} );
+								set_rating_log.save().then(data=>{
+									if ( !data ) {
+										return res.send( {
+											status: false,
+											message: config.app.error_message.create_404 + ' - Rating Log',
+											data: {}
+										} );
+									}
+									res.send( {
+										status: true,
+										message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
+										data: {}
+									} );
+								}).catch( err => {
+									res.send( {
+										status: false,
+										message: config.app.error_message.create_500 + ' - Rating Log',
+										data: {}
+									} );
+								} );
+							}).catch( err => {
+								res.send( {
+									status: false,
+									message: config.app.error_message.create_500 + ' - Rating',
+									data: {}
+								} );
 							} );
 						}
 						res.send( {
