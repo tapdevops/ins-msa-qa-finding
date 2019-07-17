@@ -59,7 +59,8 @@
  			message: "OK",
  			data: {
  				complete: ( finding_progress_complete.length > 0 ? finding_progress_complete[0].jumlah : 0 ),
- 				incomplete: ( finding_progress_incomplete.length > 0 ? finding_progress_incomplete[0].jumlah : 0 )
+ 				incomplete: ( finding_progress_incomplete.length > 0 ? finding_progress_incomplete[0].jumlah : 0 ),
+ 				target: 10 // Masih hardcode
  			}
  		} );
  	}
