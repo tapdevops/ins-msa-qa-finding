@@ -109,7 +109,6 @@
 					REGION_CODE: location_code_regional
 				} );
 			} );
-			console.log(results[0]);
 			return results[0];
 		} ).catch( err => {
 			return [];

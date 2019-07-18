@@ -4,7 +4,8 @@
  |--------------------------------------------------------------------------
  */
 	const Mongoose = require( 'mongoose' );
-	const connAuth = Mongoose.createConnection("mongodb://s_auth:s_auth@dbappdev.tap-agri.com:4848/s_auth?authSource=s_auth");
+	const db = require( '../../../../config/database.js' );
+	const connAuth = Mongoose.createConnection(db.auth[config.app.env].url);
 	const ViewUserAuthSchema = Mongoose.Schema( {});
 
 /*
