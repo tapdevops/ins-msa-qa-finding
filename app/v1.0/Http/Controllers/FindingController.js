@@ -10,14 +10,112 @@
  	// Models
 	const FindingModel = require( _directory_base + '/app/v1.0/Http/Models/Finding.js' );
 	const FindingLogModel = require( _directory_base + '/app/v1.0/Http/Models/FindingLog.js' );
+	const FindingCommentModel = require( _directory_base + '/app/v1.0/Http/Models/FindingComment.js' );
+	const FindingCommentTagModel = require( _directory_base + '/app/v1.0/Http/Models/FindingCommentTag.js' );
+	const FindingCommentLogModel = require( _directory_base + '/app/v1.0/Http/Models/FindingCommentLog.js' );
 	const RatingModel = require( _directory_base + '/app/v1.0/Http/Models/Rating.js' );
 	const RatingLogModel = require( _directory_base + '/app/v1.0/Http/Models/RatingLog.js' );
+	const UserAuthModel = require( _directory_base + '/app/v1.0/Http/Models/UserAuth.js' );
 
 	// Node Module
 	const Validator = require( 'ferds-validator');
 
 	// Libraries
 	const HelperLib = require( _directory_base + '/app/v1.0/Http/Libraries/HelperLib.js' );
+	async function asyncForEach(array, callback) {
+		for (let index = 0; index < array.length; index++) {
+			await callback(array[index], index, array);
+		}
+	}
+ 	/** 
+ 	  * Contacts
+	  * Contacts adalah data-data user pengguna Mobile Inspection untuk di
+	  * gunakan pada aplikasi mobile. Tidak ada filter lokasi, semua data
+	  * ditampilkan baik PJS maupun HRIS.
+	  * --------------------------------------------------------------------
+	*/
+	const findContacts = async function( authCode ) {
+		return await UserAuthModel.find({
+			USER_AUTH_CODE:authCode
+		})
+		.select( {
+			USER_AUTH_CODE: 1,
+			EMPLOYEE_NIK: 1,
+			USER_ROLE: 1,
+			LOCATION_CODE: 1,
+			REF_ROLE: 1,
+			PJS_JOB: 1,
+			PJS_FULLNAME: 1,
+			HRIS_JOB: 1,
+			HRIS_FULLNAME: 1
+		} )
+		.then( data => {
+			if( !data ) {
+				return [];
+			}
+
+			var results = [];
+			data.forEach( function( result ) {
+				var result = Object.keys(result).map(function(k) {
+					return [+k, result[k]];
+				});
+				result = result[3][1];
+				var JOB = '';
+				var FULLNAME = '';
+				var location_code = result.LOCATION_CODE + '';
+				var location_code_regional = '';
+				
+				if ( result.PJS_JOB ) { JOB = result.PJS_JOB; }
+				else if( result.HRIS_JOB ) { JOB = String( result.HRIS_JOB ); }
+		
+				if ( result.PJS_FULLNAME ) { FULLNAME = result.PJS_FULLNAME; }
+				else if( result.HRIS_FULLNAME ) { FULLNAME = result.HRIS_FULLNAME; }
+
+				var i = 0;
+				location_code.split( ',' ).forEach( function( lc ) {
+					var first_char = lc.substr( 0, 1 );
+					if ( lc != 'ALL' ) {
+						if ( i == 0 ) {
+							if ( first_char != '0' ) {
+								location_code_regional += '0' + lc.substr( 0, 1 );
+							}
+							else {
+								location_code_regional += lc;
+							}
+						}
+						else {
+							if ( first_char != '0' ) {
+								location_code_regional += ',0' + lc.substr( 0, 1 );
+							}
+							else {
+								location_code_regional += ',' + lc;
+							}
+						}
+					}
+					else {
+						location_code_regional = 'ALL';
+					}
+					i++;
+				} );
+
+				results.push( {
+					USER_AUTH_CODE: result.USER_AUTH_CODE,
+					EMPLOYEE_NIK: result.EMPLOYEE_NIK,
+					USER_ROLE: result.USER_ROLE,
+					LOCATION_CODE: String( result.LOCATION_CODE ),
+					REF_ROLE: result.REF_ROLE,
+					JOB: JOB,
+					FULLNAME: FULLNAME,
+					REGION_CODE: location_code_regional
+				} );
+			} );
+			console.log(results[0]);
+			return results[0];
+		} ).catch( err => {
+			return [];
+		} );
+	};
+
 
 /*
  |--------------------------------------------------------------------------
@@ -262,6 +360,236 @@
 			}
 		}
 	};
+	exports.create_or_update_comment = async ( req, res ) => {
+		
+		// Rule Validasi
+		var rules = [
+			{ "name": "FINDING_COMMENT_ID", "value": req.body.FINDING_COMMENT_ID, "rules": "required|alpha_numeric" },
+			{ "name": "FINDING_CODE", "value": req.body.FINDING_CODE, "rules": "required|alpha_numeric" },
+			{ "name": "USER_AUTH_CODE", "value": req.body.USER_AUTH_CODE, "rules": "required|alpha_numeric" },
+			{ "name": "MESSAGE", "value": req.body.MESSAGE, "rules": "required" }
+		];
+		var run_validator = Validator.run( rules );
+
+		if ( run_validator.status == false ) {
+			res.json( {
+				status: false,
+				message: "Error! Periksa kembali inputan anda.",
+				data: run_validator
+			} );
+		}
+		else {
+			var auth = req.auth;
+			var check = await FindingCommentModel
+				.find( {
+					FINDING_COMMENT_ID : req.body.FINDING_COMMENT_ID
+				} )
+				.select( {
+					_id: 0,
+					FINDING_COMMENT_ID: 1
+				} );
+
+			// Jika sudah terdapat data, maka akan mengupdate Data Finding.
+			if ( check.length > 0 ) {
+				FindingModel.findOneAndUpdate( { 
+					FINDING_CODE : req.body.FINDING_CODE
+				}, {
+					WERKS: req.body.WERKS || "",
+					BLOCK_CODE: req.body.BLOCK_CODE || "",
+					FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
+					FINDING_DESC: req.body.FINDING_DESC || "",
+					FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
+					//DUE_DATE: Number( req.body.DUE_DATE ) || 0,
+					DUE_DATE: ( req.body.DUE_DATE == "" ) ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+					ASSIGN_TO: req.body.ASSIGN_TO || "",
+					PROGRESS: req.body.PROGRESS || "",
+					LAT_FINDING: req.body.LAT_FINDING || "",
+					LONG_FINDING: req.body.LONG_FINDING || "",
+					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
+					UPDATE_USER: req.body.UPDATE_USER,
+					UPDATE_TIME: req.body.UPDATE_TIME
+				}, { new: true } )
+				.then( data => {
+					if ( !data ) {
+						return res.send( {
+							status: false,
+							message: config.app.error_message.put_404,
+							data: {}
+						} );
+					}
+					
+					// Insert Finding Log
+					const set_log = new FindingLogModel( {
+						FINDING_CODE: req.body.FINDING_CODE,
+						PROSES: 'UPDATE',
+						PROGRESS: req.body.PROGRESS,
+						IMEI: auth.IMEI,
+						SYNC_TIME: req.body.INSERT_TIME || 0,
+						SYNC_USER: req.body.INSERT_USER,
+					} );
+
+					set_log.save()
+					.then( data_log => {
+						if ( !data_log ) {
+							return res.send( {
+								status: false,
+								message: config.app.error_message.create_404 + ' - Log',
+								data: {}
+							} );
+						}
+						if(req.body.RATING){
+							// Insert Rating
+							const set_rating = new RatingModel( {
+								FINDING_CODE: req.body.RATING.FINDING_CODE,
+								RATE: req.body.RATING.RATE,
+								MESSAGE: req.body.RATING.MESSAGE
+							} );
+							set_rating.save().then(data=>{
+								if ( !data ) {
+									return res.send( {
+										status: false,
+										message: config.app.error_message.create_404 + ' - Rating',
+										data: {}
+									} );
+								}
+								// Insert Rating Log
+								const set_rating_log = new RatingLogModel( {
+									FINDING_CODE: req.body.FINDING_CODE,
+									PROSES: 'INSERT',
+									IMEI: auth.IMEI,
+									SYNC_TIME: req.body.INSERT_TIME || 0,
+									SYNC_USER: req.body.INSERT_USER,
+								} );
+								set_rating_log.save().then(data=>{
+									if ( !data ) {
+										return res.send( {
+											status: false,
+											message: config.app.error_message.create_404 + ' - Rating Log',
+											data: {}
+										} );
+									}
+									res.send( {
+										status: true,
+										message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
+										data: {}
+									} );
+								}).catch( err => {
+									res.send( {
+										status: false,
+										message: config.app.error_message.create_500 + ' - Rating Log',
+										data: {}
+									} );
+								} );
+							}).catch( err => {
+								res.send( {
+									status: false,
+									message: config.app.error_message.create_500 + ' - Rating',
+									data: {}
+								} );
+							} );
+						}
+						res.send( {
+							status: true,
+							message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
+							data: {}
+						} );
+					} ).catch( err => {
+						res.send( {
+							status: false,
+							message: config.app.error_message.create_500 + ' - 2',
+							data: {}
+						} );
+					} );
+				} ).catch( err => {
+					res.send( {
+						status: false,
+						message: config.app.error_message.put_500,
+						data: {}
+					} );
+				} );
+			}
+			// Insert Data Finding
+			else {
+				const set_data = new FindingCommentModel( {
+					FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID || "",
+					FINDING_CODE: req.body.FINDING_CODE || "",
+					USER_AUTH_CODE: req.body.USER_AUTH_CODE || "",
+					MESSAGE: req.body.MESSAGE || "",
+					INSERT_TIME: req.body.INSERT_TIME || 0
+				} );
+
+				set_data.save()
+				.then( data => {
+					if ( !data ) {
+						return res.send( {
+							status: false,
+							message: config.app.error_message.create_404,
+							data: {}
+						} );
+					}
+					if(req.body.TAG_USER&&Array.isArray(req.body.TAG_USER)){
+						req.body.TAG_USER.forEach( function( tag ) {
+							const set_tag = new FindingCommentTagModel({
+								FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID,
+								USER_AUTH_CODE: tag.USER_AUTH_CODE
+							});
+							set_tag.save()
+							.then( data_tag => {
+								if ( !data_tag ) {
+									return res.send( {
+										status: false,
+										message: config.app.error_message.create_404 + ' - Log',
+										data: {}
+									} );
+								}
+							} ).catch( err => {
+								return res.send( {
+									status: false,
+									message: config.app.error_message.create_500 + ' - 2',
+									data: {}
+								} );
+							} );
+						});
+					}
+
+					// Insert Finding Log
+					const set_log = new FindingCommentLogModel( {
+						FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID,
+						PROSES: 'INSERT',
+						IMEI: auth.IMEI,
+						SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' )
+					} );
+					set_log.save()
+					.then( data_log => {
+						if ( !data_log ) {
+							return res.send( {
+								status: false,
+								message: config.app.error_message.create_404 + ' - Log',
+								data: {}
+							} );
+						}
+						res.send( {
+							status: true,
+							message: config.app.error_message.create_200,
+							data: {}
+						} );
+					} ).catch( err => {
+						res.send( {
+							status: false,
+							message: config.app.error_message.create_500 + ' - 2',
+							data: {}
+						} );
+					} );
+				} ).catch( err => {
+					res.send( {
+						status: false,
+						message: config.app.error_message.create_500,
+						data: {}
+					} );
+				} );
+			}
+		}
+	}
 
 	/** 
  	  * Find
@@ -374,6 +702,7 @@
 					LAT_FINDING: result.LAT_FINDING,
 					LONG_FINDING: result.LONG_FINDING,
 					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
+					RATING: result.RATING,
 					INSERT_USER: result.INSERT_USER,
 					INSERT_TIME: HelperLib.date_format( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 					UPDATE_USER: result.UPDATE_USER || '',
@@ -396,7 +725,60 @@
 			} );
 		} );
 	};
-
+	
+	exports.findComment = ( req, res ) => {
+		FindingCommentModel.find()
+		.select( {
+			_id: 0,
+			__v: 0
+		} )
+		.then( async data => {
+			if( !data ) {
+				return res.send( {
+					status: false,
+					message: config.app.error_message.find_404,
+					data: {}
+				} );
+			}
+			var resultsData = [];
+			await asyncForEach(data, async function( result ) {
+				await FindingCommentTagModel.find({
+					FINDING_COMMENT_ID:result.FINDING_COMMENT_ID
+				})
+				.select( {
+					_id: 0,
+					__v: 0
+				} )
+				.then( tag => {
+					let tagUser = [];
+					if(tag){
+						asyncForEach(tag,async function(item){
+							tagUser.push(await findContacts(item.USER_AUTH_CODE))
+						})
+					}
+					resultsData.push( {
+						FINDING_COMMENT_ID: result.FINDING_COMMENT_ID,
+						FINDING_CODE: result.FINDING_CODE,
+						USER_AUTH_CODE: result.USER_AUTH_CODE,
+						MESSAGE: result.MESSAGE,
+						INSERT_TIME:result.INSERT_TIME,
+						TAG_USER:tagUser
+					} );
+				})
+			} );
+			res.send( {
+				status: true,
+				message: config.app.error_message.find_200,
+				data: resultsData
+			} );
+		} ).catch( err => {
+			res.send( {
+				status: false,
+				message: config.app.error_message.find_500,
+				data: {}
+			} );
+		} );
+	}
 	/** 
  	  * Find All/Query
 	  * Untuk mengambil data finding berdasarkan URL query. Contohnya :

@@ -50,11 +50,13 @@
 		 |--------------------------------------------------------------------------
 		 */
 			// Finding
+			app.get( '/api/v1.0/finding/comment', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.findComment );
 			app.get( '/api/v1.0/finding', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.find );
 			app.get( '/api/v1.0/finding/all', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.findAll );
 			app.get( '/api/v1.0/finding/q', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.findAll );
 			app.get( '/api/v1.0/finding/:id', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.findOne );
 			app.post( '/api/v1.0/finding', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.create_or_update );
+			app.post( '/api/v1.0/finding/comment', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.create_or_update_comment );
 
 			// Summary
 			app.get( '/api/v1.0/summary/total', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Summary.total );

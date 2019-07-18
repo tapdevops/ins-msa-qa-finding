@@ -20,5 +20,19 @@
 		prod: {
 			url: 'mongodb://s_finding:f1n2019@dbapp.tap-agri.com:4848/s_finding?authSource=s_finding',
 			ssl: false
+		},
+		auth:{
+			dev: {
+				url: 'mongodb://s_auth:s_auth@dbappdev.tap-agri.com:4848/s_auth?authSource=s_auth',
+				ssl: false
+			},
+			qa: {
+				url: 'mongodb://s_auth:s_auth@dbappdev.tap-agri.com:4848/s_auth?authSource=s_auth',
+				ssl: false
+			},
+			prod: {
+				url: 'mongodb://s_auth:4uth2019@dbapp.tap-agri.com:4848/s_auth?authSource=s_auth',
+				ssl: false
+			}
 		}
 	}
