@@ -726,11 +726,93 @@
 	};
 	
 	exports.findComment = ( req, res ) => {
-		FindingCommentModel.find()
-		.select( {
-			_id: 0,
-			__v: 0
-		} )
+		var auth = req.auth;
+		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
+		var ref_role = auth.REFFERENCE_ROLE;
+		var location_code_final = [];
+		var query_search = [];
+		var afd_code = [];
+
+		if ( ref_role != 'ALL' ) {
+			location_code_group.forEach( function( data ) {
+				switch ( ref_role ) {
+					case 'REGION_CODE':
+						location_code_final.push( data.substr( 1, 1 ) );
+					break;
+					case 'COMP_CODE':
+						location_code_final.push( data.substr( 0, 2 ) );
+					break;
+					case 'AFD_CODE':
+						location_code_final.push( data );
+					break;
+					case 'BA_CODE':
+						location_code_final.push( data.substr( 0, 4 ) );
+					break;
+				}
+			} );
+		}
+
+		switch ( ref_role ) {
+			case 'REGION_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 1 ) ) );
+				} );
+			break;
+			case 'COMP_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 2 ) ) );
+				} );
+			break;
+			case 'AFD_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( new RegExp( '^' + q.substr( 0, 4 ) ) )
+					afd_code = q.substr( 4, 10 );
+				} );
+			break;
+			case 'BA_CODE':
+				location_code_final.forEach( function( q ) {
+					query_search.push( q );
+				} );
+			break;
+		
+		}
+
+		if ( ref_role == 'NATIONAL' ) {
+			var qs = {
+				DELETE_USER: "",
+			}
+		}
+		else {
+			var qs = {
+				DELETE_USER: "",
+				WERKS: '4421'//query_search
+			}
+		}
+		FindingModel.aggregate( [
+			{$match:qs},
+			{ 
+				"$lookup" : {
+					"from" : "TR_FINDING_COMMENT", 
+					"localField" : "FINDING_CODE", 
+					"foreignField" : "FINDING_CODE", 
+					"as" : "comment"
+				}
+			}, 
+			{ 
+				"$lookup" : {
+					"from" : "TR_FINDING_COMMENT_TAG", 
+					"localField" : "comment.FINDING_COMMENT_ID", 
+					"foreignField" : "FINDING_COMMENT_ID", 
+					"as" : "tag"
+				}
+			}, 
+			{ 
+				"$unwind" : {
+					"path" : "$comment", 
+					"preserveNullAndEmptyArrays" : false
+				}
+			}
+ 		] )
 		.then( async data => {
 			if( !data ) {
 				return res.send( {
@@ -741,29 +823,21 @@
 			}
 			var resultsData = [];
 			await asyncForEach(data, async function( result ) {
-				await FindingCommentTagModel.find({
-					FINDING_COMMENT_ID:result.FINDING_COMMENT_ID
-				})
-				.select( {
-					_id: 0,
-					__v: 0
-				} )
-				.then( tag => {
-					let tagUser = [];
-					if(tag){
-						asyncForEach(tag,async function(item){
-							tagUser.push(await findContacts(item.USER_AUTH_CODE))
-						})
-					}
-					resultsData.push( {
-						FINDING_COMMENT_ID: result.FINDING_COMMENT_ID,
-						FINDING_CODE: result.FINDING_CODE,
-						USER_AUTH_CODE: result.USER_AUTH_CODE,
-						MESSAGE: result.MESSAGE,
-						INSERT_TIME:result.INSERT_TIME,
-						TAG_USER:tagUser
-					} );
-				})
+				let tagUser = [];
+				if(result.tag.length>0){
+					await asyncForEach(result.tag,async function(item){
+						tagUser.push(await findContacts(item.USER_AUTH_CODE))
+					})
+				}
+				
+				resultsData.push( {
+					FINDING_COMMENT_ID: result.comment.FINDING_COMMENT_ID,
+					FINDING_CODE: result.comment.FINDING_CODE,
+					USER_AUTH_CODE: result.comment.USER_AUTH_CODE,
+					MESSAGE: result.comment.MESSAGE,
+					INSERT_TIME:result.comment.INSERT_TIME,
+					TAG_USER:tagUser
+				} );
 			} );
 			res.send( {
 				status: true,
