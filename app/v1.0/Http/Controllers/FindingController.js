@@ -27,6 +27,7 @@
 			await callback(array[index], index, array);
 		}
 	}
+
  	/** 
  	  * Contacts
 	  * Contacts adalah data-data user pengguna Mobile Inspection untuk di
@@ -360,6 +361,7 @@
 			}
 		}
 	};
+
 	exports.create_or_update_comment = async ( req, res ) => {
 		
 		// Rule Validasi
@@ -726,13 +728,20 @@
 		} );
 	};
 	
-	exports.findComment = ( req, res ) => {
+	exports.findComment = async ( req, res ) => {
+
+		
+
+		// Disini
 		FindingCommentModel.find()
 		.select( {
 			_id: 0,
 			__v: 0
 		} )
 		.then( async data => {
+
+			console.log( data );
+
 			if( !data ) {
 				return res.send( {
 					status: false,
@@ -779,6 +788,7 @@
 			} );
 		} );
 	}
+
 	/** 
  	  * Find All/Query
 	  * Untuk mengambil data finding berdasarkan URL query. Contohnya :
