@@ -37,7 +37,11 @@
 	  * --------------------------------------------------------------------
 	*/
 	const findContacts = async function( authCode ) {
-		return await UserAuthModel.find({
+
+		// console.log(authCode);
+		// console.log('-x-x-x-x-x-x-x-x-x-x-x-x-x-x-');
+
+		return await UserAuthModel.findOne({
 			USER_AUTH_CODE:authCode
 		})
 		.select( {
@@ -52,16 +56,21 @@
 			HRIS_FULLNAME: 1
 		} )
 		.then( data => {
+			
+			// return data;
+			
 			if( !data ) {
 				return [];
 			}
 
 			var results = [];
-			data.forEach( function( result ) {
-				var result = Object.keys(result).map(function(k) {
-					return [+k, result[k]];
+			// data.forEach( function( result ) {
+				var result = Object.keys(data).map(function(k) {
+					return [+k, data[k]];
 				});
 				result = result[3][1];
+
+
 				var JOB = '';
 				var FULLNAME = '';
 				var location_code = result.LOCATION_CODE + '';
@@ -100,7 +109,7 @@
 					i++;
 				} );
 
-				results.push( {
+				return {
 					USER_AUTH_CODE: result.USER_AUTH_CODE,
 					EMPLOYEE_NIK: result.EMPLOYEE_NIK,
 					USER_ROLE: result.USER_ROLE,
@@ -109,9 +118,10 @@
 					JOB: JOB,
 					FULLNAME: FULLNAME,
 					REGION_CODE: location_code_regional
-				} );
-			} );
-			return results[0];
+				}// );
+			// } );
+			// console.log(results[0]);
+			// return results[0];
 		} ).catch( err => {
 			return [];
 		} );
@@ -744,11 +754,12 @@
 	
 	exports.findComment = async ( req, res ) => {
 
+		// Get tanggal terakhir sync dari s_auth.T_MOBILE_SYNC
 		var check_mobile_sync = await SyncMobileModel.aggregate( [
 			{
 				$match: {
-					INSERT_USER: "TAC001070",
-					IMEI: "357884082892361",
+					INSERT_USER: "TAC001020",
+					IMEI: "357884082880481",
 					TABEL_UPDATE: "finding"
 				}
 			},
@@ -761,7 +772,6 @@
 				$limit: 1
 			}
 		] );
-
 		var auth = req.auth;
 		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
 		var ref_role = auth.REFFERENCE_ROLE;
@@ -824,23 +834,54 @@
 				WERKS: query_search
 			}
 		}
-
-		var now = HelperLib.date_format( 'now', 'YYYYMMDD' );
-		qs["INSERT_TIME"] = {
-			"$gte": parseInt( ( check_mobile_sync.length == 1 ? check_mobile_sync[0].TGL_MOBILE_SYNC.toString().substr( 0, 8 ) + '000000' : 0 ) ),
-			"$lte": parseInt( now + '235959' )
-		};
-
-		console.log(qs);
-
-		// if ( check_mobile_sync.length == 1 ) {
-		// 	qs.push( { "$gte": 0 } );
-		// }
-
-		// DUE_DATE: ( req.body.DUE_DATE == "" ) ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+		qs["FINDING_CODE"] = "FTAC001010190409112833";
+		var now = HelperLib.date_format( 'now', 'YYYYMMDD' ).substr( 0, 8 );
+		var tanggal_terakhir_sync = ( check_mobile_sync.length == 1 ? ( check_mobile_sync[0].TGL_MOBILE_SYNC.toString() ).substr( 0, 8 ) + '000000' : 0 );
+		var start_date = parseInt( tanggal_terakhir_sync );
+		var end_date = parseInt( now + '235959' );
+		qs["$and"] = [ {
+			"$or": [
+				{
+					"INSERT_TIME": {
+						"$gte": start_date,
+						"$lte": end_date
+					}
+				},
+				{
+					"UPDATE_TIME": {
+						"$gte": start_date,
+						"$lte": end_date
+					}
+				},
+				{
+					"DELETE_TIME": {
+						"$gte": start_date,
+						"$lte": end_date
+					}
+				}
+			]
+		} ];
+		
 
 		FindingModel.aggregate( [
-			{$match:qs},
+			{
+				"$match": qs
+			},
+			{
+		        "$lookup" : {
+		            "from" : "VIEW_COMMENT", 
+		            "localField" : "FINDING_CODE", 
+		            "foreignField" : "FINDING_CODE", 
+		            "as" : "comment"
+		        }
+		    },
+		    {
+		        "$project": {
+		            "_id": 0,
+		            "__v": 0
+		        }
+		    }
+			/*
 			{ 
 				"$lookup" : {
 					"from" : "TR_FINDING_COMMENT", 
@@ -863,8 +904,10 @@
 					"preserveNullAndEmptyArrays" : false
 				}
 			}
+			*/
  		] )
 		.then( async data => {
+			// console.log(qs);
 
 			if( !data ) {
 				return res.send( {
@@ -873,36 +916,79 @@
 					data: {}
 				} );
 			}
-			var resultsData = [];
-			await asyncForEach(data, async function( result ) {
-				let tagUser = [];
-				if(result.tag.length>0){
-					await asyncForEach(result.tag,async function(item){
-						tagUser.push(await findContacts(item.USER_AUTH_CODE))
-					})
+			var temp_insert = [];
+			var temp_update = [];
+			var temp_delete = [];
+			await asyncForEach( data, async function( result ) {
+				if ( result.comment.length > 0 ) {
+					for ( var n = 0; n < result.comment.length; n++ ) {
+						var ini_tags = [];
+							
+						if ( result.comment[n].tag.length > 0 ) {
+							for( var i = 0; i < result.comment[n].tag.length; i++ ) {
+								var contact = await findContacts( result.comment[n].tag[i].USER_AUTH_CODE );
+								console.log(contact);
+								var ccc = Object.values( contact );
+								console.log( ccc );
+								ini_tags.push( {
+									USER_AUTH_CODE: ccc[0],
+									EMPLOYEE_NIK: ccc[1],
+									USER_ROLE: ccc[2],
+									LOCATION_CODE: ccc[3],
+									REF_ROLE: ccc[4],
+									JOB: ccc[5],
+									FULLNAME: ccc[6]
+								} );
+							}
+						}
+
+						if ( result.DELETE_TIME >= start_date && result.DELETE_TIME <= end_date ) {
+							temp_delete.push( {
+								FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
+								FINDING_CODE: result.comment[n].FINDING_CODE,
+								USER_AUTH_CODE: result.comment[n].USER_AUTH_CODE,
+								MESSAGE: result.comment[n].MESSAGE,
+								INSERT_TIME: result.comment[n].INSERT_TIME,
+								TAGS: ini_tags
+							} );
+						}
+
+						if ( result.INSERT_TIME >= start_date && result.INSERT_TIME <= end_date ) {
+							temp_insert.push( {
+								FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
+								FINDING_CODE: result.comment[n].FINDING_CODE,
+								USER_AUTH_CODE: result.comment[n].USER_AUTH_CODE,
+								MESSAGE: result.comment[n].MESSAGE,
+								INSERT_TIME: result.comment[n].INSERT_TIME,
+								TAGS: ini_tags
+							} );
+						}
+
+						if ( result.UPDATE_TIME >= start_date && result.UPDATE_TIME <= end_date ) {
+							temp_update.push( {
+								FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
+								FINDING_CODE: result.comment[n].FINDING_CODE,
+								USER_AUTH_CODE: result.comment[n].USER_AUTH_CODE,
+								MESSAGE: result.comment[n].MESSAGE,
+								INSERT_TIME: result.comment[n].INSERT_TIME,
+								TAGS: ini_tags
+							} );
+						}
+					}
 				}
-				
-				resultsData.push( {
-					FINDING_COMMENT_ID: result.comment.FINDING_COMMENT_ID,
-					FINDING_CODE: result.comment.FINDING_CODE,
-					USER_AUTH_CODE: result.comment.USER_AUTH_CODE,
-					MESSAGE: result.comment.MESSAGE,
-					INSERT_TIME:result.comment.INSERT_TIME,
-					TAG_USER:tagUser
-				} );
 			} );
 
 			return res.send( {
 				status: true,
 				message: config.app.error_message.find_200,
-				data: resultsData,
 				data: {
-					"hapus": [],
-					"simpan": resultsData,
-					"ubah": [],
+					"hapus": temp_delete,
+					"simpan": temp_insert,
+					"ubah": temp_update
 				}
 			} );
 		} ).catch( err => {
+			console.log(err);
 			res.send( {
 				status: false,
 				message: config.app.error_message.find_500,

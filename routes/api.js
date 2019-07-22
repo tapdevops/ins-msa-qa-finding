@@ -44,12 +44,14 @@
 				} )
 			} );
 
+
 		/*
 		 |--------------------------------------------------------------------------
 		 | API Versi 1.0
 		 |--------------------------------------------------------------------------
 		 */
 			// Finding
+			app.get( '/api/v1.0/sync-mobile/comment', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.findComment );
 			app.get( '/api/v1.0/finding/comment', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.findComment );
 			app.get( '/api/v1.0/finding', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.find );
 			app.get( '/api/v1.0/finding/all', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.findAll );
@@ -68,7 +70,6 @@
 			// Sync Mobile
 			app.get( '/api/v1.0/sync-mobile/finding/:start_date/:end_date', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.SyncMobile.synchronize );
 			app.get( '/api/v1.0/sync-mobile/finding-images/:start_date/:end_date', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.SyncMobile.synchronize_images );
-
 		/*
 		 |--------------------------------------------------------------------------
 		 | Old API
