@@ -656,22 +656,36 @@
 		else {
 			var qs = {
 				DELETE_USER: "",
-				WERKS: query_search
+				WERKS: {"$in":query_search}
 			}
 		}
 
-		FindingModel.find( qs )
-		.select( {
-			_id: 0,
-			DELETE_USER: 0,
-			DELETE_TIME: 0,
-			__v: 0
-		} )
-		.sort({
-			INSERT_TIME: -1
-		})
+		FindingModel.aggregate([
+		{ 
+            "$lookup" : {
+                "from" : "TR_RATING", 
+                "localField" : "FINDING_CODE", 
+                "foreignField" : "FINDING_CODE", 
+                "as" : "RATING"
+            }
+        }, 
+        { 
+            "$project" : {
+                "_id" : 0.0, 
+                "DELETE_TIME" : 0.0, 
+                "__v" : 0.0
+            }
+        }, 
+        { 
+            "$sort" : {
+                "INSERT_TIME" : -1.0
+            }
+        }, 
+        { 
+            "$match" : qs
+        }
+ 		])
 		.then( data => {
-
 			console.log(data);
 			if( !data ) {
 				return res.send( {
@@ -884,13 +898,30 @@
 			query.BLOCK_CODE = req.query.BLOCK_CODE;
 		}
 
-		FindingModel.find( 
-			query 
-		)
-		.select( {
-			_id: 0,
-			__v: 0
-		} )
+		FindingModel.aggregate([
+		{ 
+            "$lookup" : {
+                "from" : "TR_RATING", 
+                "localField" : "FINDING_CODE", 
+                "foreignField" : "FINDING_CODE", 
+                "as" : "RATING"
+            }
+        }, 
+        { 
+            "$project" : {
+                "_id" : 0.0, 
+                "DELETE_TIME" : 0.0, 
+                "__v" : 0.0
+            }
+        }, 
+        { 
+            "$sort" : {
+                "INSERT_TIME" : -1.0
+            }
+        }, 
+        { 
+            "$match" : qs
+        }])
 		.then( data => {
 			if( !data ) {
 				return res.send( {
