@@ -84,40 +84,56 @@
 		console.log(query_search);
 
 		if ( ref_role == 'NATIONAL' ) {
-			FindingModel.find( {
-				DELETE_USER: "",
-				$and: [
-					{
-						$or: [
-							{
-								INSERT_TIME: {
-									$gte: start_date,
-									$lte: end_date
+			FindingModel.aggregate([
+			{ 
+				"$lookup" : {
+					"from" : "TR_RATING", 
+					"localField" : "FINDING_CODE", 
+					"foreignField" : "FINDING_CODE", 
+					"as" : "RATING"
+				}
+			}, 
+			{ 
+				"$project" : {
+					"_id" : 0.0, 
+					"__v" : 0.0
+				}
+			}, 
+			{ 
+				"$sort" : {
+					"INSERT_TIME" : -1.0
+				}
+			}, 
+			{ 
+				"$match" : {
+					DELETE_USER: "",
+					$and: [
+						{
+							$or: [
+								{
+									INSERT_TIME: {
+										$gte: start_date,
+										$lte: end_date
+									}
+								},
+								{
+									UPDATE_TIME: {
+										$gte: start_date,
+										$lte: end_date
+									}
+								},
+								{
+									DELETE_TIME: {
+										$gte: start_date,
+										$lte: end_date
+									}
 								}
-							},
-							{
-								UPDATE_TIME: {
-									$gte: start_date,
-									$lte: end_date
-								}
-							},
-							{
-								DELETE_TIME: {
-									$gte: start_date,
-									$lte: end_date
-								}
-							}
-						]
-					}
-				]
-			} )
-			.select( {
-				_id: 0,
-				__v: 0
-			} )
-			.sort( {
-				INSERT_TIME:-1
-			} )
+							]
+						}
+					]
+				}
+			}
+			])
 			.then( data_insert => {
 				if( !data_insert ) {
 					return res.send( {
@@ -150,6 +166,7 @@
 							LAT_FINDING: data.LAT_FINDING,
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							RATING:data.RATING,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
@@ -177,6 +194,7 @@
 							LAT_FINDING: data.LAT_FINDING,
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							RATING:data.RATING,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
@@ -202,6 +220,7 @@
 							LAT_FINDING: data.LAT_FINDING, 
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							RATING:data.RATING,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
@@ -230,41 +249,57 @@
 			} );
 		}
 		else {
-			FindingModel.find( {
-				DELETE_USER: "",
-				WERKS: query_search,
-				$and: [
-					{
-						$or: [
-							{
-								INSERT_TIME: {
-									$gte: start_date,
-									$lte: end_date
+			FindingModel.aggregate([
+			{ 
+				"$lookup" : {
+					"from" : "TR_RATING", 
+					"localField" : "FINDING_CODE", 
+					"foreignField" : "FINDING_CODE", 
+					"as" : "RATING"
+				}
+			}, 
+			{ 
+				"$project" : {
+					"_id" : 0.0, 
+					"__v" : 0.0
+				}
+			}, 
+			{ 
+				"$sort" : {
+					"INSERT_TIME" : -1.0
+				}
+			}, 
+			{ 
+				"$match" : {
+					DELETE_USER: "",
+					WERKS: {"$in":query_search},
+					$and: [
+						{
+							$or: [
+								{
+									INSERT_TIME: {
+										$gte: start_date,
+										$lte: end_date
+									}
+								},
+								{
+									UPDATE_TIME: {
+										$gte: start_date,
+										$lte: end_date
+									}
+								},
+								{
+									DELETE_TIME: {
+										$gte: start_date,
+										$lte: end_date
+									}
 								}
-							},
-							{
-								UPDATE_TIME: {
-									$gte: start_date,
-									$lte: end_date
-								}
-							},
-							{
-								DELETE_TIME: {
-									$gte: start_date,
-									$lte: end_date
-								}
-							}
-						]
-					}
-				]
-			} )
-			.select( {
-				_id: 0,
-				__v: 0
-			} )
-			.sort( {
-				INSERT_TIME:-1
-			} )
+							]
+						}
+					]
+				}
+			}
+			])
 			.then( data_insert => {
 				
 				if( !data_insert ) {
@@ -302,6 +337,7 @@
 							LAT_FINDING: data.LAT_FINDING,
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							RATING:data.RATING,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
@@ -328,6 +364,7 @@
 							LAT_FINDING: data.LAT_FINDING,
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							RATING:data.RATING,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
@@ -353,6 +390,7 @@
 							LAT_FINDING: data.LAT_FINDING, 
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+							RATING:data.RATING,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
