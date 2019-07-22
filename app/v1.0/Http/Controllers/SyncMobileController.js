@@ -486,14 +486,14 @@
 					$and: [
 						{
 							INSERT_TIME: {
-								$gte: start_date,
-								$lte: end_date
+								$gte: parseInt( start_date ),
+								$lte: parseInt( end_date )
 							}
 						},
 						{
 							UPDATE_TIME: {
-								$gte: start_date,
-								$lte: end_date
+								$gte: parseInt( start_date ),
+								$lte: parseInt( end_date )
 							}
 						}
 					]
@@ -517,14 +517,14 @@
 							$or: [
 								{
 									INSERT_TIME: {
-										$gte: start_date,
-										$lte: end_date
+										$gte: parseInt( start_date ),
+										$lte: parseInt( end_date )
 									}
 								},
 								{
 									UPDATE_TIME: {
-										$gte: start_date,
-										$lte: end_date
+										$gte: parseInt( start_date ),
+										$lte: parseInt( end_date )
 									}
 								}
 							]
