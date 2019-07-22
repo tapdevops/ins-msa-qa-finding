@@ -16,6 +16,7 @@
 	const RatingModel = require( _directory_base + '/app/v1.0/Http/Models/Rating.js' );
 	const RatingLogModel = require( _directory_base + '/app/v1.0/Http/Models/RatingLog.js' );
 	const UserAuthModel = require( _directory_base + '/app/v1.0/Http/Models/UserAuth.js' );
+	const SyncMobileModel = require( _directory_base + '/app/v1.0/Http/Models/SyncMobile.js' );
 
 	// Node Module
 	const Validator = require( 'ferds-validator');
@@ -27,6 +28,7 @@
 			await callback(array[index], index, array);
 		}
 	}
+
  	/** 
  	  * Contacts
 	  * Contacts adalah data-data user pengguna Mobile Inspection untuk di
@@ -359,6 +361,7 @@
 			}
 		}
 	};
+
 	exports.create_or_update_comment = async ( req, res ) => {
 		
 		// Rule Validasi
@@ -739,7 +742,26 @@
 		} );
 	};
 	
-	exports.findComment = ( req, res ) => {
+	exports.findComment = async ( req, res ) => {
+
+		var check_mobile_sync = await SyncMobileModel.aggregate( [
+			{
+				$match: {
+					INSERT_USER: "TAC001070",
+					IMEI: "357884082892361",
+					TABEL_UPDATE: "finding"
+				}
+			},
+			{
+				$sort: {
+					TGL_MOBILE_SYNC: -1
+				}
+			},
+			{
+				$limit: 1
+			}
+		] );
+
 		var auth = req.auth;
 		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
 		var ref_role = auth.REFFERENCE_ROLE;
@@ -791,7 +813,7 @@
 		
 		}
 
-		if ( ref_role == 'NATIONAL' ) {
+		if ( ref_role != 'NATIONAL' ) {
 			var qs = {
 				DELETE_USER: "",
 			}
@@ -799,9 +821,24 @@
 		else {
 			var qs = {
 				DELETE_USER: "",
-				WERKS: '4421'//query_search
+				WERKS: query_search
 			}
 		}
+
+		var now = HelperLib.date_format( 'now', 'YYYYMMDD' );
+		qs["INSERT_TIME"] = {
+			"$gte": parseInt( ( check_mobile_sync.length == 1 ? check_mobile_sync[0].TGL_MOBILE_SYNC.toString().substr( 0, 8 ) + '000000' : 0 ) ),
+			"$lte": parseInt( now + '235959' )
+		};
+
+		console.log(qs);
+
+		// if ( check_mobile_sync.length == 1 ) {
+		// 	qs.push( { "$gte": 0 } );
+		// }
+
+		// DUE_DATE: ( req.body.DUE_DATE == "" ) ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+
 		FindingModel.aggregate( [
 			{$match:qs},
 			{ 
@@ -828,6 +865,7 @@
 			}
  		] )
 		.then( async data => {
+
 			if( !data ) {
 				return res.send( {
 					status: false,
@@ -853,10 +891,16 @@
 					TAG_USER:tagUser
 				} );
 			} );
-			res.send( {
+
+			return res.send( {
 				status: true,
 				message: config.app.error_message.find_200,
-				data: resultsData
+				data: resultsData,
+				data: {
+					"hapus": [],
+					"simpan": resultsData,
+					"ubah": [],
+				}
 			} );
 		} ).catch( err => {
 			res.send( {
@@ -866,6 +910,7 @@
 			} );
 		} );
 	}
+
 	/** 
  	  * Find All/Query
 	  * Untuk mengambil data finding berdasarkan URL query. Contohnya :
