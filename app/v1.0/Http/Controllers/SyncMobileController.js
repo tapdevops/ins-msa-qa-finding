@@ -81,7 +81,7 @@
 			break;
 		}
 
-		console.log(query_search);
+		// console.log(query_search);
 
 		if ( ref_role == 'NATIONAL' ) {
 			FindingModel.aggregate( [
@@ -137,6 +137,9 @@
 				}
 			] )
 			.then( data_insert => {
+
+				// console.log("A");
+
 				if( !data_insert ) {
 					return res.send( {
 						status: false,
@@ -151,7 +154,15 @@
 				
 				data_insert.forEach( function( data ) {
 
-					console.log(data.RATING);
+					var rating_column = {
+						FINDING_CODE: data.FINDING_CODE,
+						RATE: 0,
+						MESSAGE: ""
+					}
+
+					if ( data.RATING.length > 0 ) {
+						rating_column = data.RATING[0];
+					}
 
 					if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
 						temp_delete.push( {
@@ -170,7 +181,7 @@
 							LAT_FINDING: data.LAT_FINDING,
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							RATING: data.RATING,
+							RATING: rating_column,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
@@ -196,7 +207,7 @@
 							LAT_FINDING: data.LAT_FINDING,
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							RATING:data.RATING,
+							RATING: rating_column,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
@@ -222,7 +233,7 @@
 							LAT_FINDING: data.LAT_FINDING, 
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							RATING:data.RATING,
+							RATING: rating_column,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
@@ -306,7 +317,7 @@
 			}
 			])
 			.then( data_insert => {
-				
+				console.log("B");
 				if( !data_insert ) {
 					return res.send( {
 						status: false,
@@ -324,6 +335,17 @@
 				//console.log(data_insert);
 				
 				data_insert.forEach( function( data ) {
+					console.log(data);
+
+					var rating_column = {
+						FINDING_CODE: data.FINDING_CODE,
+						RATE: 0,
+						MESSAGE: ""
+					}
+
+					if ( data.RATING.length > 0 ) {
+						rating_column = data.RATING[0];
+					}
 
 					if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
 						temp_delete.push( {
@@ -342,7 +364,7 @@
 							LAT_FINDING: data.LAT_FINDING,
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							RATING:data.RATING,
+							RATING: rating_column,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
@@ -369,7 +391,7 @@
 							LAT_FINDING: data.LAT_FINDING,
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							RATING:data.RATING,
+							RATING: rating_column,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
@@ -395,7 +417,7 @@
 							LAT_FINDING: data.LAT_FINDING, 
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							RATING:data.RATING,
+							RATING: rating_column,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
