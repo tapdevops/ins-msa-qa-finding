@@ -84,56 +84,58 @@
 		console.log(query_search);
 
 		if ( ref_role == 'NATIONAL' ) {
-			FindingModel.aggregate([
-			{ 
-				"$lookup" : {
-					"from" : "TR_RATING", 
-					"localField" : "FINDING_CODE", 
-					"foreignField" : "FINDING_CODE", 
-					"as" : "RATING"
-				}
-			}, 
-			{ 
-				"$project" : {
-					"_id" : 0.0, 
-					"__v" : 0.0
-				}
-			}, 
-			{ 
-				"$sort" : {
-					"INSERT_TIME" : -1.0
-				}
-			}, 
-			{ 
-				"$match" : {
-					DELETE_USER: "",
-					$and: [
-						{
-							$or: [
-								{
-									INSERT_TIME: {
-										$gte: start_date,
-										$lte: end_date
+			FindingModel.aggregate( [
+				{ 
+					"$lookup" : {
+						"from" : "TR_RATING", 
+						"localField" : "FINDING_CODE", 
+						"foreignField" : "FINDING_CODE", 
+						"as" : "RATING"
+					}
+				}, 
+				{ 
+					"$project" : {
+						"_id" : 0.0, 
+						"__v" : 0.0, 
+						"RATING._id": 0,
+						"RATING.__v": 0,
+					}
+				}, 
+				{ 
+					"$sort" : {
+						"INSERT_TIME" : -1.0
+					}
+				}, 
+				{ 
+					"$match" : {
+						DELETE_USER: "",
+						$and: [
+							{
+								$or: [
+									{
+										INSERT_TIME: {
+											$gte: parseInt( start_date ),
+											$lte: parseInt( end_date )
+										}
+									},
+									{
+										UPDATE_TIME: {
+											$gte: parseInt( start_date ),
+											$lte: parseInt( end_date )
+										}
+									},
+									{
+										DELETE_TIME: {
+											$gte: parseInt( start_date ),
+											$lte: parseInt( end_date )
+										}
 									}
-								},
-								{
-									UPDATE_TIME: {
-										$gte: start_date,
-										$lte: end_date
-									}
-								},
-								{
-									DELETE_TIME: {
-										$gte: start_date,
-										$lte: end_date
-									}
-								}
-							]
-						}
-					]
+								]
+							}
+						]
+					}
 				}
-			}
-			])
+			] )
 			.then( data_insert => {
 				if( !data_insert ) {
 					return res.send( {
@@ -166,15 +168,13 @@
 							LAT_FINDING: data.LAT_FINDING,
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							RATING:data.RATING,
+							RATING: data.RATING,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
 							UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "Y"
 						} );
-
-
 					}
 
 					if ( data.INSERT_TIME >= start_date && data.INSERT_TIME <= end_date ) {
@@ -249,6 +249,7 @@
 			} );
 		}
 		else {
+
 			FindingModel.aggregate([
 			{ 
 				"$lookup" : {
@@ -261,7 +262,9 @@
 			{ 
 				"$project" : {
 					"_id" : 0.0, 
-					"__v" : 0.0
+					"__v" : 0.0,
+					"RATING._id": 0,
+					"RATING.__v": 0,
 				}
 			}, 
 			{ 
@@ -278,20 +281,20 @@
 							$or: [
 								{
 									INSERT_TIME: {
-										$gte: start_date,
-										$lte: end_date
+										$gte: parseInt( start_date ),
+										$lte: parseInt( end_date )
 									}
 								},
 								{
 									UPDATE_TIME: {
-										$gte: start_date,
-										$lte: end_date
+										$gte: parseInt( start_date ),
+										$lte: parseInt( end_date )
 									}
 								},
 								{
 									DELETE_TIME: {
-										$gte: start_date,
-										$lte: end_date
+										$gte: parseInt( start_date ),
+										$lte: parseInt( end_date )
 									}
 								}
 							]
@@ -487,14 +490,14 @@
 					$and: [
 						{
 							INSERT_TIME: {
-								$gte: start_date,
-								$lte: end_date
+								$gte: parseInt( start_date ),
+								$lte: parseInt( end_date )
 							}
 						},
 						{
 							UPDATE_TIME: {
-								$gte: start_date,
-								$lte: end_date
+								$gte: parseInt( start_date ),
+								$lte: parseInt( end_date )
 							}
 						}
 					]
@@ -518,14 +521,14 @@
 							$or: [
 								{
 									INSERT_TIME: {
-										$gte: start_date,
-										$lte: end_date
+										$gte: parseInt( start_date ),
+										$lte: parseInt( end_date )
 									}
 								},
 								{
 									UPDATE_TIME: {
-										$gte: start_date,
-										$lte: end_date
+										$gte: parseInt( start_date ),
+										$lte: parseInt( end_date )
 									}
 								}
 							]
@@ -552,7 +555,7 @@
 				status: true,
 				message: config.app.error_message.find_200,
 				data: results
-			} );
+		Z	} );
 		}
 		else {
 			if ( ref_role == 'NATIONAL' ) {

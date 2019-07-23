@@ -121,6 +121,7 @@
 					UPDATE_TIME: HelperLib.date_format( String( result.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 				} );
 			} );
+			
 			res.send( {
 				status: true,
 				message: config.app.error_message.find_200,
