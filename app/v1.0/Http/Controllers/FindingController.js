@@ -56,7 +56,7 @@
 			HRIS_FULLNAME: 1
 		} )
 		.then( data => {
-			
+			console.log(data);
 			// return data;
 			
 			if( !data ) {
@@ -669,37 +669,37 @@
 		else {
 			var qs = {
 				DELETE_USER: "",
-				WERKS: {"$in":query_search}
+				// WERKS: {"$in":query_search}
 			}
 		}
 
-		FindingModel.aggregate([
-		{ 
-            "$lookup" : {
-                "from" : "TR_RATING", 
-                "localField" : "FINDING_CODE", 
-                "foreignField" : "FINDING_CODE", 
-                "as" : "RATING"
-            }
-        }, 
-        { 
-            "$project" : {
-                "_id" : 0.0, 
-                "DELETE_TIME" : 0.0, 
-                "__v" : 0.0,
-                "RATING._id": 0,
-				"RATING.__v": 0,
-            }
-        }, 
-        { 
-            "$sort" : {
-                "INSERT_TIME" : -1.0
-            }
-        }, 
-        { 
-            "$match" : qs
-        }
- 		])
+		FindingModel.aggregate( [
+			{ 
+				"$lookup" : {
+					"from" : "TR_RATING", 
+					"localField" : "FINDING_CODE", 
+					"foreignField" : "FINDING_CODE", 
+					"as" : "RATING"
+				}
+			}, 
+			{ 
+				"$project" : {
+					"_id" : 0.0, 
+					"DELETE_TIME" : 0.0, 
+					"__v" : 0.0,
+					"RATING._id": 0,
+					"RATING.__v": 0,
+				}
+			}, 
+			{ 
+				"$sort" : {
+					"INSERT_TIME" : -1.0
+				}
+			}, 
+			{ 
+				"$match" : qs
+			}
+ 		] )
 		.then( data => {
 			// console.log("XXX");
 			// console.log(data);
@@ -769,9 +769,6 @@
 	
 	exports.findComment = async ( req, res ) => {
 
-
-		// console.log(req.auth);
-
 		// Get tanggal terakhir sync dari s_auth.T_MOBILE_SYNC
 		var check_mobile_sync = await SyncMobileModel.aggregate( [
 			{
@@ -790,6 +787,9 @@
 				$limit: 1
 			}
 		] );
+
+		console.log("Ferdinand");
+
 		var auth = req.auth;
 		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
 		var ref_role = auth.REFFERENCE_ROLE;
@@ -852,7 +852,7 @@
 				WERKS: query_search
 			}
 		}
-		// qs["FINDING_CODE"] = "FTAC001010190409112833";
+
 		var now = HelperLib.date_format( 'now', 'YYYYMMDD' ).substr( 0, 8 );
 		var tanggal_terakhir_sync = ( check_mobile_sync.length == 1 ? ( check_mobile_sync[0].TGL_MOBILE_SYNC.toString() ).substr( 0, 8 ) + '000000' : 0 );
 		var start_date = parseInt( tanggal_terakhir_sync );
@@ -861,69 +861,24 @@
 			"$or": [
 				{
 					"INSERT_TIME": {
-						"$gte": start_date,
-						"$lte": end_date
+						"$gte": parseInt( start_date ),
+						"$lte": parseInt( end_date )
 					}
 				},
 				{
 					"UPDATE_TIME": {
-						"$gte": start_date,
-						"$lte": end_date
+						"$gte": parseInt( start_date ),
+						"$lte": parseInt( end_date )
 					}
 				},
 				{
 					"DELETE_TIME": {
-						"$gte": start_date,
-						"$lte": end_date
+						"$gte": parseInt( start_date ),
+						"$lte": parseInt( end_date )
 					}
 				}
 			]
 		} ];
-
-		console.log([
-			{
-				"$match": qs
-			},
-			{
-		        "$lookup" : {
-		            "from" : "VIEW_COMMENT", 
-		            "localField" : "FINDING_CODE", 
-		            "foreignField" : "FINDING_CODE", 
-		            "as" : "comment"
-		        }
-		    },
-		    {
-		        "$project": {
-		            "_id": 0,
-		            "__v": 0
-		        }
-		    }
-			/*
-			{ 
-				"$lookup" : {
-					"from" : "TR_FINDING_COMMENT", 
-					"localField" : "FINDING_CODE", 
-					"foreignField" : "FINDING_CODE", 
-					"as" : "comment"
-				}
-			}, 
-			{ 
-				"$lookup" : {
-					"from" : "TR_FINDING_COMMENT_TAG", 
-					"localField" : "comment.FINDING_COMMENT_ID", 
-					"foreignField" : "FINDING_COMMENT_ID", 
-					"as" : "tag"
-				}
-			}, 
-			{ 
-				"$unwind" : {
-					"path" : "$comment", 
-					"preserveNullAndEmptyArrays" : false
-				}
-			}
-			*/
- 		]);
-		
 
 		FindingModel.aggregate( [
 			{
@@ -969,7 +924,7 @@
 			*/
  		] )
 		.then( async data => {
-
+			// console.log(data);
 			if( !data ) {
 				return res.send( {
 					status: false,
@@ -986,13 +941,12 @@
 				if ( result.comment.length > 0 ) {
 					for ( var n = 0; n < result.comment.length; n++ ) {
 						var ini_tags = [];
-							
+							console.log("A");
 						if ( result.comment[n].tag.length > 0 ) {
 							for( var i = 0; i < result.comment[n].tag.length; i++ ) {
 								var contact = await findContacts( result.comment[n].tag[i].USER_AUTH_CODE );
-								// console.log(contact);
 								var ccc = Object.values( contact );
-								// console.log( ccc );
+								// console.log(ccc);
 								ini_tags.push( {
 									USER_AUTH_CODE: ccc[0],
 									EMPLOYEE_NIK: ccc[1],
@@ -1007,8 +961,8 @@
 
 						var contact_comment = await findContacts( result.comment[n].USER_AUTH_CODE );
 						var con_comment = Object.values( contact_comment );
-						console.log(contact_comment);
 
+						// console.log(con_comment);
 						if ( result.DELETE_TIME >= start_date && result.DELETE_TIME <= end_date ) {
 							temp_delete.push( {
 								FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
@@ -1127,8 +1081,6 @@
 	        }
 		] )
 		.then( data => {
-			console.log("XXX");
-			console.log(data);
 			if( !data ) {
 				return res.send( {
 					status: false,
