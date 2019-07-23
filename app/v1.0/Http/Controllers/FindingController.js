@@ -686,7 +686,9 @@
             "$project" : {
                 "_id" : 0.0, 
                 "DELETE_TIME" : 0.0, 
-                "__v" : 0.0
+                "__v" : 0.0,
+                "RATING._id": 0,
+				"RATING.__v": 0,
             }
         }, 
         { 
@@ -1098,8 +1100,9 @@
 	        { 
 	            "$project" : {
 	                "_id" : 0.0, 
-	                "DELETE_TIME" : 0.0, 
-	                "__v" : 0.0
+	                "__v" : 0.0,
+	                "RATING._id": 0,
+					"RATING.__v": 0,
 	            }
 	        }, 
 	        { 
