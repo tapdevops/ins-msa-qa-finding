@@ -96,7 +96,7 @@
 				{ 
 					"$project" : {
 						"_id" : 0.0, 
-						"__v" : 0.0,
+						"__v" : 0.0, 
 						"RATING._id": 0,
 						"RATING.__v": 0,
 					}
@@ -555,7 +555,7 @@
 				status: true,
 				message: config.app.error_message.find_200,
 				data: results
-			} );
+		Z	} );
 		}
 		else {
 			if ( ref_role == 'NATIONAL' ) {
