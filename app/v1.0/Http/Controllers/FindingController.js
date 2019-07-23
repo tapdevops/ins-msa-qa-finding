@@ -133,7 +133,7 @@
  | Versi 1.0
  |--------------------------------------------------------------------------
  */
- 	/** 
+ 	/** 																																																																																																																	http.Agent(options);																				ZZZZZZ
  	  * Create Or Update
 	  * Untuk membuat data finding baru, jika data (berdasarkan finding code)
 	  * sudah terbentuk maka akan mengupdate data.
@@ -713,6 +713,18 @@
 
 			var results = [];
 			data.forEach( function( result ) {
+
+				var rating_column = {
+					FINDING_CODE: result.FINDING_CODE,
+					RATE: 0,
+					MESSAGE: ""
+				}
+
+				if ( result.RATING.length > 0 ) {
+					console.log(result.RATING);
+					rating_column = result.RATING[0];
+				}
+
 				results.push( {
 					FINDING_CODE: result.FINDING_CODE,
 					WERKS: result.WERKS,
@@ -731,7 +743,7 @@
 					LAT_FINDING: result.LAT_FINDING,
 					LONG_FINDING: result.LONG_FINDING,
 					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
-					RATING: result.RATING,
+					RATING: rating_column,
 					INSERT_USER: result.INSERT_USER,
 					INSERT_TIME: HelperLib.date_format( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 					UPDATE_USER: result.UPDATE_USER || '',

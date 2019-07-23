@@ -151,6 +151,8 @@
 				
 				data_insert.forEach( function( data ) {
 
+					console.log(data.RATING);
+
 					if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
 						temp_delete.push( {
 							FINDING_CODE: data.FINDING_CODE,
@@ -555,7 +557,7 @@
 				status: true,
 				message: config.app.error_message.find_200,
 				data: results
-		Z	} );
+			} );
 		}
 		else {
 			if ( ref_role == 'NATIONAL' ) {
