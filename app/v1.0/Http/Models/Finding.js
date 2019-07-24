@@ -63,7 +63,17 @@
 			default: function() {
 				return 0;
 			}
-		}
+		},
+		RATING_VALUE: {
+			type: Number,
+			get: v => Math.floor( v ),
+			set: v => Math.floor( v ),
+			alias: 'i',
+			default: function() {
+				return 0;
+			}
+		},
+		RATING_MESSAGE: String
 	});
 
 /*

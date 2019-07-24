@@ -184,6 +184,7 @@
 					FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
 					FINDING_DESC: req.body.FINDING_DESC || "",
 					FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
+					//DUE_DATE: Number( req.body.DUE_DATE ) || 0,
 					DUE_DATE: ( req.body.DUE_DATE == "" ) ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
 					ASSIGN_TO: req.body.ASSIGN_TO || "",
 					PROGRESS: req.body.PROGRESS || 0,
@@ -191,9 +192,7 @@
 					LONG_FINDING: req.body.LONG_FINDING || "",
 					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
 					UPDATE_USER: req.body.UPDATE_USER || "",
-					UPDATE_TIME: req.body.UPDATE_TIME || 0,
-					RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
-					RATING_MESSAGE: req.body.RATING_MESSAGE || ""
+					UPDATE_TIME: req.body.UPDATE_TIME || 0
 				}, { new: true } )
 				.then( data => {
 					if ( !data ) {
@@ -222,6 +221,76 @@
 								message: config.app.error_message.create_404 + ' - Log',
 								data: {}
 							} );
+						}
+						if(req.body.RATING){
+
+							/**
+							 * Check Rating
+							 * Jika rating berdasarkan FINDING_CODE yang diinput belum ada di TR_RATING,
+							 * maka akan insert data rating baru, sebaliknya, jika sudah ada, maka akan
+							 * langsung memberi respon sukses (Insert rating di skip karena sudah ada).
+							*/
+							var check_rating_exists = await RatingModel.find( { FINDING_CODE: req.body.FINDING_CODE } ).count();
+							if ( check_rating_exists == 0 ) {
+
+								// Insert Rating
+								const set_rating = new RatingModel( {
+									FINDING_CODE: req.body.FINDING_CODE,
+									RATE: req.body.RATING.RATE,
+									MESSAGE: req.body.RATING.MESSAGE
+								} );
+
+								set_rating.save().then(data=>{
+									if ( !data ) {
+										return res.send( {
+											status: false,
+											message: config.app.error_message.create_404 + ' - Rating',
+											data: {}
+										} );
+									}
+									// Insert Rating Log
+									const set_rating_log = new RatingLogModel( {
+										FINDING_CODE: req.body.FINDING_CODE,
+										PROSES: 'INSERT',
+										IMEI: auth.IMEI,
+										SYNC_TIME: req.body.INSERT_TIME || 0,
+										SYNC_USER: req.body.INSERT_USER,
+									} );
+									set_rating_log.save().then(data=>{
+										if ( !data ) {
+											return res.send( {
+												status: false,
+												message: config.app.error_message.create_404 + ' - Rating Log',
+												data: {}
+											} );
+										}
+										return res.send( {
+											status: true,
+											message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
+											data: {}
+										} );
+									}).catch( err => {
+										return res.send( {
+											status: false,
+											message: config.app.error_message.create_500 + ' - Rating Log',
+											data: {}
+										} );
+									} );
+								}).catch( err => {
+									return res.send( {
+										status: false,
+										message: config.app.error_message.create_500 + ' - Rating',
+										data: {}
+									} );
+								} );
+							}
+							else {
+								return res.send( {
+									status: true,
+									message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
+									data: {}
+								} );
+							}
 						}
 
 						return res.send( {
@@ -254,6 +323,7 @@
 					FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
 					FINDING_DESC: req.body.FINDING_DESC || "",
 					FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
+					//DUE_DATE: req.body.DUE_DATE || 0,
 					DUE_DATE: HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
 					ASSIGN_TO: req.body.ASSIGN_TO || "",
 					PROGRESS: req.body.PROGRESS || "",
@@ -262,12 +332,10 @@
 					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
 					INSERT_USER: req.body.INSERT_USER,
 					INSERT_TIME: req.body.INSERT_TIME || 0,
-					UPDATE_USER: req.body.UPDATE_USER || "",
+					UPDATE_USER: req.body.UPDATE_USER,
 					UPDATE_TIME: req.body.UPDATE_TIME || 0,
 					DELETE_USER: "",
-					DELETE_TIME: 0,
-					RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
-					RATING_MESSAGE: req.body.RATING_MESSAGE || ""
+					DELETE_TIME: 0
 				} );
 
 				set_data.save()
