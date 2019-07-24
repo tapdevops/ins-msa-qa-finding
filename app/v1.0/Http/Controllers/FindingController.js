@@ -38,9 +38,6 @@
 	*/
 	const findContacts = async function( authCode ) {
 
-		// console.log(authCode);
-		// console.log('-x-x-x-x-x-x-x-x-x-x-x-x-x-x-');
-
 		return await UserAuthModel.findOne({
 			USER_AUTH_CODE:authCode
 		})
@@ -194,8 +191,8 @@
 					LAT_FINDING: req.body.LAT_FINDING || "",
 					LONG_FINDING: req.body.LONG_FINDING || "",
 					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-					UPDATE_USER: req.body.UPDATE_USER,
-					UPDATE_TIME: req.body.UPDATE_TIME
+					UPDATE_USER: ( req.body.UPDATE_USER ? req.body.UPDATE_USER || "" : "" ),
+					UPDATE_TIME: ( req.body.UPDATE_TIME && req.body.UPDATE_TIME != "" ? HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ) : 0 )
 				}, { new: true } )
 				.then( data => {
 					if ( !data ) {
@@ -217,7 +214,7 @@
 					} );
 
 					set_log.save()
-					.then( data_log => {
+					.then( async data_log => {
 						if ( !data_log ) {
 							return res.send( {
 								status: false,
@@ -226,70 +223,90 @@
 							} );
 						}
 						if(req.body.RATING){
-							// Insert Rating
-							const set_rating = new RatingModel( {
-								FINDING_CODE: req.body.RATING.FINDING_CODE,
-								RATE: req.body.RATING.RATE,
-								MESSAGE: req.body.RATING.MESSAGE
-							} );
-							set_rating.save().then(data=>{
-								if ( !data ) {
-									return res.send( {
-										status: false,
-										message: config.app.error_message.create_404 + ' - Rating',
-										data: {}
-									} );
-								}
-								// Insert Rating Log
-								const set_rating_log = new RatingLogModel( {
+
+							/**
+							 * Check Rating
+							 * Jika rating berdasarkan FINDING_CODE yang diinput belum ada di TR_RATING,
+							 * maka akan insert data rating baru, sebaliknya, jika sudah ada, maka akan
+							 * langsung memberi respon sukses (Insert rating di skip karena sudah ada).
+							*/
+							var check_rating_exists = await RatingModel.find( { FINDING_CODE: req.body.FINDING_CODE } ).count();
+							if ( check_rating_exists == 0 ) {
+
+								// Insert Rating
+								const set_rating = new RatingModel( {
 									FINDING_CODE: req.body.FINDING_CODE,
-									PROSES: 'INSERT',
-									IMEI: auth.IMEI,
-									SYNC_TIME: req.body.INSERT_TIME || 0,
-									SYNC_USER: req.body.INSERT_USER,
+									RATE: req.body.RATING.RATE,
+									MESSAGE: req.body.RATING.MESSAGE
 								} );
-								set_rating_log.save().then(data=>{
+
+								set_rating.save().then(data=>{
 									if ( !data ) {
 										return res.send( {
 											status: false,
-											message: config.app.error_message.create_404 + ' - Rating Log',
+											message: config.app.error_message.create_404 + ' - Rating',
 											data: {}
 										} );
 									}
-									res.send( {
-										status: true,
-										message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
-										data: {}
+									// Insert Rating Log
+									const set_rating_log = new RatingLogModel( {
+										FINDING_CODE: req.body.FINDING_CODE,
+										PROSES: 'INSERT',
+										IMEI: auth.IMEI,
+										SYNC_TIME: req.body.INSERT_TIME || 0,
+										SYNC_USER: req.body.INSERT_USER,
+									} );
+									set_rating_log.save().then(data=>{
+										if ( !data ) {
+											return res.send( {
+												status: false,
+												message: config.app.error_message.create_404 + ' - Rating Log',
+												data: {}
+											} );
+										}
+										return res.send( {
+											status: true,
+											message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
+											data: {}
+										} );
+									}).catch( err => {
+										return res.send( {
+											status: false,
+											message: config.app.error_message.create_500 + ' - Rating Log',
+											data: {}
+										} );
 									} );
 								}).catch( err => {
-									res.send( {
+									return res.send( {
 										status: false,
-										message: config.app.error_message.create_500 + ' - Rating Log',
+										message: config.app.error_message.create_500 + ' - Rating',
 										data: {}
 									} );
 								} );
-							}).catch( err => {
-								res.send( {
-									status: false,
-									message: config.app.error_message.create_500 + ' - Rating',
+							}
+							else {
+								return res.send( {
+									status: true,
+									message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
 									data: {}
 								} );
-							} );
+							}
 						}
-						res.send( {
+
+						return res.send( {
 							status: true,
 							message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
 							data: {}
 						} );
 					} ).catch( err => {
-						res.send( {
+						return res.send( {
 							status: false,
 							message: config.app.error_message.create_500 + ' - 2',
 							data: {}
 						} );
 					} );
 				} ).catch( err => {
-					res.send( {
+					return res.send( {
 						status: false,
 						message: config.app.error_message.put_500,
 						data: {}
