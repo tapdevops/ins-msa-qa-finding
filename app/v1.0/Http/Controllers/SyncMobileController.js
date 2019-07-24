@@ -153,7 +153,6 @@
 				var temp_delete = [];
 				
 				data_insert.forEach( function( data ) {
-
 					var rating_column = {
 						FINDING_CODE: data.FINDING_CODE,
 						RATE: 0,
@@ -164,33 +163,36 @@
 						rating_column = data.RATING[0];
 					}
 
-					if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
-						temp_delete.push( {
-							FINDING_CODE: data.FINDING_CODE,
-							WERKS: data.WERKS,
-							AFD_CODE: data.AFD_CODE,
-							BLOCK_CODE: data.BLOCK_CODE,
-							FINDING_CATEGORY: data.FINDING_CATEGORY,
-							FINDING_DESC: data.FINDING_DESC,
-							FINDING_PRIORITY: data.FINDING_PRIORITY,
-							//DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: HelperLib.date_format( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: HelperLib.status_finding( String( data.PROGRESS ) ),
-							ASSIGN_TO: data.ASSIGN_TO,
-							PROGRESS: data.PROGRESS,
-							LAT_FINDING: data.LAT_FINDING,
-							LONG_FINDING: data.LONG_FINDING,
-							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							RATING: rating_column,
-							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							UPDATE_USER: data.UPDATE_USER || '',
-							UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS_SYNC: "Y"
-						} );
+					if ( data.DELETE_TIME > 0 ) {
+						if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
+							temp_delete.push( {
+								FINDING_CODE: data.FINDING_CODE,
+								WERKS: data.WERKS,
+								AFD_CODE: data.AFD_CODE,
+								BLOCK_CODE: data.BLOCK_CODE,
+								FINDING_CATEGORY: data.FINDING_CATEGORY,
+								FINDING_DESC: data.FINDING_DESC,
+								FINDING_PRIORITY: data.FINDING_PRIORITY,
+								//DUE_DATE: Number( data.DUE_DATE ) || 0,
+								DUE_DATE: HelperLib.date_format( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+								STATUS: HelperLib.status_finding( String( data.PROGRESS ) ),
+								ASSIGN_TO: data.ASSIGN_TO,
+								PROGRESS: data.PROGRESS,
+								LAT_FINDING: data.LAT_FINDING,
+								LONG_FINDING: data.LONG_FINDING,
+								REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+								RATING: rating_column,
+								INSERT_USER: data.INSERT_USER,
+								INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+								UPDATE_USER: data.UPDATE_USER || '',
+								UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+								STATUS_SYNC: "N"
+							} );
+						}
 					}
 
 					if ( data.INSERT_TIME >= start_date && data.INSERT_TIME <= end_date ) {
+						//console.log(result.PROGRESS );
 						temp_insert.push( {
 							FINDING_CODE: data.FINDING_CODE,
 							WERKS: data.WERKS,
@@ -215,31 +217,32 @@
 							STATUS_SYNC: "N"
 						} );
 					}
-
-					if ( data.UPDATE_TIME >= start_date && data.UPDATE_TIME <= end_date ) {
-						temp_update.push( {
-							FINDING_CODE: data.FINDING_CODE,
-							WERKS: data.WERKS,
-							AFD_CODE: data.AFD_CODE,
-							BLOCK_CODE: data.BLOCK_CODE,
-							FINDING_CATEGORY: data.FINDING_CATEGORY,
-							FINDING_DESC: data.FINDING_DESC,
-							FINDING_PRIORITY: data.FINDING_PRIORITY,
-							DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: HelperLib.date_format( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: HelperLib.status_finding( String( data.PROGRESS ) ),
-							ASSIGN_TO: data.ASSIGN_TO,
-							PROGRESS: data.PROGRESS,
-							LAT_FINDING: data.LAT_FINDING, 
-							LONG_FINDING: data.LONG_FINDING,
-							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							RATING: rating_column,
-							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							UPDATE_USER: data.UPDATE_USER || '',
-							UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS_SYNC: "Y"
-						} );
+					if ( data.UPDATE_TIME > 0 ) {
+						if ( data.UPDATE_TIME >= start_date && data.UPDATE_TIME <= end_date ) {
+							temp_update.push( {
+								FINDING_CODE: data.FINDING_CODE,
+								WERKS: data.WERKS,
+								AFD_CODE: data.AFD_CODE,
+								BLOCK_CODE: data.BLOCK_CODE,
+								FINDING_CATEGORY: data.FINDING_CATEGORY,
+								FINDING_DESC: data.FINDING_DESC,
+								FINDING_PRIORITY: data.FINDING_PRIORITY,
+								//DUE_DATE: Number( data.DUE_DATE ) || 0,
+								DUE_DATE: HelperLib.date_format( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+								STATUS: HelperLib.status_finding( String( data.PROGRESS ) ),
+								ASSIGN_TO: data.ASSIGN_TO,
+								PROGRESS: data.PROGRESS,
+								LAT_FINDING: data.LAT_FINDING, 
+								LONG_FINDING: data.LONG_FINDING,
+								REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+								RATING: rating_column,
+								INSERT_USER: data.INSERT_USER,
+								INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+								UPDATE_USER: data.UPDATE_USER || '',
+								UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+								STATUS_SYNC: "Y"
+							} );
+						}
 					}
 
 				} );
@@ -262,7 +265,7 @@
 			} );
 		}
 		else {
-
+			console.log(req.auth);
 			FindingModel.aggregate([
 			{ 
 				"$lookup" : {
@@ -288,7 +291,9 @@
 			{ 
 				"$match" : {
 					DELETE_USER: "",
-					WERKS: {"$in":query_search},
+					WERKS: {
+						"$in": query_search
+					},
 					$and: [
 						{
 							$or: [
@@ -347,30 +352,32 @@
 						rating_column = data.RATING[0];
 					}
 
-					if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
-						temp_delete.push( {
-							FINDING_CODE: data.FINDING_CODE,
-							WERKS: data.WERKS,
-							AFD_CODE: data.AFD_CODE,
-							BLOCK_CODE: data.BLOCK_CODE,
-							FINDING_CATEGORY: data.FINDING_CATEGORY,
-							FINDING_DESC: data.FINDING_DESC,
-							FINDING_PRIORITY: data.FINDING_PRIORITY,
-							//DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: HelperLib.date_format( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: HelperLib.status_finding( String( data.PROGRESS ) ),
-							ASSIGN_TO: data.ASSIGN_TO,
-							PROGRESS: data.PROGRESS,
-							LAT_FINDING: data.LAT_FINDING,
-							LONG_FINDING: data.LONG_FINDING,
-							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							RATING: rating_column,
-							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							UPDATE_USER: data.UPDATE_USER || '',
-							UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS_SYNC: "N"
-						} );
+					if ( data.DELETE_TIME > 0 ) {
+						if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
+							temp_delete.push( {
+								FINDING_CODE: data.FINDING_CODE,
+								WERKS: data.WERKS,
+								AFD_CODE: data.AFD_CODE,
+								BLOCK_CODE: data.BLOCK_CODE,
+								FINDING_CATEGORY: data.FINDING_CATEGORY,
+								FINDING_DESC: data.FINDING_DESC,
+								FINDING_PRIORITY: data.FINDING_PRIORITY,
+								//DUE_DATE: Number( data.DUE_DATE ) || 0,
+								DUE_DATE: HelperLib.date_format( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+								STATUS: HelperLib.status_finding( String( data.PROGRESS ) ),
+								ASSIGN_TO: data.ASSIGN_TO,
+								PROGRESS: data.PROGRESS,
+								LAT_FINDING: data.LAT_FINDING,
+								LONG_FINDING: data.LONG_FINDING,
+								REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+								RATING: rating_column,
+								INSERT_USER: data.INSERT_USER,
+								INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+								UPDATE_USER: data.UPDATE_USER || '',
+								UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+								STATUS_SYNC: "N"
+							} );
+						}
 					}
 
 					if ( data.INSERT_TIME >= start_date && data.INSERT_TIME <= end_date ) {
@@ -399,31 +406,32 @@
 							STATUS_SYNC: "N"
 						} );
 					}
-
-					if ( data.UPDATE_TIME >= start_date && data.UPDATE_TIME <= end_date ) {
-						temp_update.push( {
-							FINDING_CODE: data.FINDING_CODE,
-							WERKS: data.WERKS,
-							AFD_CODE: data.AFD_CODE,
-							BLOCK_CODE: data.BLOCK_CODE,
-							FINDING_CATEGORY: data.FINDING_CATEGORY,
-							FINDING_DESC: data.FINDING_DESC,
-							FINDING_PRIORITY: data.FINDING_PRIORITY,
-							//DUE_DATE: Number( data.DUE_DATE ) || 0,
-							DUE_DATE: HelperLib.date_format( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS: HelperLib.status_finding( String( data.PROGRESS ) ),
-							ASSIGN_TO: data.ASSIGN_TO,
-							PROGRESS: data.PROGRESS,
-							LAT_FINDING: data.LAT_FINDING, 
-							LONG_FINDING: data.LONG_FINDING,
-							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							RATING: rating_column,
-							INSERT_USER: data.INSERT_USER,
-							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							UPDATE_USER: data.UPDATE_USER || '',
-							UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS_SYNC: "Y"
-						} );
+					if ( data.UPDATE_TIME > 0 ) {
+						if ( data.UPDATE_TIME >= start_date && data.UPDATE_TIME <= end_date ) {
+							temp_update.push( {
+								FINDING_CODE: data.FINDING_CODE,
+								WERKS: data.WERKS,
+								AFD_CODE: data.AFD_CODE,
+								BLOCK_CODE: data.BLOCK_CODE,
+								FINDING_CATEGORY: data.FINDING_CATEGORY,
+								FINDING_DESC: data.FINDING_DESC,
+								FINDING_PRIORITY: data.FINDING_PRIORITY,
+								//DUE_DATE: Number( data.DUE_DATE ) || 0,
+								DUE_DATE: HelperLib.date_format( String( data.DUE_DATE ), 'YYYY-MM-DD hh-mm-ss' ),
+								STATUS: HelperLib.status_finding( String( data.PROGRESS ) ),
+								ASSIGN_TO: data.ASSIGN_TO,
+								PROGRESS: data.PROGRESS,
+								LAT_FINDING: data.LAT_FINDING, 
+								LONG_FINDING: data.LONG_FINDING,
+								REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+								RATING: rating_column,
+								INSERT_USER: data.INSERT_USER,
+								INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+								UPDATE_USER: data.UPDATE_USER || '',
+								UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+								STATUS_SYNC: "Y"
+							} );
+						}
 					}
 				} );
 
