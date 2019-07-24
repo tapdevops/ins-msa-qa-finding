@@ -265,7 +265,7 @@
 			} );
 		}
 		else {
-
+			console.log(req.auth);
 			FindingModel.aggregate([
 			{ 
 				"$lookup" : {
@@ -291,7 +291,9 @@
 			{ 
 				"$match" : {
 					DELETE_USER: "",
-					WERKS: {"$in":query_search},
+					WERKS: {
+						"$in": query_search
+					},
 					$and: [
 						{
 							$or: [

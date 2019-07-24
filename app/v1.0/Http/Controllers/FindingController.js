@@ -187,12 +187,12 @@
 					//DUE_DATE: Number( req.body.DUE_DATE ) || 0,
 					DUE_DATE: ( req.body.DUE_DATE == "" ) ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
 					ASSIGN_TO: req.body.ASSIGN_TO || "",
-					PROGRESS: req.body.PROGRESS || "",
+					PROGRESS: req.body.PROGRESS || 0,
 					LAT_FINDING: req.body.LAT_FINDING || "",
 					LONG_FINDING: req.body.LONG_FINDING || "",
 					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-					UPDATE_USER: ( req.body.UPDATE_USER ? req.body.UPDATE_USER || "" : "" ),
-					UPDATE_TIME: ( req.body.UPDATE_TIME && req.body.UPDATE_TIME != "" ? HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ) : 0 )
+					UPDATE_USER: req.body.UPDATE_USER || "",
+					UPDATE_TIME: req.body.UPDATE_TIME || 0
 				}, { new: true } )
 				.then( data => {
 					if ( !data ) {
