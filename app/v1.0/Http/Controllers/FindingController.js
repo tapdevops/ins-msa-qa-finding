@@ -488,8 +488,8 @@
 							data: {}
 						} );
 					}
-					if(req.body.TAG_USER&&Array.isArray(req.body.TAG_USER)){
-						req.body.TAG_USER.forEach( function( tag ) {
+					if( req.body.TAGS && Array.isArray( req.body.TAGS ) ) {
+						req.body.TAGS.forEach( function( tag ) {
 							const set_tag = new FindingCommentTagModel({
 								FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID,
 								USER_AUTH_CODE: tag.USER_AUTH_CODE
