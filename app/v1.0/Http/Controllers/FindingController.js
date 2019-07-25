@@ -624,20 +624,10 @@
 
 		FindingModel.aggregate( [
 			{ 
-				"$lookup" : {
-					"from" : "TR_RATING", 
-					"localField" : "FINDING_CODE", 
-					"foreignField" : "FINDING_CODE", 
-					"as" : "RATING"
-				}
-			}, 
-			{ 
 				"$project" : {
 					"_id" : 0.0, 
 					"DELETE_TIME" : 0.0, 
-					"__v" : 0.0,
-					"RATING._id": 0,
-					"RATING.__v": 0,
+					"__v" : 0.0
 				}
 			}, 
 			{ 
@@ -662,17 +652,7 @@
 
 			var results = [];
 			data.forEach( function( result ) {
-
-				var rating_column = {
-					FINDING_CODE: result.FINDING_CODE,
-					RATE: 0,
-					MESSAGE: ""
-				}
-
-				if ( result.RATING.length > 0 ) {
-					console.log(result.RATING);
-					rating_column = result.RATING[0];
-				}
+				console.log(result);
 
 				results.push( {
 					FINDING_CODE: result.FINDING_CODE,
@@ -692,14 +672,17 @@
 					LAT_FINDING: result.LAT_FINDING,
 					LONG_FINDING: result.LONG_FINDING,
 					REFFERENCE_INS_CODE: result.REFFERENCE_INS_CODE,
-					RATING: rating_column,
+					// RATING: rating_column,
 					INSERT_USER: result.INSERT_USER,
 					INSERT_TIME: HelperLib.date_format( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 					UPDATE_USER: result.UPDATE_USER || '',
 					UPDATE_TIME: HelperLib.date_format( String( result.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-					STATUS_SYNC: "Y"
+					STATUS_SYNC: "Y",
+					RATING_VALUE: result.RATING_VALUE,
+					RATING_MESSAGE: result.RATING_MESSAGE,
 					//INSERT_TIME: HelperLib.date_format( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 				} );
+
 			} );
 
 			res.send( {
@@ -737,7 +720,6 @@
 			}
 		] );
 
-		console.log(check_mobile_sync);
 
 		var auth = req.auth;
 		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
@@ -1004,20 +986,10 @@
 		}
 
 		FindingModel.aggregate( [
-			{ 
-	            "$lookup" : {
-	                "from" : "TR_RATING", 
-	                "localField" : "FINDING_CODE", 
-	                "foreignField" : "FINDING_CODE", 
-	                "as" : "RATING"
-	            }
-	        }, 
 	        { 
 	            "$project" : {
 	                "_id" : 0.0, 
-	                "__v" : 0.0,
-	                "RATING._id": 0,
-					"RATING.__v": 0,
+	                "__v" : 0.0
 	            }
 	        }, 
 	        { 
@@ -1058,6 +1030,8 @@
 					INSERT_TIME: HelperLib.date_format( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 					UPDATE_USER: result.UPDATE_USER,
 					UPDATE_TIME: HelperLib.date_format( String( result.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+					RATING_VALUE: data.RATING_VALUE,
+					RATING_MESSAGE: data.RATING_MESSAGE,
 				} );
 			} );
 
