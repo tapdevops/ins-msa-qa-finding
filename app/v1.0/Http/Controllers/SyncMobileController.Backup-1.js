@@ -86,9 +86,19 @@
 		if ( ref_role == 'NATIONAL' ) {
 			FindingModel.aggregate( [
 				{ 
+					"$lookup" : {
+						"from" : "TR_RATING", 
+						"localField" : "FINDING_CODE", 
+						"foreignField" : "FINDING_CODE", 
+						"as" : "RATING"
+					}
+				}, 
+				{ 
 					"$project" : {
 						"_id" : 0.0, 
-						"__v" : 0.0
+						"__v" : 0.0, 
+						"RATING._id": 0,
+						"RATING.__v": 0,
 					}
 				}, 
 				{ 
@@ -143,6 +153,16 @@
 				var temp_delete = [];
 				
 				data_insert.forEach( function( data ) {
+					var rating_column = {
+						FINDING_CODE: data.FINDING_CODE,
+						RATE: 0,
+						MESSAGE: ""
+					}
+
+					if ( data.RATING.length > 0 ) {
+						rating_column = data.RATING[0];
+					}
+
 					if ( data.DELETE_TIME > 0 ) {
 						if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
 							temp_delete.push( {
@@ -161,13 +181,12 @@
 								LAT_FINDING: data.LAT_FINDING,
 								LONG_FINDING: data.LONG_FINDING,
 								REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
+								RATING: rating_column,
 								INSERT_USER: data.INSERT_USER,
 								INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 								UPDATE_USER: data.UPDATE_USER || '',
 								UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-								STATUS_SYNC: "N",
-								RATING_VALUE: data.RATING_VALUE,
-								RATING_MESSAGE: data.RATING_MESSAGE,
+								STATUS_SYNC: "N"
 							} );
 						}
 					}
@@ -190,14 +209,12 @@
 							LAT_FINDING: data.LAT_FINDING,
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							// RATING: rating_column,
+							RATING: rating_column,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
 							UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS_SYNC: "N",
-							RATING_VALUE: data.RATING_VALUE,
-							RATING_MESSAGE: data.RATING_MESSAGE,
+							STATUS_SYNC: "N"
 						} );
 					}
 					if ( data.UPDATE_TIME > 0 ) {
@@ -218,14 +235,12 @@
 								LAT_FINDING: data.LAT_FINDING, 
 								LONG_FINDING: data.LONG_FINDING,
 								REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-								// RATING: rating_column,
+								RATING: rating_column,
 								INSERT_USER: data.INSERT_USER,
 								INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 								UPDATE_USER: data.UPDATE_USER || '',
 								UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-								STATUS_SYNC: "Y",
-								RATING_VALUE: data.RATING_VALUE,
-								RATING_MESSAGE: data.RATING_MESSAGE
+								STATUS_SYNC: "Y"
 							} );
 						}
 					}
@@ -252,51 +267,62 @@
 		else {
 			console.log(req.auth);
 			FindingModel.aggregate([
-				{ 
-					"$project" : {
-						"_id" : 0.0, 
-						"__v" : 0.0
-					}
-				}, 
-				{ 
-					"$sort" : {
-						"INSERT_TIME" : -1.0
-					}
-				}, 
-				{ 
-					"$match" : {
-						DELETE_USER: "",
-						WERKS: {
-							"$in": query_search
-						},
-						$and: [
-							{
-								$or: [
-									{
-										INSERT_TIME: {
-											$gte: parseInt( start_date ),
-											$lte: parseInt( end_date )
-										}
-									},
-									{
-										UPDATE_TIME: {
-											$gte: parseInt( start_date ),
-											$lte: parseInt( end_date )
-										}
-									},
-									{
-										DELETE_TIME: {
-											$gte: parseInt( start_date ),
-											$lte: parseInt( end_date )
-										}
-									}
-								]
-							}
-						]
-					}
+			{ 
+				"$lookup" : {
+					"from" : "TR_RATING", 
+					"localField" : "FINDING_CODE", 
+					"foreignField" : "FINDING_CODE", 
+					"as" : "RATING"
 				}
+			}, 
+			{ 
+				"$project" : {
+					"_id" : 0.0, 
+					"__v" : 0.0,
+					"RATING._id": 0,
+					"RATING.__v": 0,
+				}
+			}, 
+			{ 
+				"$sort" : {
+					"INSERT_TIME" : -1.0
+				}
+			}, 
+			{ 
+				"$match" : {
+					DELETE_USER: "",
+					WERKS: {
+						"$in": query_search
+					},
+					$and: [
+						{
+							$or: [
+								{
+									INSERT_TIME: {
+										$gte: parseInt( start_date ),
+										$lte: parseInt( end_date )
+									}
+								},
+								{
+									UPDATE_TIME: {
+										$gte: parseInt( start_date ),
+										$lte: parseInt( end_date )
+									}
+								},
+								{
+									DELETE_TIME: {
+										$gte: parseInt( start_date ),
+										$lte: parseInt( end_date )
+									}
+								}
+							]
+						}
+					]
+				}
+			}
 			])
 			.then( data_insert => {
+				console.log("B");
 				if( !data_insert ) {
 					return res.send( {
 						status: false,
@@ -311,8 +337,20 @@
 				var temp_update = [];
 				var temp_delete = [];
 
+				//console.log(data_insert);
 				
 				data_insert.forEach( function( data ) {
+					console.log(data);
+
+					var rating_column = {
+						FINDING_CODE: data.FINDING_CODE,
+						RATE: 0,
+						MESSAGE: ""
+					}
+
+					if ( data.RATING.length > 0 ) {
+						rating_column = data.RATING[0];
+					}
 
 					if ( data.DELETE_TIME > 0 ) {
 						if ( data.DELETE_TIME >= start_date && data.DELETE_TIME <= end_date ) {
@@ -332,14 +370,12 @@
 								LAT_FINDING: data.LAT_FINDING,
 								LONG_FINDING: data.LONG_FINDING,
 								REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-								// RATING: rating_column,
+								RATING: rating_column,
 								INSERT_USER: data.INSERT_USER,
 								INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 								UPDATE_USER: data.UPDATE_USER || '',
 								UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-								STATUS_SYNC: "N",
-								RATING_VALUE: data.RATING_VALUE,
-								RATING_MESSAGE: data.RATING_MESSAGE
+								STATUS_SYNC: "N"
 							} );
 						}
 					}
@@ -362,14 +398,12 @@
 							LAT_FINDING: data.LAT_FINDING,
 							LONG_FINDING: data.LONG_FINDING,
 							REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-							// RATING: rating_column,
+							RATING: rating_column,
 							INSERT_USER: data.INSERT_USER,
 							INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							UPDATE_USER: data.UPDATE_USER || '',
 							UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-							STATUS_SYNC: "N",
-							RATING_VALUE: data.RATING_VALUE,
-							RATING_MESSAGE: data.RATING_MESSAGE
+							STATUS_SYNC: "N"
 						} );
 					}
 					if ( data.UPDATE_TIME > 0 ) {
@@ -390,14 +424,12 @@
 								LAT_FINDING: data.LAT_FINDING, 
 								LONG_FINDING: data.LONG_FINDING,
 								REFFERENCE_INS_CODE: data.REFFERENCE_INS_CODE,
-								// RATING: rating_column,
+								RATING: rating_column,
 								INSERT_USER: data.INSERT_USER,
 								INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 								UPDATE_USER: data.UPDATE_USER || '',
 								UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-								STATUS_SYNC: "Y",
-								RATING_VALUE: data.RATING_VALUE,
-								RATING_MESSAGE: data.RATING_MESSAGE
+								STATUS_SYNC: "Y"
 							} );
 						}
 					}
