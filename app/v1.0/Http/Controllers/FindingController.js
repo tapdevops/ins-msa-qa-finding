@@ -737,7 +737,7 @@
 			}
 		] );
 
-		console.log("Ferdinand");
+		console.log(check_mobile_sync);
 
 		var auth = req.auth;
 		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
@@ -828,11 +828,11 @@
 				}
 			]
 		} ];
-
+		console.log(qs);
 		FindingModel.aggregate( [
-			{
-				"$match": qs
-			},
+			// {
+			// 	"$match": qs
+			// },
 			{
 		        "$lookup" : {
 		            "from" : "VIEW_COMMENT", 
@@ -873,7 +873,7 @@
 			*/
  		] )
 		.then( async data => {
-			// console.log(data);
+			console.log(data);
 			if( !data ) {
 				return res.send( {
 					status: false,
@@ -885,7 +885,7 @@
 			var temp_update = [];
 			var temp_delete = [];
 			await asyncForEach( data, async function( result ) {
-
+				console.log(result.comment);
 				// console.log(result);
 				if ( result.comment.length > 0 ) {
 					for ( var n = 0; n < result.comment.length; n++ ) {
