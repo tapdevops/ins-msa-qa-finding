@@ -652,8 +652,6 @@
 
 			var results = [];
 			data.forEach( function( result ) {
-				console.log(result);
-
 				results.push( {
 					FINDING_CODE: result.FINDING_CODE,
 					WERKS: result.WERKS,

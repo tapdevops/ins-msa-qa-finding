@@ -250,8 +250,7 @@
 			} );
 		}
 		else {
-			console.log(req.auth);
-			FindingModel.aggregate([
+			FindingModel.aggregate( [
 				{ 
 					"$project" : {
 						"_id" : 0.0, 
@@ -295,7 +294,7 @@
 						]
 					}
 				}
-			])
+			] )
 			.then( data_insert => {
 				if( !data_insert ) {
 					return res.send( {
