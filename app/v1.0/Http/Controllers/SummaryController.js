@@ -23,7 +23,7 @@
 	*/
  	exports.total = async ( req, res ) => {
  		var date = new Date();
- 			date.setDate( date.getDate() - 1 );
+ 			date.setDate( date.getDate() - 7 );
 		 var max_finding_date = parseInt( MomentTimezone( date ).tz( "Asia/Jakarta" ).format( "YYYYMMDD" ) + '235959' );
 		 var finding_progress_complete = await FindingModel.aggregate( [
 			{
@@ -49,9 +49,10 @@
 				"$count": 'jumlah'
 			}
 		 ] );
-		 res.status( 200 ).json( {
+
+		 return res.status( 200 ).json( {
 			status: true,
-			message: "OK",
+			message: "Success!",
 			data: {
 				complete: ( finding_progress_complete.length > 0 ? finding_progress_complete[0].jumlah : 0 ),
 				incomplete: ( finding_progress_incomplete.length > 0 ? finding_progress_incomplete[0].jumlah : 0 ),
