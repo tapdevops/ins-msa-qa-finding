@@ -24,43 +24,38 @@
  	exports.total = async ( req, res ) => {
  		var date = new Date();
  			date.setDate( date.getDate() - 1 );
- 		var max_finding_date = parseInt( MomentTimezone( date ).tz( "Asia/Jakarta" ).format( "YYYYMMDD" ) + '235959' );
- 		var finding_progress_complete = await FindingModel.aggregate( [
- 			{
- 				"$match": {
- 					"INSERT_TIME": {
- 						"$lte": max_finding_date
- 					},
- 					"PROGRESS": 100
- 				}
- 			},
- 			{
- 				"$count": "jumlah"
- 			}
- 		] );
- 		var finding_progress_incomplete = await FindingModel.aggregate( [
- 			{
- 				"$match": {
- 					"INSERT_TIME": {
- 						"$lte": max_finding_date
- 					},
- 					"PROGRESS": {
- 						"$lte": 100
- 					}
- 				}
- 			},
- 			{
- 				"$count": "jumlah"
- 			}
- 		] );
-
- 		res.status( 200 ).json( {
- 			status: true,
- 			message: "OK",
- 			data: {
- 				complete: ( finding_progress_complete.length > 0 ? finding_progress_complete[0].jumlah : 0 ),
- 				incomplete: ( finding_progress_incomplete.length > 0 ? finding_progress_incomplete[0].jumlah : 0 ),
- 				target: 10 // Masih hardcode
- 			}
- 		} );
+		 var max_finding_date = parseInt( MomentTimezone( date ).tz( "Asia/Jakarta" ).format( "YYYYMMDD" ) + '235959' );
+		 var finding_progress_complete = await FindingModel.aggregate( [
+			{
+				"$match": {
+					"INSERT_USER": req.auth.USER_AUTH_CODE,
+					"PROGRESS": 100
+				}
+			},
+			{
+				"$count": 'jumlah'
+			}
+		 ] );
+		 var finding_progress_incomplete = await FindingModel.aggregate( [
+			{
+				"$match": {
+					"INSERT_USER": req.auth.USER_AUTH_CODE,
+					"PROGRESS": {
+						"$lt": 100
+					}
+				}
+			},
+			{
+				"$count": 'jumlah'
+			}
+		 ] );
+		 res.status( 200 ).json( {
+			status: true,
+			message: "OK",
+			data: {
+				complete: ( finding_progress_complete.length > 0 ? finding_progress_complete[0].jumlah : 0 ),
+				incomplete: ( finding_progress_incomplete.length > 0 ? finding_progress_incomplete[0].jumlah : 0 ),
+				target: 10 // Masih hardcode
+			}
+		} );
  	}
