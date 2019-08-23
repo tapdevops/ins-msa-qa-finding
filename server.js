@@ -3,10 +3,11 @@
 | Global APP Init
 |--------------------------------------------------------------------------
 */
+	global._default_db = 'finding';
 	global._directory_base = __dirname;
 	global.config = {};
 		  config.app = require( './config/app.js' );
-		  config.database = require( './config/database.js' )[config.app.env];
+		  config.database = require( './config/database.js' )[_default_db][config.app.env];
 
 /*
 |--------------------------------------------------------------------------

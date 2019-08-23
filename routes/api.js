@@ -8,6 +8,12 @@
 	
 	// Controllers
 	const Controllers = {
+		v_1_1: {
+			Finding: require( _directory_base + '/app/v1.1/Http/Controllers/FindingController.js' ),
+			Report: require( _directory_base + '/app/v1.1/Http/Controllers/ReportController.js' ),
+			SyncMobile: require( _directory_base + '/app/v1.1/Http/Controllers/SyncMobileController.js' ),
+			Summary: require( _directory_base + '/app/v1.1/Http/Controllers/SummaryController.js' )
+		},
 		v_1_0: {
 			Finding: require( _directory_base + '/app/v1.0/Http/Controllers/FindingController.js' ),
 			Report: require( _directory_base + '/app/v1.0/Http/Controllers/ReportController.js' ),
@@ -18,6 +24,11 @@
 
 	// Middleware
 	const Middleware = {
+		v_1_1: {
+			SyncDatabase_TR_FINDING: require( _directory_base + '/app/v1.1/Http/Middleware/SyncDatabase/TR_FINDING.js' ),
+			SyncDatabase_TR_FINDING_COMMENT: require( _directory_base + '/app/v1.1/Http/Middleware/SyncDatabase/TR_FINDING_COMMENT.js' ),
+			VerifyToken: require( _directory_base + '/app/v1.1/Http/Middleware/VerifyToken.js' )
+		},
 		v_1_0: {
 			VerifyToken: require( _directory_base + '/app/v1.0/Http/Middleware/VerifyToken.js' )
 		}
@@ -44,6 +55,33 @@
 				} )
 			} );
 
+		/*
+		 |--------------------------------------------------------------------------
+		 | API Versi 1.1
+		 |--------------------------------------------------------------------------
+		 */
+			// Finding
+			app.get( '/api/v1.1/sync-mobile/comment', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.findComment );
+			app.get( '/api/v1.1/finding/comment', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.findComment );
+			app.get( '/api/v1.1/finding', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.find );
+			app.get( '/api/v1.1/finding/all', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.findAll );
+			app.get( '/api/v1.1/finding/q', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.findAll );
+			app.get( '/api/v1.1/finding/:id', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.findOne );
+			app.post( '/api/v1.1/finding', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.create_or_update, Middleware.v_1_1.SyncDatabase_TR_FINDING );
+			app.post( '/api/v1.1/finding/comment', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.create_or_update_comment, Middleware.v_1_1.SyncDatabase_TR_FINDING_COMMENT );
+
+			// Summary
+			app.post( '/api/v1.1/summary', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Summary.finding );
+			app.get( '/api/v1.1/summary/generate', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Summary.process_weekly );
+
+			// Report
+			app.get( '/api/v1.1/report/web/finding/all', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Report.find );
+			app.get( '/api/v1.1/report/web/finding/q', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Report.find );
+
+			// Sync Mobile
+			app.get( '/api/v1.1/sync-mobile/finding/:start_date/:end_date', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.SyncMobile.synchronize );
+			app.get( '/api/v1.1/sync-mobile/finding-images/:start_date/:end_date', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.SyncMobile.synchronize_images );
+			
 
 		/*
 		 |--------------------------------------------------------------------------
@@ -61,7 +99,7 @@
 			app.post( '/api/v1.0/finding/comment', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Finding.create_or_update_comment );
 
 			// Summary
-			app.post( '/api/v1.0/summary/total', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Summary.total );
+			app.get( '/api/v1.0/summary/total', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Summary.total );
 
 			// Report
 			app.get( '/api/v1.0/report/web/finding/all', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.Report.find );
@@ -70,6 +108,7 @@
 			// Sync Mobile
 			app.get( '/api/v1.0/sync-mobile/finding/:start_date/:end_date', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.SyncMobile.synchronize );
 			app.get( '/api/v1.0/sync-mobile/finding-images/:start_date/:end_date', Middleware.v_1_0.VerifyToken, Controllers.v_1_0.SyncMobile.synchronize_images );
+
 		/*
 		 |--------------------------------------------------------------------------
 		 | Old API
