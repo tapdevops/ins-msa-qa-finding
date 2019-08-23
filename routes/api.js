@@ -71,7 +71,8 @@
 			app.post( '/api/v1.1/finding/comment', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.create_or_update_comment, Middleware.v_1_1.SyncDatabase_TR_FINDING_COMMENT );
 
 			// Summary
-			app.post( '/api/v1.1/summary/total', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Summary.total );
+			app.post( '/api/v1.1/summary', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Summary.finding );
+			app.get( '/api/v1.1/summary/generate', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Summary.process_weekly );
 
 			// Report
 			app.get( '/api/v1.1/report/web/finding/all', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Report.find );
