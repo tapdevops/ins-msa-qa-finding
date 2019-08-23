@@ -32,6 +32,7 @@
  					"INSERT_TIME": {
  						"$lte": max_finding_date
  					},
+ 					"INSERT_USER": req.auth.USER_AUTH_CODE,
  					"PROGRESS": 100
  				}
  			},
@@ -45,6 +46,7 @@
  					"INSERT_TIME": {
  						"$lte": max_finding_date
  					},
+ 					"INSERT_USER": req.auth.USER_AUTH_CODE,
  					"PROGRESS": {
  						"$lte": 100
  					}
