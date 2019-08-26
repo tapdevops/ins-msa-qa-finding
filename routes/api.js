@@ -73,6 +73,7 @@
 			// Summary
 			app.post( '/api/v1.1/summary', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Summary.finding );
 			app.get( '/api/v1.1/summary/generate', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Summary.process_weekly );
+			app.get( '/api/v1.0/summary/generate', Middleware.v_1_1.VerifyToken, Controllers.v_1_0.Summary.process_weekly );
 
 			// Report
 			app.get( '/api/v1.1/report/web/finding/all', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Report.find );
