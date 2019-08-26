@@ -10,7 +10,7 @@
 	const FindingModel = require( _directory_base + '/app/v1.0/Http/Models/Finding.js' );
 	const SummaryWeeklyModel = require( _directory_base + '/app/v1.0/Http/Models/SummaryWeekly.js' );
 	const Helper = require( _directory_base + '/app/v1.0/Http/Libraries/HelperLib.js' );
-	const InspectionHModel = require( _directory_base +  )
+	// const InspectionHModel = require( _directory_base +  )
 
 	// Node Module
 	const MomentTimezone = require( 'moment-timezone' );
