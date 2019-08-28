@@ -84,7 +84,7 @@
  		var query = await FindingModel.aggregate( [
 			{
 				$match: {
-					INSERT_TIME: {
+					END_TIME: {
 						$gte: date_min_1_week,
 						$lte: date_now,
 					}
@@ -110,7 +110,7 @@
 				var finding_progress_complete = await FindingModel.aggregate( [
 		 			{
 		 				"$match": {
-		 					"INSERT_TIME": {
+		 					"END_TIME": {
 		 						"$gte": date_min_1_week,
 		 						"$lte": date_now
 		 					},
@@ -125,7 +125,7 @@
 		 		var finding_progress_incomplete = await FindingModel.aggregate( [
 		 			{
 		 				"$match": {
-		 					"INSERT_TIME": {
+		 					"END_TIME": {
 		 						"$gte": date_min_1_week,
 		 						"$lte": date_now
 		 					},
