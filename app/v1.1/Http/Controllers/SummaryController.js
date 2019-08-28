@@ -56,6 +56,20 @@
 				console.log( data );
 			} )
 		}
+
+		if ( finding_query.length == 0 ) {
+			var now = HelperLib.date_format( 'now', 'YYYYMMDDhhmmss' );
+			var set = new SummaryWeeklyModel( {
+				"TOTAL_COMPLETE": 0,
+				"TOTAL_INCOMPLETE": 0,
+				"SUMMARY_DATE": parseInt( now.toString().substr( 0, 8 ) ),
+				"IS_VIEW": 0, 
+				"INSERT_USER": req.auth.USER_AUTH_CODE, // Hardcode
+				"INSERT_TIME": now
+			} );
+			set.save();
+		}
+
  		return res.status( 200 ).json( {
  			status: ( finding_query.length > 0 ? ( finding_query[0].IS_VIEW == 1 ? false : true ) : false ),
  			message: "OK",
