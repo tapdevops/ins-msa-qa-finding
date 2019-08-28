@@ -93,14 +93,14 @@
 			{
 				$group: {
 					_id: {
-						INSERT_USER: "$INSERT_USER"
+						ASSIGN_TO: "$ASSIGN_TO"
 					}
 				}
 			},
 			{
 				$project: {
 					_id: 0,
-					USER_AUTH_CODE: "$_id.INSERT_USER"
+					USER_AUTH_CODE: "$_id.ASSIGN_TO"
 				}
 			}
 		] ); 
@@ -114,7 +114,7 @@
 		 						"$gte": date_min_1_week,
 		 						"$lte": date_now
 		 					},
-		 					"INSERT_USER": q.USER_AUTH_CODE,
+		 					"ASSIGN_TO": q.USER_AUTH_CODE,
 		 					"PROGRESS": 100
 		 				}
 		 			},
@@ -129,7 +129,7 @@
 		 						"$gte": date_min_1_week,
 		 						"$lte": date_now
 		 					},
-		 					"INSERT_USER": q.USER_AUTH_CODE,
+		 					"ASSIGN_TO": q.USER_AUTH_CODE,
 		 					"PROGRESS": {
 		 						"$lte": 100
 		 					}
