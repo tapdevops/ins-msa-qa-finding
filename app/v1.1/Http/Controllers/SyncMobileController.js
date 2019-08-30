@@ -168,6 +168,7 @@
 								STATUS_SYNC: "N",
 								RATING_VALUE: data.RATING_VALUE,
 								RATING_MESSAGE: data.RATING_MESSAGE,
+								END_TIME: data.END_TIME,
 							} );
 						}
 					}
@@ -198,6 +199,7 @@
 							STATUS_SYNC: "N",
 							RATING_VALUE: data.RATING_VALUE,
 							RATING_MESSAGE: data.RATING_MESSAGE,
+							END_TIME: data.END_TIME,
 						} );
 					}
 					if ( data.UPDATE_TIME > 0 ) {
@@ -225,7 +227,8 @@
 								UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 								STATUS_SYNC: "Y",
 								RATING_VALUE: data.RATING_VALUE,
-								RATING_MESSAGE: data.RATING_MESSAGE
+								RATING_MESSAGE: data.RATING_MESSAGE,
+								END_TIME: data.END_TIME
 							} );
 						}
 					}
@@ -339,7 +342,8 @@
 								UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 								STATUS_SYNC: "N",
 								RATING_VALUE: data.RATING_VALUE,
-								RATING_MESSAGE: data.RATING_MESSAGE
+								RATING_MESSAGE: data.RATING_MESSAGE,
+								END_TIME: data.END_TIME
 							} );
 						}
 					}
@@ -369,7 +373,8 @@
 							UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 							STATUS_SYNC: "N",
 							RATING_VALUE: data.RATING_VALUE,
-							RATING_MESSAGE: data.RATING_MESSAGE
+							RATING_MESSAGE: data.RATING_MESSAGE,
+							END_TIME: data.END_TIME,
 						} );
 					}
 					if ( data.UPDATE_TIME > 0 ) {
@@ -397,7 +402,8 @@
 								UPDATE_TIME: HelperLib.date_format( String( data.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 								STATUS_SYNC: "Y",
 								RATING_VALUE: data.RATING_VALUE,
-								RATING_MESSAGE: data.RATING_MESSAGE
+								RATING_MESSAGE: data.RATING_MESSAGE,
+								END_TIME: data.END_TIME,
 							} );
 						}
 					}

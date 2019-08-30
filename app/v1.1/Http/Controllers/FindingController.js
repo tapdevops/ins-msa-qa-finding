@@ -153,6 +153,8 @@
 		];
 		var run_validator = Validator.run( rules );
 
+		console.log(run_validator);
+
 		if ( run_validator.status == false ) {
 			res.json( {
 				status: false,
@@ -683,7 +685,6 @@
 			var results = [];
 			data.forEach( function( result ) {
 				console.log(result);
-
 				results.push( {
 					FINDING_CODE: result.FINDING_CODE,
 					WERKS: result.WERKS,
@@ -710,6 +711,7 @@
 					STATUS_SYNC: "Y",
 					RATING_VALUE: result.RATING_VALUE,
 					RATING_MESSAGE: result.RATING_MESSAGE,
+					END_TIME: result.END_TIME,
 					//INSERT_TIME: HelperLib.date_format( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 				} );
 
