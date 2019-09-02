@@ -192,7 +192,7 @@
 					UPDATE_TIME: req.body.UPDATE_TIME || 0,
 					RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
 					RATING_MESSAGE: req.body.RATING_MESSAGE || "",
-					END_TIME: ( req.body.DUE_DATE == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
+					END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
 				};
 
 				FindingModel.findOneAndUpdate( { 
@@ -281,7 +281,7 @@
 					DELETE_TIME: 0,
 					RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
 					RATING_MESSAGE: req.body.RATING_MESSAGE || "",
-					END_TIME: ( req.body.DUE_DATE == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
+					END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
 				}
 
 				const set_data = new FindingModel( insert_data );
@@ -711,7 +711,7 @@
 					STATUS_SYNC: "Y",
 					RATING_VALUE: result.RATING_VALUE,
 					RATING_MESSAGE: result.RATING_MESSAGE,
-					END_TIME: result.END_TIME,
+					END_TIME: HelperLib.date_format( String( result.END_TIME ), 'YYYY-MM-DD hh-mm-ss' )
 					//INSERT_TIME: HelperLib.date_format( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 				} );
 
