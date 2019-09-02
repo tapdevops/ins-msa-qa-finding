@@ -67,8 +67,8 @@
 			app.get( '/api/v1.1/finding/all', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.findAll );
 			app.get( '/api/v1.1/finding/q', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.findAll );
 			app.get( '/api/v1.1/finding/:id', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.findOne );
-			app.post( '/api/v1.1/finding', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.create_or_update, Middleware.v_1_1.SyncDatabase_TR_FINDING );
-			app.post( '/api/v1.1/finding/comment', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.create_or_update_comment, Middleware.v_1_1.SyncDatabase_TR_FINDING_COMMENT );
+			app.post( '/api/v1.1/finding', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.create_or_update );
+			app.post( '/api/v1.1/finding/comment', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Finding.create_or_update_comment );
 
 			// Summary
 			app.post( '/api/v1.1/summary', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Summary.finding );

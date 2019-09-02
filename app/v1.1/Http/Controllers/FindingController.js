@@ -227,12 +227,6 @@
 							} );
 						}
 
-						// Set Middleware Action
-						req.headers.action = 'update';
-						req.headers.id = req.body.FINDING_CODE;
-						req.headers.data = update_data;
-						next();
-
 						// Return hasil
 						return res.send( {
 							status: true,
@@ -315,11 +309,6 @@
 							} );
 						}
 
-						// Set Middleware Action
-						req.headers.action = 'insert';
-						req.headers.data = insert_data;
-						next();
-
 						return res.send( {
 							status: true,
 							message: config.app.error_message.create_200,
@@ -345,7 +334,7 @@
 	};
 
 	exports.create_or_update_comment = async ( req, res ) => {
-		
+
 		// Rule Validasi
 		var rules = [
 			{ "name": "FINDING_COMMENT_ID", "value": req.body.FINDING_COMMENT_ID, "rules": "required|alpha_numeric" },
@@ -375,121 +364,10 @@
 
 			// Jika sudah terdapat data, maka akan mengupdate Data Finding.
 			if ( check.length > 0 ) {
-				FindingModel.findOneAndUpdate( { 
-					FINDING_CODE : req.body.FINDING_CODE
-				}, {
-					WERKS: req.body.WERKS || "",
-					BLOCK_CODE: req.body.BLOCK_CODE || "",
-					FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
-					FINDING_DESC: req.body.FINDING_DESC || "",
-					FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-					//DUE_DATE: Number( req.body.DUE_DATE ) || 0,
-					DUE_DATE: ( req.body.DUE_DATE == "" ) ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
-					ASSIGN_TO: req.body.ASSIGN_TO || "",
-					PROGRESS: req.body.PROGRESS || "",
-					LAT_FINDING: req.body.LAT_FINDING || "",
-					LONG_FINDING: req.body.LONG_FINDING || "",
-					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-					UPDATE_USER: req.body.UPDATE_USER,
-					UPDATE_TIME: req.body.UPDATE_TIME
-				}, { new: true } )
-				.then( data => {
-					if ( !data ) {
-						return res.send( {
-							status: false,
-							message: config.app.error_message.put_404,
-							data: {}
-						} );
-					}
-					
-					// Insert Finding Log
-					const set_log = new FindingLogModel( {
-						FINDING_CODE: req.body.FINDING_CODE,
-						PROSES: 'UPDATE',
-						PROGRESS: req.body.PROGRESS,
-						IMEI: auth.IMEI,
-						SYNC_TIME: req.body.INSERT_TIME || 0,
-						SYNC_USER: req.body.INSERT_USER,
-					} );
-
-					set_log.save()
-					.then( data_log => {
-						if ( !data_log ) {
-							return res.send( {
-								status: false,
-								message: config.app.error_message.create_404 + ' - Log',
-								data: {}
-							} );
-						}
-						if(req.body.RATING){
-							// Insert Rating
-							const set_rating = new RatingModel( {
-								FINDING_CODE: req.body.RATING.FINDING_CODE,
-								RATE: req.body.RATING.RATE,
-								MESSAGE: req.body.RATING.MESSAGE
-							} );
-							set_rating.save().then(data=>{
-								if ( !data ) {
-									return res.send( {
-										status: false,
-										message: config.app.error_message.create_404 + ' - Rating',
-										data: {}
-									} );
-								}
-								// Insert Rating Log
-								const set_rating_log = new RatingLogModel( {
-									FINDING_CODE: req.body.FINDING_CODE,
-									PROSES: 'INSERT',
-									IMEI: auth.IMEI,
-									SYNC_TIME: req.body.INSERT_TIME || 0,
-									SYNC_USER: req.body.INSERT_USER,
-								} );
-								set_rating_log.save().then(data=>{
-									if ( !data ) {
-										return res.send( {
-											status: false,
-											message: config.app.error_message.create_404 + ' - Rating Log',
-											data: {}
-										} );
-									}
-									res.send( {
-										status: true,
-										message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
-										data: {}
-									} );
-								}).catch( err => {
-									res.send( {
-										status: false,
-										message: config.app.error_message.create_500 + ' - Rating Log',
-										data: {}
-									} );
-								} );
-							}).catch( err => {
-								res.send( {
-									status: false,
-									message: config.app.error_message.create_500 + ' - Rating',
-									data: {}
-								} );
-							} );
-						}
-						res.send( {
-							status: true,
-							message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
-							data: {}
-						} );
-					} ).catch( err => {
-						res.send( {
-							status: false,
-							message: config.app.error_message.create_500 + ' - 2',
-							data: {}
-						} );
-					} );
-				} ).catch( err => {
-					res.send( {
-						status: false,
-						message: config.app.error_message.put_500,
-						data: {}
-					} );
+				return res.json( {
+					status: false,
+					message: "Data FINDING_COMMENT_ID sudah ada.",
+					data: []
 				} );
 			}
 			// Insert Data Finding
@@ -554,11 +432,6 @@
 								data: {}
 							} );
 						}
-
-						// Set Middleware Action
-						req.headers.action = 'insert';
-						req.headers.data = insert_data;
-						next();
 
 						return res.send( {
 							status: true,
