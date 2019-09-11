@@ -52,7 +52,7 @@
 			HRIS_FULLNAME: 1
 		} )
 		.then( data => {
-			console.log(data);
+			// console.log(data);
 			// return data;
 			
 			if( !data ) {
@@ -393,6 +393,7 @@
 					}
 					if(req.body.TAG_USER&&Array.isArray(req.body.TAG_USER)){
 						req.body.TAG_USER.forEach( function( tag ) {
+
 							const set_tag = new FindingCommentTagModel({
 								FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID,
 								USER_AUTH_CODE: tag.USER_AUTH_CODE
@@ -776,13 +777,17 @@
 				// console.log(result);
 				if ( result.comment.length > 0 ) {
 					for ( var n = 0; n < result.comment.length; n++ ) {
+					
 						var ini_tags = [];
-							console.log("A");
+
+						console.log(result.comment[n]);
+
 						if ( result.comment[n].tag.length > 0 ) {
+								console.log('Yay');
 							for( var i = 0; i < result.comment[n].tag.length; i++ ) {
-								var contact = await findContacts( result.comment[n].tag[i].USER_AUTH_CODE );
-								var ccc = Object.values( contact );
-								// console.log(ccc);
+								let contact = await findContacts( result.comment[n].tag[i].USER_AUTH_CODE );
+								let ccc = Object.values( contact );
+								// console.log('1');
 								ini_tags.push( {
 									USER_AUTH_CODE: ccc[0],
 									EMPLOYEE_NIK: ccc[1],
@@ -848,7 +853,7 @@
 				}
 			} );
 		} ).catch( err => {
-			console.log(err);
+			// console.log(err);
 			res.send( {
 				status: false,
 				message: config.app.error_message.find_500,
