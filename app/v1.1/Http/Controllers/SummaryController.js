@@ -118,7 +118,7 @@
 				}
 			}
 		] ); 
-
+		console.log( "QUERY: ", query );
 		if( query.length > 0 ) {
 			query.forEach( async function( q ) {
 				var finding_progress_complete = await FindingModel.aggregate( [
@@ -153,7 +153,8 @@
 		 				"$count": "jumlah"
 		 			}
 		 		] );
-
+				console.log( "finding complete: ", finding_progress_complete );
+				console.log( "finding incomplete: ", finding_progress_incomplete );
 				SummaryWeeklyModel.findOne( {
 					INSERT_USER: q.USER_AUTH_CODE,
 					SUMMARY_DATE: parseInt( date_now.toString().substr( 0, 8 ) )
@@ -167,7 +168,7 @@
 							"INSERT_USER": q.USER_AUTH_CODE,
 							"INSERT_TIME": HelperLib.date_format( 'now', 'YYYYMMDDhhmmss' )
 						} );
-						set.save()
+						// set.save()
 					}
 				} );
 			} );
