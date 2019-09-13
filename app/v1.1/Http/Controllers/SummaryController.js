@@ -44,7 +44,7 @@
 
 		if( req.body.IS_VIEW == 1 ){
 			SummaryWeeklyModel.findOneAndUpdate( {
-				INSERT_USER: req.auth.USER_AUTH_CODE,
+				INSERT_USER: req.auth.USER_AUTsH_CODE,
 				IS_VIEW : 0	
 			},
 			{
@@ -75,7 +75,7 @@
  			message: "OK",
  			data: {
  				complete: ( finding_query.length > 0 ? finding_query[0].TOTAL_COMPLETE : 0 ) ,
- 				incomplete: ( finding_query.length > 0 ? finding_query[0].TOTAL_INCOMPLETE : 0 ) ,
+ 				incomplete: ( finding_query.length > 0 ? finding_query[0].TOTAL_INCOMPLETE + finding_query[0].TOTAL_COMPLETE : 0 ) ,
  				target: 0
  			}
  		} );
@@ -118,7 +118,6 @@
 				}
 			}
 		] ); 
-		console.log( "QUERY: ", query );
 		if( query.length > 0 ) {
 			query.forEach( async function( q ) {
 				var finding_progress_complete = await FindingModel.aggregate( [
@@ -135,14 +134,11 @@
 		 			{
 		 				"$count": "jumlah"
 		 			}
-		 		] );
+				 ] );
+				 
 		 		var finding_progress_incomplete = await FindingModel.aggregate( [
 		 			{
 		 				"$match": {
-		 					"END_TIME": {
-		 						"$gte": date_min_1_week,
-		 						"$lte": date_now
-		 					},
 		 					"ASSIGN_TO": q.USER_AUTH_CODE,
 		 					"PROGRESS": {
 		 						"$lte": 100
@@ -153,22 +149,24 @@
 		 				"$count": "jumlah"
 		 			}
 		 		] );
-				console.log( "finding complete: ", finding_progress_complete );
-				console.log( "finding incomplete: ", finding_progress_incomplete );
 				SummaryWeeklyModel.findOne( {
 					INSERT_USER: q.USER_AUTH_CODE,
 					SUMMARY_DATE: parseInt( date_now.toString().substr( 0, 8 ) )
 				} ).then( dt => {
+					let complete = finding_progress_complete;
+					let incomplete = finding_progress_incomplete;
+					console.log( complete[0].jumlah );
+					console.log( complete[0].jumlah + incomplete[0].jumlah );
 					if ( !dt ) {
 						var set = new SummaryWeeklyModel( {
-							"TOTAL_COMPLETE": ( finding_progress_complete.length > 0 ? finding_progress_complete[0].jumlah : 0 ),
-							"TOTAL_INCOMPLETE": ( finding_progress_incomplete.length > 0 ? finding_progress_incomplete[0].jumlah : 0 ),
+							"TOTAL_COMPLETE": ( complete.length > 0 ? complete[0].jumlah : 0 ),
+							"TOTAL_INCOMPLETE": ( incomplete.length > 0 ? incomplete[0].jumlah : 0 ),
 							"SUMMARY_DATE": parseInt( date_now.toString().substr( 0, 8 ) ),
 							"IS_VIEW": 0,
 							"INSERT_USER": q.USER_AUTH_CODE,
 							"INSERT_TIME": HelperLib.date_format( 'now', 'YYYYMMDDhhmmss' )
 						} );
-						// set.save()
+						set.save()
 					}
 				} );
 			} );
