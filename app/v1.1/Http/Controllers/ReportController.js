@@ -34,10 +34,11 @@
 		var url_query_length = Object.keys( url_query ).length;
 		var query = {};
 			query.DELETE_USER = "";
+		var results = null;
 
 		// Find By Region Code
 		if ( req.query.REGION_CODE && !req.query.COMP_CODE ) {
-			var results = await FindingModel.find( {
+			results = await FindingModel.find( {
 				WERKS: new RegExp( '^' + req.query.REGION_CODE.substr( 1, 2 ) ),
 				INSERT_TIME: {
 					$gte: Number( req.query.START_DATE ),
@@ -48,8 +49,8 @@
 
 		// Find By Comp Code
 		if ( req.query.COMP_CODE && !req.query.WERKS ) {
-			console.log( 'Find By Comp Code' );
-			var results = await FindingModel.find( {
+			
+			results = await FindingModel.find( {
 				WERKS: new RegExp( '^' + req.query.COMP_CODE.substr( 0, 2 ) ),
 				INSERT_TIME: {
 					$gte: Number( req.query.START_DATE ),
@@ -60,8 +61,7 @@
 
 		// Find By BA Code / WERKS
 		if ( req.query.WERKS && !req.query.AFD_CODE ) {
-			console.log( 'Find By BA Code / WERKS' );
-			var results = await FindingModel.find( {
+			results = await FindingModel.find( {
 				WERKS: new RegExp( '^' + req.query.WERKS.substr( 0, 4 ) ),
 				INSERT_TIME: {
 					$gte: Number( req.query.START_DATE ),
@@ -73,7 +73,7 @@
 		// Find By AFD Code
 		if ( req.query.AFD_CODE && req.query.WERKS && !req.query.BLOCK_CODE ) {
 			console.log( 'Find By AFD Code' );
-			var results = await FindingModel.find( {
+			results = await FindingModel.find( {
 				WERKS: req.query.WERKS,
 				AFD_CODE: req.query.AFD_CODE,
 				INSERT_TIME: {
@@ -86,7 +86,7 @@
 		// Find By Block Code
 		if ( req.query.BLOCK_CODE && req.query.AFD_CODE && req.query.WERKS ) {
 			console.log( 'Find By Block Code' );
-			var results = await FindingModel.find( {
+			results = await FindingModel.find( {
 				WERKS: req.query.WERKS,
 				AFD_CODE: req.query.AFD_CODE,
 				BLOCK_CODE: req.query.BLOCK_CODE,
@@ -97,7 +97,7 @@
 			} );
 		}
 
-		if ( results.length > 0 ) {
+		if ( results ) {
 			var set_data = [];
 			results.forEach( function( result ) {
 				set_data.push( {
@@ -119,6 +119,7 @@
 					INSERT_TIME: HelperLib.date_format( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 					UPDATE_USER: result.UPDATE_USER,
 					UPDATE_TIME: HelperLib.date_format( String( result.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
+					END_TIME: HelperLib.date_format( String ( result.END_TIME ), 'YYYY-MM-DD hh-mm-ss' )
 				} );
 			} );
 			
