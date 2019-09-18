@@ -146,8 +146,10 @@
 			{ "name": "FINDING_DESC", "value": req.body.FINDING_DESC, "rules": "required" },
 			{ "name": "FINDING_PRIORITY", "value": req.body.FINDING_PRIORITY, "rules": "required|alpha" },
 			{ "name": "PROGRESS", "value": req.body.PROGRESS, "rules": "required|numeric" },
-			{ "name": "LAT_FINDING", "value": parseFloat( req.body.LAT_FINDING ), "rules": "required|latitude" },
-			{ "name": "LONG_FINDING", "value": parseFloat( req.body.LONG_FINDING ), "rules": "required|longitude" },
+			// { "name": "LAT_FINDING", "value": parseFloat( req.body.LAT_FINDING ), "rules": "required|latitude" },
+			// { "name": "LONG_FINDING", "value": parseFloat( req.body.LONG_FINDING ), "rules": "required|longitude" },
+			{ "name": "LAT_FINDING", "value": parseFloat( req.body.LAT_FINDING ) },
+			{ "name": "LONG_FINDING", "value": parseFloat( req.body.LONG_FINDING ) },
 			{ "name": "INSERT_USER", "value": req.body.INSERT_USER, "rules": "required|alpha_numeric" },
 			//{ "name": "INSERT_TIME", "value": req.body.INSERT_TIME.toString(), "rules": "required|exact_length(14)|numeric" }
 		];

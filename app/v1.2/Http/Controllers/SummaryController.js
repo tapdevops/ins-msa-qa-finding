@@ -41,7 +41,6 @@
 				$limit: 1
 			}
  		] );
-
 		if( req.body.IS_VIEW == 1 ){
 			SummaryWeeklyModel.findOneAndUpdate( {
 				INSERT_USER: req.auth.USER_AUTH_CODE,

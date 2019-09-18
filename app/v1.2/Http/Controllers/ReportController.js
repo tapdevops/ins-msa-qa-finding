@@ -97,7 +97,7 @@
 			} );
 		}
 
-		if ( results.length > 0 ) {
+		if ( results ) {
 			var set_data = [];
 			results.forEach( function( result ) {
 				set_data.push( {
