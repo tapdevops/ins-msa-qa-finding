@@ -36,8 +36,8 @@
 			VerifyToken: require( _directory_base + '/app/v1.2/Http/Middleware/VerifyToken.js' )
 		},
 		v_1_1: {
-			SyncDatabase_TR_FINDING: require( _directory_base + '/app/v1.1/Http/Middleware/SyncDatabase/TR_FINDING.js' ),
-			SyncDatabase_TR_FINDING_COMMENT: require( _directory_base + '/app/v1.1/Http/Middleware/SyncDatabase/TR_FINDING_COMMENT.js' ),
+			// SyncDatabase_TR_FINDING: require( _directory_base + '/app/v1.1/Http/Middleware/SyncDatabase/TR_FINDING.js' ),
+			// SyncDatabase_TR_FINDING_COMMENT: require( _directory_base + '/app/v1.1/Http/Middleware/SyncDatabase/TR_FINDING_COMMENT.js' ),
 			VerifyToken: require( _directory_base + '/app/v1.1/Http/Middleware/VerifyToken.js' )
 		},
 		v_1_0: {
