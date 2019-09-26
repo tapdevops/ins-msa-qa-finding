@@ -1,0 +1,4 @@
+# Ignoring dockerfile and config/app.js
+
+Dockerfile
+config/app.js
