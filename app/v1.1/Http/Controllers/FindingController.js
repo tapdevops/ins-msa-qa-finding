@@ -372,7 +372,6 @@
 						   KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
 						}
 
-
 						// Set Middleware Action
 						// req.headers.action = 'insert';
 						// req.headers.data = insert_data;
