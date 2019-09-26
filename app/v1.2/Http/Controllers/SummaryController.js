@@ -7,14 +7,14 @@
  |
  */
  	// Models
-	const FindingModel = require( _directory_base + '/app/v1.1/Http/Models/Finding.js' );
-	const SummaryWeeklyModel = require( _directory_base + '/app/v1.1/Http/Models/SummaryWeekly.js' );
+	const FindingModel = require( _directory_base + '/app/v1.2/Http/Models/Finding.js' );
+	const SummaryWeeklyModel = require( _directory_base + '/app/v1.2/Http/Models/SummaryWeekly.js' );
 
 	// Node Module
 	const MomentTimezone = require( 'moment-timezone' );
 
 	// Libraries
-	const HelperLib = require( _directory_base + '/app/v1.1/Http/Libraries/HelperLib.js' );
+	const HelperLib = require( _directory_base + '/app/v1.2/Http/Libraries/HelperLib.js' );
 
 /*
  |--------------------------------------------------------------------------
@@ -41,10 +41,9 @@
 				$limit: 1
 			}
  		] );
-
 		if( req.body.IS_VIEW == 1 ){
 			SummaryWeeklyModel.findOneAndUpdate( {
-				INSERT_USER: req.auth.USER_AUTsH_CODE,
+				INSERT_USER: req.auth.USER_AUTH_CODE,
 				IS_VIEW : 0	
 			},
 			{
