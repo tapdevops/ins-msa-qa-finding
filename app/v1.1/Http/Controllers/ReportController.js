@@ -14,7 +14,7 @@
 
 /*
  |--------------------------------------------------------------------------
- | Versi 1.0
+ | Versi 1.1
  |--------------------------------------------------------------------------
  */
  	/** 
@@ -69,10 +69,8 @@
 				}
 			} );
 		}
-
 		// Find By AFD Code
 		if ( req.query.AFD_CODE && req.query.WERKS && !req.query.BLOCK_CODE ) {
-			console.log( 'Find By AFD Code' );
 			results = await FindingModel.find( {
 				WERKS: req.query.WERKS,
 				AFD_CODE: req.query.AFD_CODE,
