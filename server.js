@@ -18,9 +18,13 @@
 	const BodyParser = require( 'body-parser' );
 	const Express = require( 'express' );
 	const Mongoose = require( 'mongoose' );
+	const NodeCron = require( 'node-cron' );
 
 	// Primary Variable
 	const App = Express();
+
+	//Kernel
+	const Kernel = require( _directory_base + '/app/v1.1/Console/Kernel.js' );
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +58,11 @@
 		console.log( "\tStatus \t\t: OK" );
 		console.log( "\tService \t: " + config.app.name + " (" + config.app.env + ")" );
 		console.log( "\tPort \t\t: " + config.app.port[config.app.env] );
+	} );
+
+	//Running job_update_transaksi_complete() with cron every monday
+	NodeCron.schedule( '* * * * *', async () => {
+		Kernel.job_update_transaksi_complete();
 	} );
 
 	// Routing
