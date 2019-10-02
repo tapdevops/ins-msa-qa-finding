@@ -3,9 +3,7 @@
 | Variable
 |--------------------------------------------------------------------------
 */
-    // Node Modules
-    const NodeCron = require( 'node-cron' );
-
+    
     // Models
 	const FindingModel = require( _directory_base + '/app/v1.1/Http/Models/Finding.js' );
 	const SummaryWeeklyModel = require( _directory_base + '/app/v1.1/Http/Models/SummaryWeekly.js' );

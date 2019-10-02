@@ -60,11 +60,13 @@
 		console.log( "\tPort \t\t: " + config.app.port[config.app.env] );
 	} );
 
-	//Running job_update_transaksi_complete() with cron every monday
-	NodeCron.schedule( '* * * * *', async () => {
+	//scheduling job_update_transaksi_complete() with cron 
+	NodeCron.schedule( '5 0 * * SUN', async () => {
 		Kernel.job_update_transaksi_complete();
+		console.log( "running node-cron..." );
 	} );
 
 	// Routing
 	require( './routes/api.js' )( App );
+
 	module.exports = App;
