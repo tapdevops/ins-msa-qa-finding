@@ -15,10 +15,12 @@
     "ferds-validator": "^1.0.4",
     "jsonwebtoken": "^8.4.0",
     "jwt-decode": "^2.2.0",
+    "kafka-node": "^4.1.3",
     "moment": "^2.23.0",
     "moment-timezone": "^0.5.23",
     "mongoose": "^5.3.13",
     "njwt": "^0.4.0",
+    "node-cron": "^2.0.3",
     "node-rest-client": "^3.1.0",
     "uuid": "^3.3.2"
   }

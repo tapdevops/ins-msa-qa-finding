@@ -22,6 +22,7 @@
 
 	// Libraries
 	const HelperLib = require( _directory_base + '/app/v1.1/Http/Libraries/HelperLib.js' );
+	const KafkaServer = require( _directory_base + '/app/v1.1/Http/Libraries/KafkaServer.js' ); 
 	async function asyncForEach(array, callback) {
 		for (let index = 0; index < array.length; index++) {
 			await callback(array[index], index, array);
@@ -208,6 +209,33 @@
 							data: {}
 						} );
 					}
+					else {
+						var kafka_body = {
+							FNDCD: req.body.FINDING_CODE || "",
+							WERKS: req.body.WERKS || "",
+							AFD_CODE: req.body.AFD_CODE || "",
+							BLOCK_CODE: req.body.BLOCK_CODE || "",
+							FNDCT: req.body.FINDING_CATEGORY || "",
+							FNDDS: req.body.FINDING_DESC || "",
+							FNDPR: req.body.FINDING_PRIORITY || "",
+							DUE_DATE: HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+							ASSTO: req.body.ASSIGN_TO || "",
+							PRGRS: req.body.PROGRESS || "",
+							LATFN: req.body.LAT_FINDING || "",
+							LONFN: req.body.LONG_FINDING || "",
+							RFINC: req.body.REFFERENCE_INS_CODE || "",
+							INSUR: check[0].INSERT_USER,
+							INSTM: check[0].INSERT_TIME || 0,
+							UPTUR: req.body.UPDATE_USER || "",
+							UPTTM: req.body.UPDATE_TIME || 0,
+							DLTUR: "",
+							DLTTM: 0,
+							RTGVL: parseInt( req.body.RATING_VALUE ) || 0,
+							RTGMS: req.body.RATING_MESSAGE || "",
+							END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
+						};
+					   KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
+					}
 					
 					// Insert Finding Log
 					const set_log = new FindingLogModel( {
@@ -229,6 +257,12 @@
 							} );
 						}
 
+
+						// Set Middleware Action
+						// req.headers.action = 'update';
+						// req.headers.id = req.body.FINDING_CODE;
+						// req.headers.data = update_data;
+						// next();
 						// Return hasil
 						return res.send( {
 							status: true,
@@ -310,7 +344,38 @@
 								data: {}
 							} );
 						}
+						else {
+							var kafka_body = {
+								FNDCD: req.body.FINDING_CODE || "",
+								WERKS: req.body.WERKS || "",
+								AFD_CODE: req.body.AFD_CODE || "",
+								BLOCK_CODE: req.body.BLOCK_CODE || "",
+								FNDCT: req.body.FINDING_CATEGORY || "",
+								FNDDS: req.body.FINDING_DESC || "",
+								FNDPR: req.body.FINDING_PRIORITY || "",
+								DUE_DATE: HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+								ASSTO: req.body.ASSIGN_TO || "",
+								PRGRS: req.body.PROGRESS || "",
+								LATFN: req.body.LAT_FINDING || "",
+								LONFN: req.body.LONG_FINDING || "",
+								RFINC: req.body.REFFERENCE_INS_CODE || "",
+								INSUR: req.body.INSERT_USER,
+								INSTM: req.body.INSERT_TIME || 0,
+								UPTUR: req.body.UPDATE_USER || "",
+								UPTTM: req.body.UPDATE_TIME || 0,
+								DLTUR: "",
+								DLTTM: 0,
+								RTGVL: parseInt( req.body.RATING_VALUE ) || 0,
+								RTGMS: req.body.RATING_MESSAGE || "",
+								END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
+							};
+						   KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
+						}
 
+						// Set Middleware Action
+						// req.headers.action = 'insert';
+						// req.headers.data = insert_data;
+						// next();
 						return res.send( {
 							status: true,
 							message: config.app.error_message.create_200,

@@ -18,7 +18,8 @@
 			Finding: require( _directory_base + '/app/v1.1/Http/Controllers/FindingController.js' ),
 			Report: require( _directory_base + '/app/v1.1/Http/Controllers/ReportController.js' ),
 			SyncMobile: require( _directory_base + '/app/v1.1/Http/Controllers/SyncMobileController.js' ),
-			Summary: require( _directory_base + '/app/v1.1/Http/Controllers/SummaryController.js' )
+			Summary: require( _directory_base + '/app/v1.1/Http/Controllers/SummaryController.js' ),
+			ExportKafka: require( _directory_base + '/app/v1.1/Http/Controllers/ExportKafkaController.js' )
 		},
 		v_1_0: {
 			Finding: require( _directory_base + '/app/v1.0/Http/Controllers/FindingController.js' ),
@@ -36,8 +37,8 @@
 			VerifyToken: require( _directory_base + '/app/v1.2/Http/Middleware/VerifyToken.js' )
 		},
 		v_1_1: {
-			SyncDatabase_TR_FINDING: require( _directory_base + '/app/v1.1/Http/Middleware/SyncDatabase/TR_FINDING.js' ),
-			SyncDatabase_TR_FINDING_COMMENT: require( _directory_base + '/app/v1.1/Http/Middleware/SyncDatabase/TR_FINDING_COMMENT.js' ),
+			// SyncDatabase_TR_FINDING: require( _directory_base + '/app/v1.1/Http/Middleware/SyncDatabase/TR_FINDING.js' ),
+			// SyncDatabase_TR_FINDING_COMMENT: require( _directory_base + '/app/v1.1/Http/Middleware/SyncDatabase/TR_FINDING_COMMENT.js' ),
 			VerifyToken: require( _directory_base + '/app/v1.1/Http/Middleware/VerifyToken.js' )
 		},
 		v_1_0: {
@@ -120,6 +121,9 @@
 			// Sync Mobile
 			app.get( '/api/v1.1/sync-mobile/finding/:start_date/:end_date', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.SyncMobile.synchronize );
 			app.get( '/api/v1.1/sync-mobile/finding-images/:start_date/:end_date', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.SyncMobile.synchronize_images );
+
+			//Export Kafka
+			app.get( '/api/v1.1/export-kafka/finding', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.ExportKafka.export_finding );
 			
 
 		/*
