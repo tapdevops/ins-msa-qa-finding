@@ -33,7 +33,7 @@
 				ssl: false
 			},
 			prod: {
-				url: '',
+				url: 'mongodb://s_finding:f1n2019@dbapp.tap-agri.com:4848/s_finding?authSource=s_finding',
 				ssl: false
 			}
 		},
