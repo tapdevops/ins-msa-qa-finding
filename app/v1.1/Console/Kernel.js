@@ -103,8 +103,6 @@
                     } ).then( dt => {
                         let complete = finding_progress_complete;
                         let incomplete = finding_progress_incomplete;
-                        console.log( complete[0].jumlah );
-                        console.log( complete[0].jumlah + incomplete[0].jumlah );
                         if ( !dt ) {
                             var set = new SummaryWeeklyModel( {
                                 "TOTAL_COMPLETE": ( complete.length > 0 ? complete[0].jumlah : 0 ),
@@ -115,9 +113,20 @@
                                 "INSERT_TIME": HelperLib.date_format( 'now', 'YYYYMMDDhhmmss' )
                             } );
                             set.save()
+                            .then( data => {
+                                console.log( 'Sukses simpan' );
+                            } )
+                            .catch( err => {
+                                console.log( err.message );
+                            } );
                         }
+                    } ).catch( err => {
+                        console.log( `ERROR: ${err.message}` );
                     } );
                 } );
+            }
+            else {
+                console.log( `DATA TR_FINDING KOSONG!` );
             }
         }
     }
