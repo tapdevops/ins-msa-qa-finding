@@ -126,7 +126,7 @@
                 } );
             }
             else {
-                console.log( `DATA TR_FINDING KOSONG!` );
+                console.log( `data di TR_FINDING untuk minggu ini kosong!` );
             }
         }
     }
