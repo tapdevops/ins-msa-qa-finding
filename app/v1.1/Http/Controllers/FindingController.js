@@ -172,8 +172,8 @@
 					FINDING_CODE : req.body.FINDING_CODE
 				} )
 				.select( {
-					_id: 0,
-					FINDING_CODE: 1
+					_id: 0
+					// FINDING_CODE: 1
 				} );
 
 			// Jika sudah terdapat data, maka akan mengupdate Data Finding.
@@ -197,7 +197,6 @@
 					RATING_MESSAGE: req.body.RATING_MESSAGE || "",
 					END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
 				};
-
 				FindingModel.findOneAndUpdate( { 
 					FINDING_CODE : req.body.FINDING_CODE
 				}, update_data, { new: true } )
@@ -224,7 +223,7 @@
 							LATFN: req.body.LAT_FINDING || "",
 							LONFN: req.body.LONG_FINDING || "",
 							RFINC: req.body.REFFERENCE_INS_CODE || "",
-							INSUR: check[0].INSERT_USER,
+							INSUR: check[0].INSERT_USER || "",
 							INSTM: check[0].INSERT_TIME || 0,
 							UPTUR: req.body.UPDATE_USER || "",
 							UPTTM: req.body.UPDATE_TIME || 0,
