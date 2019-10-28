@@ -61,7 +61,7 @@
 	} );
 
 	//scheduling job_update_transaksi_complete() with cron 
-	NodeCron.schedule( '5 0 * * SUN', async () => {
+	NodeCron.schedule( '0 1 * * TUE', async () => {
 		Kernel.job_update_transaksi_complete();
 		console.log( "running node-cron..." );
 	} );
