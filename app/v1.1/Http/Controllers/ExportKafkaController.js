@@ -28,7 +28,7 @@
                 AFD_CODE: data.AFD_CODE || "",
                 BLOCK_CODE: data.BLOCK_CODE || "",
                 FNDCT: data.FINDING_CATEGORY || "",
-                FNDDS: data.FINDING_DES || "",
+                FNDDS: data.FINDING_DESC || "",
                 FNDPR: data.FINDING_PRIORITY || "",
                 DUE_DATE: data.DUE_DATE || 0,
                 ASSTO: data.ASSIGN_TO || "",

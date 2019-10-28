@@ -538,6 +538,8 @@
 		var query_search = [];
 		var afd_code = [];
 
+		console.log(auth)
+
 		if ( ref_role != 'ALL' ) {
 			location_code_group.forEach( function( data ) {
 				switch ( ref_role ) {
@@ -582,6 +584,8 @@
 		
 		}
 
+		console.log(location_code_final)
+
 		if ( ref_role == 'NATIONAL' ) {
 			var qs = {
 				DELETE_USER: ""
@@ -590,9 +594,12 @@
 		else {
 			var qs = {
 				DELETE_USER: "",
-				// WERKS: {"$in":query_search}
+				WERKS: {"$in":query_search}
 			}
 		}
+
+
+		console.log( qs );
 
 		FindingModel.aggregate( [
 			{ 
@@ -624,7 +631,7 @@
 
 			var results = [];
 			data.forEach( function( result ) {
-				console.log(result);
+				// console.log(result);
 				results.push( {
 					FINDING_CODE: result.FINDING_CODE,
 					WERKS: result.WERKS,
@@ -656,7 +663,7 @@
 				} );
 
 			} );
-
+				
 			res.send( {
 				status: true,
 				message: config.app.error_message.find_200,

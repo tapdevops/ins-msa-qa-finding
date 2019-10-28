@@ -19,7 +19,7 @@
 				ssl: false
 			},
 			prod: {
-				url: '',
+				url: 'mongodb://s_auth:4uth2019@dbapp.tap-agri.com:4848/s_auth?authSource=s_auth',
 				ssl: false
 			}
 		},
@@ -47,7 +47,7 @@
 				ssl: false
 			},
 			prod: {
-				url: '',
+				url: 'mongodb://s_report:r3p0rt2019@dbapp.tap-agri.com:4848/s_report?authSource=s_report',
 				ssl: false
 			}
 		}
