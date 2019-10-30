@@ -117,7 +117,7 @@
 			// Report
 			app.get( '/api/v1.1/report/web/finding/all', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Report.find );
 			app.get( '/api/v1.1/report/web/finding/q', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.Report.find );
-
+			
 			// Sync Mobile
 			app.get( '/api/v1.1/sync-mobile/finding/:start_date/:end_date', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.SyncMobile.synchronize );
 			app.get( '/api/v1.1/sync-mobile/finding-images/:start_date/:end_date', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.SyncMobile.synchronize_images );

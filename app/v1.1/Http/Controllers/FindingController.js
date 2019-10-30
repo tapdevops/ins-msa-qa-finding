@@ -172,8 +172,8 @@
 					FINDING_CODE : req.body.FINDING_CODE
 				} )
 				.select( {
-					_id: 0,
-					FINDING_CODE: 1
+					_id: 0
+					// FINDING_CODE: 1
 				} );
 
 			// Jika sudah terdapat data, maka akan mengupdate Data Finding.
@@ -197,7 +197,6 @@
 					RATING_MESSAGE: req.body.RATING_MESSAGE || "",
 					END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
 				};
-
 				FindingModel.findOneAndUpdate( { 
 					FINDING_CODE : req.body.FINDING_CODE
 				}, update_data, { new: true } )
@@ -224,7 +223,7 @@
 							LATFN: req.body.LAT_FINDING || "",
 							LONFN: req.body.LONG_FINDING || "",
 							RFINC: req.body.REFFERENCE_INS_CODE || "",
-							INSUR: check[0].INSERT_USER,
+							INSUR: check[0].INSERT_USER || "",
 							INSTM: check[0].INSERT_TIME || 0,
 							UPTUR: req.body.UPDATE_USER || "",
 							UPTTM: req.body.UPDATE_TIME || 0,
@@ -539,6 +538,8 @@
 		var query_search = [];
 		var afd_code = [];
 
+		console.log(auth)
+
 		if ( ref_role != 'ALL' ) {
 			location_code_group.forEach( function( data ) {
 				switch ( ref_role ) {
@@ -583,6 +584,8 @@
 		
 		}
 
+		console.log(location_code_final)
+
 		if ( ref_role == 'NATIONAL' ) {
 			var qs = {
 				DELETE_USER: ""
@@ -591,9 +594,12 @@
 		else {
 			var qs = {
 				DELETE_USER: "",
-				// WERKS: {"$in":query_search}
+				WERKS: {"$in":query_search}
 			}
 		}
+
+
+		console.log( qs );
 
 		FindingModel.aggregate( [
 			{ 
@@ -625,7 +631,7 @@
 
 			var results = [];
 			data.forEach( function( result ) {
-				console.log(result);
+				// console.log(result);
 				results.push( {
 					FINDING_CODE: result.FINDING_CODE,
 					WERKS: result.WERKS,
@@ -657,7 +663,7 @@
 				} );
 
 			} );
-
+				
 			res.send( {
 				status: true,
 				message: config.app.error_message.find_200,
