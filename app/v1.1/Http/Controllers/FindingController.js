@@ -538,7 +538,7 @@
 		var query_search = [];
 		var afd_code = [];
 
-		console.log(auth)
+		// console.log(auth)
 
 		if ( ref_role != 'ALL' ) {
 			location_code_group.forEach( function( data ) {
@@ -598,8 +598,8 @@
 			}
 		}
 
-
-		console.log( qs );
+		console.log( 'panjang qs' );
+		console.log( qs.length );
 
 		FindingModel.aggregate( [
 			{ 
