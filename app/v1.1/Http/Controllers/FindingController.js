@@ -138,73 +138,180 @@
 	*/
 	exports.create_or_update = async ( req, res, next ) => {
 
-		var rules = [
-			{ "name": "FINDING_CODE", "value": req.body.FINDING_CODE, "rules": "required|alpha_numeric" },
-			{ "name": "WERKS", "value": req.body.WERKS, "rules": "required|numeric" },
-			{ "name": "AFD_CODE", "value": req.body.AFD_CODE, "rules": "required|alpha_numeric" },
-			{ "name": "BLOCK_CODE", "value": req.body.BLOCK_CODE, "rules": "required|alpha_numeric" },
-			{ "name": "FINDING_CATEGORY", "value": req.body.FINDING_CATEGORY, "rules": "required|alpha_numeric" },
-			{ "name": "FINDING_DESC", "value": req.body.FINDING_DESC, "rules": "required" },
-			{ "name": "FINDING_PRIORITY", "value": req.body.FINDING_PRIORITY, "rules": "required|alpha" },
-			{ "name": "PROGRESS", "value": req.body.PROGRESS, "rules": "required|numeric" },
-			// { "name": "LAT_FINDING", "value": parseFloat( req.body.LAT_FINDING ), "rules": "required|latitude" },
-			// { "name": "LONG_FINDING", "value": parseFloat( req.body.LONG_FINDING ), "rules": "required|longitude" },
-			{ "name": "LAT_FINDING", "value": parseFloat( req.body.LAT_FINDING ) },
-			{ "name": "LONG_FINDING", "value": parseFloat( req.body.LONG_FINDING ) },
-			{ "name": "INSERT_USER", "value": req.body.INSERT_USER, "rules": "required|alpha_numeric" },
-			//{ "name": "INSERT_TIME", "value": req.body.INSERT_TIME.toString(), "rules": "required|exact_length(14)|numeric" }
-		];
-		var run_validator = Validator.run( rules );
-
-		console.log(run_validator);
-
-		if ( run_validator.status == false ) {
-			res.json( {
-				status: false,
-				message: "Error! Periksa kembali inputan anda.",
-				data: []
+		var auth = req.auth;
+		var check = await FindingModel
+			.find( {
+				FINDING_CODE : req.body.FINDING_CODE
+			} )
+			.select( {
+				_id: 0
+				// FINDING_CODE: 1
 			} );
-		}
-		else {
-			var auth = req.auth;
-			var check = await FindingModel
-				.find( {
-					FINDING_CODE : req.body.FINDING_CODE
-				} )
-				.select( {
-					_id: 0
-					// FINDING_CODE: 1
+
+		// Jika sudah terdapat data, maka akan mengupdate Data Finding.
+		if ( check.length > 0 ) {
+
+			var update_data = {
+				WERKS: req.body.WERKS || "",
+				BLOCK_CODE: req.body.BLOCK_CODE || "",
+				FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
+				FINDING_DESC: req.body.FINDING_DESC || "",
+				FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
+				DUE_DATE: ( req.body.DUE_DATE == "" ) ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+				ASSIGN_TO: req.body.ASSIGN_TO || "",
+				PROGRESS: req.body.PROGRESS || 0,
+				LAT_FINDING: req.body.LAT_FINDING || "",
+				LONG_FINDING: req.body.LONG_FINDING || "",
+				REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
+				UPDATE_USER: req.body.UPDATE_USER || "",
+				UPDATE_TIME: req.body.UPDATE_TIME || 0,
+				RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
+				RATING_MESSAGE: req.body.RATING_MESSAGE || "",
+				END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
+			};
+			FindingModel.findOneAndUpdate( { 
+				FINDING_CODE : req.body.FINDING_CODE
+			}, update_data, { new: true } )
+			.then( data => {
+				if ( !data ) {
+					return res.send( {
+						status: false,
+						message: config.app.error_message.put_404,
+						data: {}
+					} );
+				}
+				else {
+					var kafka_body = {
+						FNDCD: req.body.FINDING_CODE || "",
+						WERKS: req.body.WERKS || "",
+						AFD_CODE: req.body.AFD_CODE || "",
+						BLOCK_CODE: req.body.BLOCK_CODE || "",
+						FNDCT: req.body.FINDING_CATEGORY || "",
+						FNDDS: req.body.FINDING_DESC || "",
+						FNDPR: req.body.FINDING_PRIORITY || "",
+						DUE_DATE: HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+						ASSTO: req.body.ASSIGN_TO || "",
+						PRGRS: req.body.PROGRESS || "",
+						LATFN: req.body.LAT_FINDING || "",
+						LONFN: req.body.LONG_FINDING || "",
+						RFINC: req.body.REFFERENCE_INS_CODE || "",
+						INSUR: check[0].INSERT_USER || "",
+						INSTM: check[0].INSERT_TIME || 0,
+						UPTUR: req.body.UPDATE_USER || "",
+						UPTTM: req.body.UPDATE_TIME || 0,
+						DLTUR: "",
+						DLTTM: 0,
+						RTGVL: parseInt( req.body.RATING_VALUE ) || 0,
+						RTGMS: req.body.RATING_MESSAGE || "",
+						END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
+					};
+				   KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
+				}
+				
+				// Insert Finding Log
+				const set_log = new FindingLogModel( {
+					FINDING_CODE: req.body.FINDING_CODE,
+					PROSES: 'UPDATE',
+					PROGRESS: req.body.PROGRESS,
+					IMEI: auth.IMEI,
+					SYNC_TIME: req.body.INSERT_TIME || 0,
+					SYNC_USER: req.body.INSERT_USER,
 				} );
 
-			// Jika sudah terdapat data, maka akan mengupdate Data Finding.
-			if ( check.length > 0 ) {
-
-				var update_data = {
-					WERKS: req.body.WERKS || "",
-					BLOCK_CODE: req.body.BLOCK_CODE || "",
-					FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
-					FINDING_DESC: req.body.FINDING_DESC || "",
-					FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-					DUE_DATE: ( req.body.DUE_DATE == "" ) ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
-					ASSIGN_TO: req.body.ASSIGN_TO || "",
-					PROGRESS: req.body.PROGRESS || 0,
-					LAT_FINDING: req.body.LAT_FINDING || "",
-					LONG_FINDING: req.body.LONG_FINDING || "",
-					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-					UPDATE_USER: req.body.UPDATE_USER || "",
-					UPDATE_TIME: req.body.UPDATE_TIME || 0,
-					RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
-					RATING_MESSAGE: req.body.RATING_MESSAGE || "",
-					END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
-				};
-				FindingModel.findOneAndUpdate( { 
-					FINDING_CODE : req.body.FINDING_CODE
-				}, update_data, { new: true } )
-				.then( data => {
-					if ( !data ) {
+				set_log.save()
+				.then( async data_log => {
+					if ( !data_log ) {
 						return res.send( {
 							status: false,
-							message: config.app.error_message.put_404,
+							message: config.app.error_message.create_404 + ' - Log',
+							data: {}
+						} );
+					}
+
+
+					// Set Middleware Action
+					// req.headers.action = 'update';
+					// req.headers.id = req.body.FINDING_CODE;
+					// req.headers.data = update_data;
+					// next();
+					// Return hasil
+					return res.send( {
+						status: true,
+						message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
+						data: {}
+					} );
+				} ).catch( err => {
+					console.log(err);
+					return res.send( {
+						status: false,
+						message: config.app.error_message.create_500 + ' - 2',
+						data: {}
+					} );
+				} );
+
+			} ).catch( err => {
+				return res.send( {
+					status: false,
+					message: config.app.error_message.put_500,
+					data: {}
+				} );
+			} );
+		}
+		// Insert Data Finding
+		else {
+
+			var insert_data = {
+				FINDING_CODE: req.body.FINDING_CODE || "",
+				WERKS: req.body.WERKS || "",
+				AFD_CODE: req.body.AFD_CODE || "",
+				BLOCK_CODE: req.body.BLOCK_CODE || "",
+				FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
+				FINDING_DESC: req.body.FINDING_DESC || "",
+				FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
+				DUE_DATE: HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+				ASSIGN_TO: req.body.ASSIGN_TO || "",
+				PROGRESS: req.body.PROGRESS || "",
+				LAT_FINDING: req.body.LAT_FINDING || "",
+				LONG_FINDING: req.body.LONG_FINDING || "",
+				REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
+				INSERT_USER: req.body.INSERT_USER,
+				INSERT_TIME: req.body.INSERT_TIME || 0,
+				UPDATE_USER: req.body.UPDATE_USER || "",
+				UPDATE_TIME: req.body.UPDATE_TIME || 0,
+				DELETE_USER: "",
+				DELETE_TIME: 0,
+				RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
+				RATING_MESSAGE: req.body.RATING_MESSAGE || "",
+				END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
+			}
+
+			const set_data = new FindingModel( insert_data );
+
+			set_data.save()
+			.then( data => {
+				if ( !data ) {
+					return res.send( {
+						status: false,
+						message: config.app.error_message.create_404,
+						data: {}
+					} );
+				}
+				// Insert Finding Log
+				const set_log = new FindingLogModel( {
+					FINDING_CODE: req.body.FINDING_CODE,
+					PROSES: 'INSERT',
+					PROGRESS: req.body.PROGRESS,
+					IMEI: auth.IMEI,
+					SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
+					SYNC_USER: req.body.INSERT_USER,
+				} );
+
+				set_log.save()
+				.then( data_log => {
+					if ( !data_log ) {
+						return res.send( {
+							status: false,
+							message: config.app.error_message.create_404 + ' - Log',
 							data: {}
 						} );
 					}
@@ -223,8 +330,8 @@
 							LATFN: req.body.LAT_FINDING || "",
 							LONFN: req.body.LONG_FINDING || "",
 							RFINC: req.body.REFFERENCE_INS_CODE || "",
-							INSUR: check[0].INSERT_USER || "",
-							INSTM: check[0].INSERT_TIME || 0,
+							INSUR: req.body.INSERT_USER,
+							INSTM: req.body.INSERT_TIME || 0,
 							UPTUR: req.body.UPDATE_USER || "",
 							UPTTM: req.body.UPDATE_TIME || 0,
 							DLTUR: "",
@@ -235,292 +342,138 @@
 						};
 					   KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
 					}
-					
-					// Insert Finding Log
-					const set_log = new FindingLogModel( {
-						FINDING_CODE: req.body.FINDING_CODE,
-						PROSES: 'UPDATE',
-						PROGRESS: req.body.PROGRESS,
-						IMEI: auth.IMEI,
-						SYNC_TIME: req.body.INSERT_TIME || 0,
-						SYNC_USER: req.body.INSERT_USER,
+
+					// Set Middleware Action
+					// req.headers.action = 'insert';
+					// req.headers.data = insert_data;
+					// next();
+					return res.send( {
+						status: true,
+						message: config.app.error_message.create_200,
+						data: {}
 					} );
-
-					set_log.save()
-					.then( async data_log => {
-						if ( !data_log ) {
-							return res.send( {
-								status: false,
-								message: config.app.error_message.create_404 + ' - Log',
-								data: {}
-							} );
-						}
-
-
-						// Set Middleware Action
-						// req.headers.action = 'update';
-						// req.headers.id = req.body.FINDING_CODE;
-						// req.headers.data = update_data;
-						// next();
-						// Return hasil
-						return res.send( {
-							status: true,
-							message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
-							data: {}
-						} );
-					} ).catch( err => {
-						console.log(err);
-						return res.send( {
-							status: false,
-							message: config.app.error_message.create_500 + ' - 2',
-							data: {}
-						} );
-					} );
-
 				} ).catch( err => {
+					console.log(err);
 					return res.send( {
 						status: false,
-						message: config.app.error_message.put_500,
+						message: config.app.error_message.create_500 + ' - 2',
 						data: {}
 					} );
 				} );
-			}
-			// Insert Data Finding
-			else {
-
-				var insert_data = {
-					FINDING_CODE: req.body.FINDING_CODE || "",
-					WERKS: req.body.WERKS || "",
-					AFD_CODE: req.body.AFD_CODE || "",
-					BLOCK_CODE: req.body.BLOCK_CODE || "",
-					FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
-					FINDING_DESC: req.body.FINDING_DESC || "",
-					FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-					DUE_DATE: HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
-					ASSIGN_TO: req.body.ASSIGN_TO || "",
-					PROGRESS: req.body.PROGRESS || "",
-					LAT_FINDING: req.body.LAT_FINDING || "",
-					LONG_FINDING: req.body.LONG_FINDING || "",
-					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-					INSERT_USER: req.body.INSERT_USER,
-					INSERT_TIME: req.body.INSERT_TIME || 0,
-					UPDATE_USER: req.body.UPDATE_USER || "",
-					UPDATE_TIME: req.body.UPDATE_TIME || 0,
-					DELETE_USER: "",
-					DELETE_TIME: 0,
-					RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
-					RATING_MESSAGE: req.body.RATING_MESSAGE || "",
-					END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
-				}
-
-				const set_data = new FindingModel( insert_data );
-
-				set_data.save()
-				.then( data => {
-					if ( !data ) {
-						return res.send( {
-							status: false,
-							message: config.app.error_message.create_404,
-							data: {}
-						} );
-					}
-					// Insert Finding Log
-					const set_log = new FindingLogModel( {
-						FINDING_CODE: req.body.FINDING_CODE,
-						PROSES: 'INSERT',
-						PROGRESS: req.body.PROGRESS,
-						IMEI: auth.IMEI,
-						SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
-						SYNC_USER: req.body.INSERT_USER,
-					} );
-
-					set_log.save()
-					.then( data_log => {
-						if ( !data_log ) {
-							return res.send( {
-								status: false,
-								message: config.app.error_message.create_404 + ' - Log',
-								data: {}
-							} );
-						}
-						else {
-							var kafka_body = {
-								FNDCD: req.body.FINDING_CODE || "",
-								WERKS: req.body.WERKS || "",
-								AFD_CODE: req.body.AFD_CODE || "",
-								BLOCK_CODE: req.body.BLOCK_CODE || "",
-								FNDCT: req.body.FINDING_CATEGORY || "",
-								FNDDS: req.body.FINDING_DESC || "",
-								FNDPR: req.body.FINDING_PRIORITY || "",
-								DUE_DATE: HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
-								ASSTO: req.body.ASSIGN_TO || "",
-								PRGRS: req.body.PROGRESS || "",
-								LATFN: req.body.LAT_FINDING || "",
-								LONFN: req.body.LONG_FINDING || "",
-								RFINC: req.body.REFFERENCE_INS_CODE || "",
-								INSUR: req.body.INSERT_USER,
-								INSTM: req.body.INSERT_TIME || 0,
-								UPTUR: req.body.UPDATE_USER || "",
-								UPTTM: req.body.UPDATE_TIME || 0,
-								DLTUR: "",
-								DLTTM: 0,
-								RTGVL: parseInt( req.body.RATING_VALUE ) || 0,
-								RTGMS: req.body.RATING_MESSAGE || "",
-								END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
-							};
-						   KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
-						}
-
-						// Set Middleware Action
-						// req.headers.action = 'insert';
-						// req.headers.data = insert_data;
-						// next();
-						return res.send( {
-							status: true,
-							message: config.app.error_message.create_200,
-							data: {}
-						} );
-					} ).catch( err => {
-						console.log(err);
-						return res.send( {
-							status: false,
-							message: config.app.error_message.create_500 + ' - 2',
-							data: {}
-						} );
-					} );
-				} ).catch( err => {
-					return res.send( {
-						status: false,
-						message: config.app.error_message.create_500,
-						data: {}
-					} );
+			} ).catch( err => {
+				return res.send( {
+					status: false,
+					message: config.app.error_message.create_500,
+					data: {}
 				} );
-			}
+			} );
 		}
 	};
 
 	exports.create_or_update_comment = async ( req, res ) => {
 
-		// Rule Validasi
-		var rules = [
-			{ "name": "FINDING_COMMENT_ID", "value": req.body.FINDING_COMMENT_ID, "rules": "required|alpha_numeric" },
-			{ "name": "FINDING_CODE", "value": req.body.FINDING_CODE, "rules": "required|alpha_numeric" },
-			{ "name": "USER_AUTH_CODE", "value": req.body.USER_AUTH_CODE, "rules": "required|alpha_numeric" },
-			{ "name": "MESSAGE", "value": req.body.MESSAGE, "rules": "required" }
-		];
-		var run_validator = Validator.run( rules );
+		var auth = req.auth;
+		var check = await FindingCommentModel
+			.find( {
+				FINDING_COMMENT_ID : req.body.FINDING_COMMENT_ID
+			} )
+			.select( {
+				_id: 0,
+				FINDING_COMMENT_ID: 1
+			} );
 
-		if ( run_validator.status == false ) {
-			res.json( {
+		// Jika sudah terdapat data, maka akan mengupdate Data Finding.
+		if ( check.length > 0 ) {
+			return res.json( {
 				status: false,
-				message: "Error! Periksa kembali inputan anda.",
-				data: run_validator
+				message: "Data FINDING_COMMENT_ID sudah ada.",
+				data: []
 			} );
 		}
+		// Insert Data Finding
 		else {
-			var auth = req.auth;
-			var check = await FindingCommentModel
-				.find( {
-					FINDING_COMMENT_ID : req.body.FINDING_COMMENT_ID
-				} )
-				.select( {
-					_id: 0,
-					FINDING_COMMENT_ID: 1
-				} );
+			var insert_data = {
+				FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID || "",
+				FINDING_CODE: req.body.FINDING_CODE || "",
+				USER_AUTH_CODE: req.body.USER_AUTH_CODE || "",
+				MESSAGE: req.body.MESSAGE || "",
+				INSERT_TIME: req.body.INSERT_TIME || 0
+			};
 
-			// Jika sudah terdapat data, maka akan mengupdate Data Finding.
-			if ( check.length > 0 ) {
-				return res.json( {
-					status: false,
-					message: "Data FINDING_COMMENT_ID sudah ada.",
-					data: []
-				} );
-			}
-			// Insert Data Finding
-			else {
-				var insert_data = {
-					FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID || "",
-					FINDING_CODE: req.body.FINDING_CODE || "",
-					USER_AUTH_CODE: req.body.USER_AUTH_CODE || "",
-					MESSAGE: req.body.MESSAGE || "",
-					INSERT_TIME: req.body.INSERT_TIME || 0
-				};
+			const set_data = new FindingCommentModel( insert_data );
 
-				const set_data = new FindingCommentModel( insert_data );
-
-				set_data.save()
-				.then( data => {
-					if ( !data ) {
-						return res.send( {
-							status: false,
-							message: config.app.error_message.create_404,
-							data: {}
-						} );
-					}
-					if(req.body.TAG_USER&&Array.isArray(req.body.TAG_USER)){
-						req.body.TAG_USER.forEach( function( tag ) {
-
-							const set_tag = new FindingCommentTagModel({
-								FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID,
-								USER_AUTH_CODE: tag.USER_AUTH_CODE
-							});
-							set_tag.save()
-							.then( data_tag => {
-								if ( !data_tag ) {
-									return res.send( {
-										status: false,
-										message: config.app.error_message.create_404 + ' - Log',
-										data: {}
-									} );
-								}
-							} ).catch( err => {
-								return res.send( {
-									status: false,
-									message: config.app.error_message.create_500 + ' - 2',
-									data: {}
-								} );
-							} );
-						});
-					}
-
-					// Insert Finding Log
-					const set_log = new FindingCommentLogModel( {
-						FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID,
-						PROSES: 'INSERT',
-						IMEI: auth.IMEI,
-						SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' )
-					} );
-					set_log.save()
-					.then( data_log => {
-						if ( !data_log ) {
-							return res.send( {
-								status: false,
-								message: config.app.error_message.create_404 + ' - Log',
-								data: {}
-							} );
-						}
-
-						return res.send( {
-							status: true,
-							message: config.app.error_message.create_200,
-							data: {}
-						} );
-					} ).catch( err => {
-						console.log(err);
-						return res.send( {
-							status: false,
-							message: config.app.error_message.create_500 + ' - 2',
-							data: {}
-						} );
-					} );
-				} ).catch( err => {
+			set_data.save()
+			.then( data => {
+				if ( !data ) {
 					return res.send( {
 						status: false,
-						message: config.app.error_message.create_500,
+						message: config.app.error_message.create_404,
+						data: {}
+					} );
+				}
+				if(req.body.TAG_USER&&Array.isArray(req.body.TAG_USER)){
+					req.body.TAG_USER.forEach( function( tag ) {
+
+						const set_tag = new FindingCommentTagModel({
+							FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID,
+							USER_AUTH_CODE: tag.USER_AUTH_CODE
+						});
+						set_tag.save()
+						.then( data_tag => {
+							if ( !data_tag ) {
+								return res.send( {
+									status: false,
+									message: config.app.error_message.create_404 + ' - Log',
+									data: {}
+								} );
+							}
+						} ).catch( err => {
+							return res.send( {
+								status: false,
+								message: config.app.error_message.create_500 + ' - 2',
+								data: {}
+							} );
+						} );
+					});
+				}
+
+				// Insert Finding Log
+				const set_log = new FindingCommentLogModel( {
+					FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID,
+					PROSES: 'INSERT',
+					IMEI: auth.IMEI,
+					SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' )
+				} );
+				set_log.save()
+				.then( data_log => {
+					if ( !data_log ) {
+						return res.send( {
+							status: false,
+							message: config.app.error_message.create_404 + ' - Log',
+							data: {}
+						} );
+					}
+
+					return res.send( {
+						status: true,
+						message: config.app.error_message.create_200,
+						data: {}
+					} );
+				} ).catch( err => {
+					console.log(err);
+					return res.send( {
+						status: false,
+						message: config.app.error_message.create_500 + ' - 2',
 						data: {}
 					} );
 				} );
-			}
+			} ).catch( err => {
+				return res.send( {
+					status: false,
+					message: config.app.error_message.create_500,
+					data: {}
+				} );
+			} );
 		}
 	}
 
