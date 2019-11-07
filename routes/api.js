@@ -124,6 +124,9 @@
 
 			//Export Kafka
 			app.get( '/api/v1.1/export-kafka/finding', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.ExportKafka.export_finding );
+
+			// GET Inspection Finding By Month
+			app.get( '/api/v1.1/finding-month/:month', Middleware.v_1_1.VerifyToken, Controllers.v_1_1.ExportKafka.find_by_month );	 
 			
 
 		/*

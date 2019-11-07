@@ -896,7 +896,6 @@
 	  * --------------------------------------------------------------------
 	*/
 	exports.findAll = ( req, res ) => {
-
 		var url_query = req.query;
 		var url_query_length = Object.keys( url_query ).length;
 		var query = {};
