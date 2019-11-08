@@ -639,7 +639,7 @@
 				$match: {
 					INSERT_USER: req.auth.USER_AUTH_CODE,
 					IMEI: req.auth.IMEI,
-					TABEL_UPDATE: "finding"
+					TABEL_UPDATE: "finding-comment"
 				}
 			},
 			{
