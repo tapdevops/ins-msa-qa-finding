@@ -720,6 +720,8 @@
 		var tanggal_terakhir_sync = ( check_mobile_sync.length == 1 ? ( check_mobile_sync[0].TGL_MOBILE_SYNC.toString() ).substr( 0, 8 ) + '000000' : 0 );
 		var start_date = parseInt( tanggal_terakhir_sync );
 		var end_date = parseInt( now + '235959' );
+		console.log( 'Start date', start_date );
+		console.log( 'End date', end_date );
 		qs["$and"] = [ {
 			"$or": [
 				{
@@ -742,7 +744,7 @@
 				}
 			]
 		} ];
-
+		console.log( 'qs', qs );
 		FindingModel.aggregate( [
 			{
 				"$match": qs
@@ -806,10 +808,10 @@
 					
 						var ini_tags = [];
 
-						console.log(result.comment[n]);
+						// console.log(result.comment[n]);
 
 						if ( result.comment[n].tag.length > 0 ) {
-								console.log('Yay');
+								// console.log('Yay');
 							for( var i = 0; i < result.comment[n].tag.length; i++ ) {
 								let contact = await findContacts( result.comment[n].tag[i].USER_AUTH_CODE );
 								let ccc = Object.values( contact );
@@ -829,20 +831,7 @@
 						var contact_comment = await findContacts( result.comment[n].USER_AUTH_CODE );
 						var con_comment = Object.values( contact_comment );
 
-						// console.log(con_comment);
-						if ( result.DELETE_TIME >= start_date && result.DELETE_TIME <= end_date ) {
-							temp_delete.push( {
-								FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
-								FINDING_CODE: result.comment[n].FINDING_CODE,
-								USER_AUTH_CODE: result.comment[n].USER_AUTH_CODE,
-								FULLNAME: con_comment[6],
-								MESSAGE: result.comment[n].MESSAGE,
-								INSERT_TIME: result.comment[n].INSERT_TIME,
-								TAGS: ini_tags
-							} );
-						}
-
-						if ( result.INSERT_TIME >= start_date && result.INSERT_TIME <= end_date ) {
+						if ( start_date === 0 ) {
 							temp_insert.push( {
 								FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
 								FINDING_CODE: result.comment[n].FINDING_CODE,
@@ -852,18 +841,55 @@
 								INSERT_TIME: result.comment[n].INSERT_TIME,
 								TAGS: ini_tags
 							} );
-						}
+							
+						} else {
+							// console.log(con_comment);
+							if ( result.DELETE_TIME >= start_date && result.DELETE_TIME <= end_date ) {
+								console.log( 'Start date', start_date );
+								console.log( 'End date', end_date );
+								console.log( 'Delete time', result.DELETE_TIME );
+								console.log('--------------------------------');
+								temp_delete.push( {
+									FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
+									FINDING_CODE: result.comment[n].FINDING_CODE,
+									USER_AUTH_CODE: result.comment[n].USER_AUTH_CODE,
+									FULLNAME: con_comment[6],
+									MESSAGE: result.comment[n].MESSAGE,
+									INSERT_TIME: result.comment[n].INSERT_TIME,
+									TAGS: ini_tags
+								} );
+							}
+							if ( result.INSERT_TIME >= start_date && result.INSERT_TIME <= end_date ) {
+								console.log( 'Start date', start_date );
+								console.log( 'End date', end_date );
+								console.log( 'Insert time', result.INSERT_TIME )
+								console.log('--------------------------------');
+								temp_insert.push( {
+									FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
+									FINDING_CODE: result.comment[n].FINDING_CODE,
+									USER_AUTH_CODE: result.comment[n].USER_AUTH_CODE,
+									FULLNAME: con_comment[6],
+									MESSAGE: result.comment[n].MESSAGE,
+									INSERT_TIME: result.comment[n].INSERT_TIME,
+									TAGS: ini_tags
+								} );
+							}
 
-						if ( result.UPDATE_TIME >= start_date && result.UPDATE_TIME <= end_date ) {
-							temp_update.push( {
-								FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
-								FINDING_CODE: result.comment[n].FINDING_CODE,
-								USER_AUTH_CODE: result.comment[n].USER_AUTH_CODE,
-								FULLNAME: con_comment[6],
-								MESSAGE: result.comment[n].MESSAGE,
-								INSERT_TIME: result.comment[n].INSERT_TIME,
-								TAGS: ini_tags
-							} );
+							if ( result.UPDATE_TIME >= start_date && result.UPDATE_TIME <= end_date ) {
+								console.log( 'Start date', start_date );
+								console.log( 'End date', end_date );
+								console.log( 'Update time', result.UPDATE_TIME );
+								console.log('--------------------------------');
+								temp_update.push( {
+									FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
+									FINDING_CODE: result.comment[n].FINDING_CODE,
+									USER_AUTH_CODE: result.comment[n].USER_AUTH_CODE,
+									FULLNAME: con_comment[6],
+									MESSAGE: result.comment[n].MESSAGE,
+									INSERT_TIME: result.comment[n].INSERT_TIME,
+									TAGS: ini_tags
+								} );
+							}
 						}
 					}
 				}
