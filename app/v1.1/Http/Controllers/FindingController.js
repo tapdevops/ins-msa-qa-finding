@@ -53,7 +53,7 @@
 			HRIS_FULLNAME: 1
 		} )
 		.then( data => {
-			// console.log(data);
+			// //console.log(data);
 			// return data;
 			
 			if( !data ) {
@@ -117,7 +117,7 @@
 					REGION_CODE: location_code_regional
 				}// );
 			// } );
-			// console.log(results[0]);
+			// //console.log(results[0]);
 			// return results[0];
 		} ).catch( err => {
 			return [];
@@ -241,7 +241,7 @@
 						data: {}
 					} );
 				} ).catch( err => {
-					console.log(err);
+					//console.log(err);
 					return res.send( {
 						status: false,
 						message: config.app.error_message.create_500 + ' - 2',
@@ -353,7 +353,7 @@
 						data: {}
 					} );
 				} ).catch( err => {
-					console.log(err);
+					//console.log(err);
 					return res.send( {
 						status: false,
 						message: config.app.error_message.create_500 + ' - 2',
@@ -460,7 +460,7 @@
 						data: {}
 					} );
 				} ).catch( err => {
-					console.log(err);
+					//console.log(err);
 					return res.send( {
 						status: false,
 						message: config.app.error_message.create_500 + ' - 2',
@@ -486,12 +486,11 @@
 	exports.find = ( req, res ) => {
 		var auth = req.auth;
 		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
-		var ref_role = auth.REFFERENCE_ROLE;
+		var ref_role = auth.REFFERENCE_ROLE; // asinsten_lapangan
 		var location_code_final = [];
 		var query_search = [];
 		var afd_code = [];
-
-		// console.log(auth)
+		// //console.log(auth)
 
 		if ( ref_role != 'ALL' ) {
 			location_code_group.forEach( function( data ) {
@@ -537,7 +536,7 @@
 		
 		}
 
-		console.log(location_code_final)
+		//console.log(location_code_final)
 
 		if ( ref_role == 'NATIONAL' ) {
 			var qs = {
@@ -550,10 +549,8 @@
 				WERKS: {"$in":query_search}
 			}
 		}
-
-		console.log( 'panjang qs' );
-		console.log( qs.length );
-
+		console.log( 'qs' );
+		console.log( qs )
 		FindingModel.aggregate( [
 			{ 
 				"$project" : {
@@ -572,8 +569,8 @@
 			}
  		] )
 		.then( data => {
-			// console.log("XXX");
-			// console.log(data);
+			// //console.log("XXX");
+			// //console.log(data);
 			if( !data ) {
 				return res.send( {
 					status: false,
@@ -584,7 +581,7 @@
 
 			var results = [];
 			data.forEach( function( result ) {
-				// console.log(result);
+				//console.log(result);
 				results.push( {
 					FINDING_CODE: result.FINDING_CODE,
 					WERKS: result.WERKS,
@@ -629,6 +626,8 @@
 				data: {}
 			} );
 		} );
+		// res.send( 'ihsan' );
+	// } )
 	};
 	
 	exports.findComment = async ( req, res ) => {
@@ -720,8 +719,8 @@
 		var tanggal_terakhir_sync = ( check_mobile_sync.length == 1 ? ( check_mobile_sync[0].TGL_MOBILE_SYNC.toString() ).substr( 0, 8 ) + '000000' : 0 );
 		var start_date = parseInt( tanggal_terakhir_sync );
 		var end_date = parseInt( now + '235959' );
-		console.log( 'Start date', start_date );
-		console.log( 'End date', end_date );
+		//console.log( 'Start date', start_date );
+		//console.log( 'End date', end_date );
 		qs["$and"] = [ {
 			"$or": [
 				{
@@ -744,7 +743,7 @@
 				}
 			]
 		} ];
-		console.log( 'qs', qs );
+		//console.log( 'qs', qs );
 		FindingModel.aggregate( [
 			{
 				"$match": qs
@@ -789,7 +788,7 @@
 			*/
  		] )
 		.then( async data => {
-			// console.log(data);
+			// //console.log(data);
 			if( !data ) {
 				return res.send( {
 					status: false,
@@ -802,20 +801,20 @@
 			var temp_delete = [];
 			await asyncForEach( data, async function( result ) {
 
-				// console.log(result);
+				// //console.log(result);
 				if ( result.comment.length > 0 ) {
 					for ( var n = 0; n < result.comment.length; n++ ) {
 					
 						var ini_tags = [];
 
-						// console.log(result.comment[n]);
+						// //console.log(result.comment[n]);
 
 						if ( result.comment[n].tag.length > 0 ) {
-								// console.log('Yay');
+								// //console.log('Yay');
 							for( var i = 0; i < result.comment[n].tag.length; i++ ) {
 								let contact = await findContacts( result.comment[n].tag[i].USER_AUTH_CODE );
 								let ccc = Object.values( contact );
-								// console.log('1');
+								// //console.log('1');
 								ini_tags.push( {
 									USER_AUTH_CODE: ccc[0],
 									EMPLOYEE_NIK: ccc[1],
@@ -843,12 +842,12 @@
 							} );
 							
 						} else {
-							// console.log(con_comment);
+							// //console.log(con_comment);
 							if ( result.DELETE_TIME >= start_date && result.DELETE_TIME <= end_date ) {
-								console.log( 'Start date', start_date );
-								console.log( 'End date', end_date );
-								console.log( 'Delete time', result.DELETE_TIME );
-								console.log('--------------------------------');
+								//console.log( 'Start date', start_date );
+								//console.log( 'End date', end_date );
+								//console.log( 'Delete time', result.DELETE_TIME );
+								//console.log('--------------------------------');
 								temp_delete.push( {
 									FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
 									FINDING_CODE: result.comment[n].FINDING_CODE,
@@ -860,10 +859,10 @@
 								} );
 							}
 							if ( result.INSERT_TIME >= start_date && result.INSERT_TIME <= end_date ) {
-								console.log( 'Start date', start_date );
-								console.log( 'End date', end_date );
-								console.log( 'Insert time', result.INSERT_TIME )
-								console.log('--------------------------------');
+								//console.log( 'Start date', start_date );
+								//console.log( 'End date', end_date );
+								//console.log( 'Insert time', result.INSERT_TIME )
+								//console.log('--------------------------------');
 								temp_insert.push( {
 									FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
 									FINDING_CODE: result.comment[n].FINDING_CODE,
@@ -876,10 +875,10 @@
 							}
 
 							if ( result.UPDATE_TIME >= start_date && result.UPDATE_TIME <= end_date ) {
-								console.log( 'Start date', start_date );
-								console.log( 'End date', end_date );
-								console.log( 'Update time', result.UPDATE_TIME );
-								console.log('--------------------------------');
+								//console.log( 'Start date', start_date );
+								//console.log( 'End date', end_date );
+								//console.log( 'Update time', result.UPDATE_TIME );
+								//console.log('--------------------------------');
 								temp_update.push( {
 									FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
 									FINDING_CODE: result.comment[n].FINDING_CODE,
@@ -905,7 +904,7 @@
 				}
 			} );
 		} ).catch( err => {
-			// console.log(err);
+			// //console.log(err);
 			res.send( {
 				status: false,
 				message: config.app.error_message.find_500,
