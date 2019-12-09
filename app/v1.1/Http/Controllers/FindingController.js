@@ -157,7 +157,7 @@
 				FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
 				FINDING_DESC: req.body.FINDING_DESC || "",
 				FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-				DUE_DATE: ( req.body.DUE_DATE == "" ) ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+				DUE_DATE: req.body.DUE_DATE === undefined ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
 				ASSIGN_TO: req.body.ASSIGN_TO || "",
 				PROGRESS: req.body.PROGRESS || 0,
 				LAT_FINDING: req.body.LAT_FINDING || "",
@@ -167,7 +167,7 @@
 				UPDATE_TIME: req.body.UPDATE_TIME || 0,
 				RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
 				RATING_MESSAGE: req.body.RATING_MESSAGE || "",
-				END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
+				END_TIME: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
 			};
 			FindingModel.findOneAndUpdate( { 
 				FINDING_CODE : req.body.FINDING_CODE
@@ -189,7 +189,7 @@
 						FNDCT: req.body.FINDING_CATEGORY || "",
 						FNDDS: req.body.FINDING_DESC || "",
 						FNDPR: req.body.FINDING_PRIORITY || "",
-						DUE_DATE: HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+						DUE_DATE: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
 						ASSTO: req.body.ASSIGN_TO || "",
 						PRGRS: req.body.PROGRESS || "",
 						LATFN: req.body.LAT_FINDING || "",
@@ -203,7 +203,7 @@
 						DLTTM: 0,
 						RTGVL: parseInt( req.body.RATING_VALUE ) || 0,
 						RTGMS: req.body.RATING_MESSAGE || "",
-						END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
+						END_TIME: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
 					};
 				   KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
 				}
@@ -268,7 +268,7 @@
 				FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
 				FINDING_DESC: req.body.FINDING_DESC || "",
 				FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-				DUE_DATE: HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+				DUE_DATE: req.body.DUE_DATE === undefined ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
 				ASSIGN_TO: req.body.ASSIGN_TO || "",
 				PROGRESS: req.body.PROGRESS || "",
 				LAT_FINDING: req.body.LAT_FINDING || "",
@@ -282,7 +282,7 @@
 				DELETE_TIME: 0,
 				RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
 				RATING_MESSAGE: req.body.RATING_MESSAGE || "",
-				END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
+				END_TIME: req.body.END_TIME == undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
 			}
 
 			const set_data = new FindingModel( insert_data );
@@ -324,7 +324,7 @@
 							FNDCT: req.body.FINDING_CATEGORY || "",
 							FNDDS: req.body.FINDING_DESC || "",
 							FNDPR: req.body.FINDING_PRIORITY || "",
-							DUE_DATE: HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+							DUE_DATE: req.body.DUE_DATE === undefined ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
 							ASSTO: req.body.ASSIGN_TO || "",
 							PRGRS: req.body.PROGRESS || "",
 							LATFN: req.body.LAT_FINDING || "",
@@ -338,7 +338,7 @@
 							DLTTM: 0,
 							RTGVL: parseInt( req.body.RATING_VALUE ) || 0,
 							RTGMS: req.body.RATING_MESSAGE || "",
-							END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
+							END_TIME: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
 						};
 					   KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
 					}
