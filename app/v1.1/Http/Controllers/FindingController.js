@@ -147,7 +147,9 @@
 				_id: 0
 				// FINDING_CODE: 1
 			} );
-
+		if ( !req.body.INSERT_TIME ) {
+			req.body.INSERT_TIME = 'now';
+		}
 		// Jika sudah terdapat data, maka akan mengupdate Data Finding.
 		if ( check.length > 0 ) {
 
@@ -302,7 +304,7 @@
 					PROSES: 'INSERT',
 					PROGRESS: req.body.PROGRESS,
 					IMEI: auth.IMEI,
-					SYNC_TIME: HelperLib.date_format( 'now', 'YYYYMMDDhhmmss' ),
+					SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
 					SYNC_USER: req.body.INSERT_USER,
 				} );
 
