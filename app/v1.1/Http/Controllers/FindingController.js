@@ -302,7 +302,7 @@
 					PROSES: 'INSERT',
 					PROGRESS: req.body.PROGRESS,
 					IMEI: auth.IMEI,
-					SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
+					SYNC_TIME: HelperLib.date_format( 'now', 'YYYYMMDDhhmmss' ),
 					SYNC_USER: req.body.INSERT_USER,
 				} );
 
