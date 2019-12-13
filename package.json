@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "cron": "^1.7.2",
     "express": "^4.16.4",
     "express-routes-versioning": "^1.0.1",
     "ferds-validator": "^1.0.4",

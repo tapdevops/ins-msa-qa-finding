@@ -18,7 +18,7 @@
 	const BodyParser = require( 'body-parser' );
 	const Express = require( 'express' );
 	const Mongoose = require( 'mongoose' );
-	const NodeCron = require( 'node-cron' );
+	const CronJob = require( 'cron' ).CronJob;
 
 	// Primary Variable
 	const App = Express();
@@ -61,10 +61,10 @@
 	} );
 
 	//scheduling job_update_transaksi_complete() with cron 
-	NodeCron.schedule( '5 0 * * MON', async () => {
+	new CronJob( '5 0 * * MON', async () => {
 		Kernel.job_update_transaksi_complete();
 		console.log( "running node-cron..." );
-	} );
+	}, null, true, 'Asia/Jakarta' );
 
 	// Routing
 	require( './routes/api.js' )( App );
