@@ -19,6 +19,7 @@
 
 	// Node Module
 	const Validator = require( 'ferds-validator');
+	const MomentTimezone = require( 'moment-timezone' );
 
 	// Libraries
 	const HelperLib = require( _directory_base + '/app/v1.1/Http/Libraries/HelperLib.js' );
@@ -546,9 +547,24 @@
 			}
 		}
 		else {
+			let date_min_1_week = new Date();
+				date_min_1_week.setDate( date_min_1_week.getDate() - 8 );
+				date_min_1_week = parseInt( MomentTimezone( date_min_1_week ).tz( "Asia/Jakarta" ).format( "YYYYMMDD" ) + '235959' );
 			var qs = {
 				DELETE_USER: "",
-				WERKS: {"$in":query_search}
+				WERKS: {"$in":query_search},
+				$or: [       
+					{
+						PROGRESS: {
+							$ne: 100
+						}
+					},
+					{
+						END_TIME: {
+							$gte: date_min_1_week
+						}
+					}
+				]
 			}
 		}
 		console.log( 'qs' );
@@ -628,8 +644,6 @@
 				data: {}
 			} );
 		} );
-		// res.send( 'ihsan' );
-	// } )
 	};
 	
 	exports.findComment = async ( req, res ) => {
