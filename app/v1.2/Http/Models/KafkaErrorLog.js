@@ -1,16 +1,25 @@
 /*
  |--------------------------------------------------------------------------
- | Models - Sync Mobile
+ | Models - KafkaErrorLog
  |--------------------------------------------------------------------------
  */
+
+//Node Module
 const Mongoose = require('mongoose');
-const db = require('../../../../config/database.js');
-const connAuth = Mongoose.createConnection(db.auth[config.app.env].url);
-const SyncMobileSchema = Mongoose.Schema({});
+
+const KafkaErrorLogSchema = Mongoose.Schema({
+    TR_CODE: String,
+    TOPIC: String,
+    INSERT_TIME: {
+        type: Number,
+        get: v => Math.round(v),
+        set: v => Math.round(v)
+    }
+});
 
 /*
  |--------------------------------------------------------------------------
  | Exports
  |--------------------------------------------------------------------------
  */
-module.exports = connAuth.model('SyncMobile_v_1_2', SyncMobileSchema, 'T_MOBILE_SYNC');
+module.exports = Mongoose.model("KafkaErrorLog_v_1_2", KafkaErrorLogSchema, 'TR_KAFKA_ERROR_LOGS');

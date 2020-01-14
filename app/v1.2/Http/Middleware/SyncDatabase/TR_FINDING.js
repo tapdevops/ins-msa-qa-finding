@@ -3,7 +3,7 @@
 | Variable
 |--------------------------------------------------------------------------
 */
-	const Model = require( _directory_base + '/app/v1.1/Http/Middleware/SyncDatabase/Models/TR_FINDING.js' );
+	const Model = require( _directory_base + '/app/v1.2/Http/Middleware/SyncDatabase/Models/TR_FINDING.js' );
 /*
 |--------------------------------------------------------------------------
 | Verify Token Middleware
