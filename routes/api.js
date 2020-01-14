@@ -8,6 +8,13 @@ const RoutesVersioning = require('express-routes-versioning')();
 
 // Controllers
 const Controllers = {
+	v_2_0: {
+		Finding: require(_directory_base + '/app/v2.0/Http/Controllers/FindingController.js'),
+		Report: require(_directory_base + '/app/v2.0/Http/Controllers/ReportController.js'),
+		SyncMobile: require(_directory_base + '/app/v2.0/Http/Controllers/SyncMobileController.js'),
+		Summary: require(_directory_base + '/app/v2.0/Http/Controllers/SummaryController.js'),
+		ExportKafka: require(_directory_base + '/app/v2.0/Http/Controllers/ExportKafkaController.js')
+	},
 	v_1_2: {
 		Finding: require(_directory_base + '/app/v1.2/Http/Controllers/FindingController.js'),
 		Report: require(_directory_base + '/app/v1.2/Http/Controllers/ReportController.js'),
@@ -32,6 +39,11 @@ const Controllers = {
 
 // Middleware
 const Middleware = {
+	v_2_0: {
+		SyncDatabase_TR_FINDING: require(_directory_base + '/app/v1.2/Http/Middleware/SyncDatabase/TR_FINDING.js'),
+		SyncDatabase_TR_FINDING_COMMENT: require(_directory_base + '/app/v1.2/Http/Middleware/SyncDatabase/TR_FINDING_COMMENT.js'),
+		VerifyToken: require(_directory_base + '/app/v1.2/Http/Middleware/VerifyToken.js')
+	},
 	v_1_2: {
 		SyncDatabase_TR_FINDING: require(_directory_base + '/app/v1.2/Http/Middleware/SyncDatabase/TR_FINDING.js'),
 		SyncDatabase_TR_FINDING_COMMENT: require(_directory_base + '/app/v1.2/Http/Middleware/SyncDatabase/TR_FINDING_COMMENT.js'),
@@ -67,6 +79,41 @@ module.exports = (app) => {
 			}
 		})
 	});
+
+	/*
+	 |--------------------------------------------------------------------------
+	 | API Versi 2.0
+	 |--------------------------------------------------------------------------
+	 */
+	// Finding
+	app.get('/api/v2.0/sync-mobile/comment', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.Finding.findComment);
+	app.get('/api/v2.0/finding/comment', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.Finding.findComment);
+	app.get('/api/v2.0/finding', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.Finding.find);
+	app.get('/api/v2.0/finding/all', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.Finding.findAll);
+	app.get('/api/v2.0/finding/q', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.Finding.findAll);
+	app.get('/api/v2.0/finding/:id', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.Finding.findOne);
+	app.post('/api/v2.0/finding', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.Finding.create_or_update);
+	app.post('/api/v2.0/finding/comment', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.Finding.create_or_update_comment);
+
+	// Summary
+	app.post('/api/v2.0/summary', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.Summary.finding);
+	app.get('/api/v2.0/summary/generate', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.Summary.process_weekly);
+	// app.get( '/api/v1.0/summary/generate', Middleware.v_2_0.VerifyToken, Controllers.v_1_0.Summary.process_weekly );
+
+	// Report
+	app.get('/api/v2.0/report/web/finding/all', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.Report.find);
+	app.get('/api/v2.0/report/web/finding/q', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.Report.find);
+
+	// Sync Mobile
+	app.get('/api/v2.0/sync-mobile/finding/:start_date/:end_date', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.SyncMobile.synchronize);
+	app.get('/api/v2.0/sync-mobile/finding-images/:start_date/:end_date', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.SyncMobile.synchronize_images);
+
+	//Export Kafka
+	app.get('/api/v2.0/export-kafka/finding', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.ExportKafka.export_finding);
+
+	// GET Inspection Finding By Month
+	app.get('/api/v2.0/finding-month/:month', Middleware.v_2_0.VerifyToken, Controllers.v_2_0.ExportKafka.find_by_month);
+
 	/*
 	 |--------------------------------------------------------------------------
 	 | API Versi 1.2
