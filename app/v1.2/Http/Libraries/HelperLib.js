@@ -22,9 +22,6 @@
 
 		date_format( value, format ) {
 
-			console.log(value);
-			console.log(format);
-
 			var result = '';
 			value = value.toString();
 			value = value.replace( /-/g, "" );

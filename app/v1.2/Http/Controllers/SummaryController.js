@@ -41,21 +41,19 @@
 				$limit: 1
 			}
  		] );
-		if( req.body.IS_VIEW == 1 ){
-			SummaryWeeklyModel.findOneAndUpdate( {
-				INSERT_USER: req.auth.USER_AUTH_CODE,
-				IS_VIEW : 0	
-			},
-			{
-				IS_VIEW: 1
-			},
-			{
-				new: true
-			} ).then( data => {
-				console.log( data );
-			} )
-		}
 
+		SummaryWeeklyModel.findOneAndUpdate( {
+			INSERT_USER: req.auth.USER_AUTH_CODE,
+			IS_VIEW : 0	
+		},
+		{
+			IS_VIEW: 1
+		},
+		{
+			new: true
+		} ).then( data => {
+			console.log( data );
+		} )
 		if ( finding_query.length == 0 ) {
 			var now = HelperLib.date_format( 'now', 'YYYYMMDDhhmmss' );
 			var set = new SummaryWeeklyModel( {
@@ -70,12 +68,12 @@
 		}
 
  		return res.status( 200 ).json( {
- 			status: ( finding_query.length > 0 ? ( finding_query[0].IS_VIEW == 1 ? false : true ) : false ),
+ 			status: true,//( finding_query.length > 0 ? ( finding_query[0].IS_VIEW == 1 ? false : true ) : false ),
  			message: "OK",
  			data: {
  				complete: ( finding_query.length > 0 ? finding_query[0].TOTAL_COMPLETE : 0 ) ,
  				incomplete: ( finding_query.length > 0 ? finding_query[0].TOTAL_INCOMPLETE + finding_query[0].TOTAL_COMPLETE : 0 ) ,
- 				target: 0
+ 				target: ( finding_query.length > 0 ? finding_query[0].TOTAL_INCOMPLETE + finding_query[0].TOTAL_COMPLETE : 0 )
  			}
  		} );
  	}

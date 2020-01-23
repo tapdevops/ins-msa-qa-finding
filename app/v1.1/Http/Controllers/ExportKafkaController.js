@@ -53,5 +53,42 @@
             data: dataSend
         } )
     }
+    exports.find_by_month = async ( req, res ) => {
+        let start = req.params.month;
+        if ( isNaN( parseInt( start ) ) || start.length !== 6 ) {
+            return res.send( {
+                status: false,
+                message: 'Periksa Param Bulan',
+                data: {}
+            } );
+        }
+        let end;
+        if ( start.substring( 4, 6 ) === '12' ) {
+            end = parseInt( start ) + 100;
+        } else {
+            end = parseInt( start ) + 1;
+        }
+        try {
+            const findingCount = await FindingModel.countDocuments( {
+                INSERT_TIME: {
+                    $gte: parseInt( start + '01000000' ),
+                    $lte: parseInt( end + '01000000' )
+                }
+            } );
+            res.send( {
+                status: true,
+                message: 'Data dari ' + start + '01000000 sampai ' + end + '01000000',
+                data: {
+                    TR_FINDING: findingCount
+                }    
+            } );
+        } catch ( error ) {
+            res.send( {
+                status: false,
+                message: 'Internal Server Error: ' + error.message,
+                data: []
+            } );
+        }
+    }
 
  

@@ -19,9 +19,11 @@
 
 	// Node Module
 	const Validator = require( 'ferds-validator');
+	const MomentTimezone = require( 'moment-timezone' );
 
 	// Libraries
 	const HelperLib = require( _directory_base + '/app/v1.2/Http/Libraries/HelperLib.js' );
+	const KafkaServer = require( _directory_base + '/app/v1.2/Http/Libraries/KafkaServer.js' ); 
 	async function asyncForEach(array, callback) {
 		for (let index = 0; index < array.length; index++) {
 			await callback(array[index], index, array);
@@ -52,7 +54,7 @@
 			HRIS_FULLNAME: 1
 		} )
 		.then( data => {
-			// console.log(data);
+			// //console.log(data);
 			// return data;
 			
 			if( !data ) {
@@ -116,7 +118,7 @@
 					REGION_CODE: location_code_regional
 				}// );
 			// } );
-			// console.log(results[0]);
+			// //console.log(results[0]);
 			// return results[0];
 		} ).catch( err => {
 			return [];
@@ -137,324 +139,344 @@
 	*/
 	exports.create_or_update = async ( req, res, next ) => {
 
-		var rules = [
-			{ "name": "FINDING_CODE", "value": req.body.FINDING_CODE, "rules": "required|alpha_numeric" },
-			{ "name": "WERKS", "value": req.body.WERKS, "rules": "required|numeric" },
-			{ "name": "AFD_CODE", "value": req.body.AFD_CODE, "rules": "required|alpha_numeric" },
-			{ "name": "BLOCK_CODE", "value": req.body.BLOCK_CODE, "rules": "required|alpha_numeric" },
-			{ "name": "FINDING_CATEGORY", "value": req.body.FINDING_CATEGORY, "rules": "required|alpha_numeric" },
-			{ "name": "FINDING_DESC", "value": req.body.FINDING_DESC, "rules": "required" },
-			{ "name": "FINDING_PRIORITY", "value": req.body.FINDING_PRIORITY, "rules": "required|alpha" },
-			{ "name": "PROGRESS", "value": req.body.PROGRESS, "rules": "required|numeric" },
-			{ "name": "LAT_FINDING", "value": parseFloat( req.body.LAT_FINDING ), "rules": "required|latitude" },
-			{ "name": "LONG_FINDING", "value": parseFloat( req.body.LONG_FINDING ), "rules": "required|longitude" },
-			{ "name": "INSERT_USER", "value": req.body.INSERT_USER, "rules": "required|alpha_numeric" },
-			//{ "name": "INSERT_TIME", "value": req.body.INSERT_TIME.toString(), "rules": "required|exact_length(14)|numeric" }
-		];
-		var run_validator = Validator.run( rules );
+		var auth = req.auth;
+		var check = await FindingModel
+			.find( {
+				FINDING_CODE : req.body.FINDING_CODE
+			} )
+			.select( {
+				_id: 0
+				// FINDING_CODE: 1
+			} );
+		if ( !req.body.INSERT_TIME ) {
+			req.body.INSERT_TIME = 'now';
+		}
+		// Jika sudah terdapat data, maka akan mengupdate Data Finding.
+		if ( check.length > 0 ) {
 
-		console.log(run_validator);
+			var update_data = {
+				WERKS: req.body.WERKS || "",
+				BLOCK_CODE: req.body.BLOCK_CODE || "",
+				FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
+				FINDING_DESC: req.body.FINDING_DESC || "",
+				FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
+				DUE_DATE: req.body.DUE_DATE === undefined ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+				ASSIGN_TO: req.body.ASSIGN_TO || "",
+				PROGRESS: req.body.PROGRESS || 0,
+				LAT_FINDING: req.body.LAT_FINDING || "",
+				LONG_FINDING: req.body.LONG_FINDING || "",
+				REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
+				UPDATE_USER: req.body.UPDATE_USER || "",
+				UPDATE_TIME: req.body.UPDATE_TIME || 0,
+				RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
+				RATING_MESSAGE: req.body.RATING_MESSAGE || "",
+				END_TIME: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
+			};
+			FindingModel.findOneAndUpdate( { 
+				FINDING_CODE : req.body.FINDING_CODE
+			}, update_data, { new: true } )
+			.then( data => {
+				if ( !data ) {
+					return res.send( {
+						status: false,
+						message: config.app.error_message.put_404,
+						data: {}
+					} );
+				}
+				else {
+					var kafka_body = {
+						FNDCD: req.body.FINDING_CODE || "",
+						WERKS: req.body.WERKS || "",
+						AFD_CODE: req.body.AFD_CODE || "",
+						BLOCK_CODE: req.body.BLOCK_CODE || "",
+						FNDCT: req.body.FINDING_CATEGORY || "",
+						FNDDS: req.body.FINDING_DESC || "",
+						FNDPR: req.body.FINDING_PRIORITY || "",
+						DUE_DATE: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
+						ASSTO: req.body.ASSIGN_TO || "",
+						PRGRS: req.body.PROGRESS || "",
+						LATFN: req.body.LAT_FINDING || "",
+						LONFN: req.body.LONG_FINDING || "",
+						RFINC: req.body.REFFERENCE_INS_CODE || "",
+						INSUR: check[0].INSERT_USER || "",
+						INSTM: check[0].INSERT_TIME || 0,
+						UPTUR: req.body.UPDATE_USER || "",
+						UPTTM: req.body.UPDATE_TIME || 0,
+						DLTUR: "",
+						DLTTM: 0,
+						RTGVL: parseInt( req.body.RATING_VALUE ) || 0,
+						RTGMS: req.body.RATING_MESSAGE || "",
+						END_TIME: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
+					};
+				   KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
+				}
+				
+				// Insert Finding Log
+				const set_log = new FindingLogModel( {
+					FINDING_CODE: req.body.FINDING_CODE,
+					PROSES: 'UPDATE',
+					PROGRESS: req.body.PROGRESS,
+					IMEI: auth.IMEI,
+					SYNC_TIME: req.body.INSERT_TIME || 0,
+					SYNC_USER: req.body.INSERT_USER,
+				} );
 
-		if ( run_validator.status == false ) {
-			res.json( {
-				status: false,
-				message: "Error! Periksa kembali inputan anda.",
-				data: []
+				set_log.save()
+				.then( async data_log => {
+					if ( !data_log ) {
+						return res.send( {
+							status: false,
+							message: config.app.error_message.create_404 + ' - Log',
+							data: {}
+						} );
+					}
+
+
+					// Set Middleware Action
+					// req.headers.action = 'update';
+					// req.headers.id = req.body.FINDING_CODE;
+					// req.headers.data = update_data;
+					// next();
+					// Return hasil
+					return res.send( {
+						status: true,
+						message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
+						data: {}
+					} );
+				} ).catch( err => {
+					//console.log(err);
+					return res.send( {
+						status: false,
+						message: config.app.error_message.create_500 + ' - 2',
+						data: {}
+					} );
+				} );
+
+			} ).catch( err => {
+				return res.send( {
+					status: false,
+					message: config.app.error_message.put_500,
+					data: {}
+				} );
 			} );
 		}
+		// Insert Data Finding
 		else {
-			var auth = req.auth;
-			var check = await FindingModel
-				.find( {
-					FINDING_CODE : req.body.FINDING_CODE
-				} )
-				.select( {
-					_id: 0,
-					FINDING_CODE: 1
-				} );
 
-			// Jika sudah terdapat data, maka akan mengupdate Data Finding.
-			if ( check.length > 0 ) {
+			var insert_data = {
+				FINDING_CODE: req.body.FINDING_CODE || "",
+				WERKS: req.body.WERKS || "",
+				AFD_CODE: req.body.AFD_CODE || "",
+				BLOCK_CODE: req.body.BLOCK_CODE || "",
+				FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
+				FINDING_DESC: req.body.FINDING_DESC || "",
+				FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
+				DUE_DATE: req.body.DUE_DATE === undefined ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+				ASSIGN_TO: req.body.ASSIGN_TO || "",
+				PROGRESS: req.body.PROGRESS || "",
+				LAT_FINDING: req.body.LAT_FINDING || "",
+				LONG_FINDING: req.body.LONG_FINDING || "",
+				REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
+				INSERT_USER: req.body.INSERT_USER,
+				INSERT_TIME: req.body.INSERT_TIME || 0,
+				UPDATE_USER: req.body.UPDATE_USER || "",
+				UPDATE_TIME: req.body.UPDATE_TIME || 0,
+				DELETE_USER: "",
+				DELETE_TIME: 0,
+				RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
+				RATING_MESSAGE: req.body.RATING_MESSAGE || "",
+				END_TIME: req.body.END_TIME == undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
+			}
 
-				var update_data = {
-					WERKS: req.body.WERKS || "",
-					BLOCK_CODE: req.body.BLOCK_CODE || "",
-					FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
-					FINDING_DESC: req.body.FINDING_DESC || "",
-					FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-					DUE_DATE: ( req.body.DUE_DATE == "" ) ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
-					ASSIGN_TO: req.body.ASSIGN_TO || "",
-					PROGRESS: req.body.PROGRESS || 0,
-					LAT_FINDING: req.body.LAT_FINDING || "",
-					LONG_FINDING: req.body.LONG_FINDING || "",
-					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-					UPDATE_USER: req.body.UPDATE_USER || "",
-					UPDATE_TIME: req.body.UPDATE_TIME || 0,
-					RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
-					RATING_MESSAGE: req.body.RATING_MESSAGE || "",
-					END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
-				};
+			const set_data = new FindingModel( insert_data );
 
-				FindingModel.findOneAndUpdate( { 
-					FINDING_CODE : req.body.FINDING_CODE
-				}, update_data, { new: true } )
-				.then( data => {
-					if ( !data ) {
-						return res.send( {
-							status: false,
-							message: config.app.error_message.put_404,
-							data: {}
-						} );
-					}
-					
-					// Insert Finding Log
-					const set_log = new FindingLogModel( {
-						FINDING_CODE: req.body.FINDING_CODE,
-						PROSES: 'UPDATE',
-						PROGRESS: req.body.PROGRESS,
-						IMEI: auth.IMEI,
-						SYNC_TIME: req.body.INSERT_TIME || 0,
-						SYNC_USER: req.body.INSERT_USER,
-					} );
-
-					set_log.save()
-					.then( async data_log => {
-						if ( !data_log ) {
-							return res.send( {
-								status: false,
-								message: config.app.error_message.create_404 + ' - Log',
-								data: {}
-							} );
-						}
-
-						// Return hasil
-						return res.send( {
-							status: true,
-							message: config.app.error_message.put_200 + 'Data berhasil diupdate.',
-							data: {}
-						} );
-					} ).catch( err => {
-						console.log(err);
-						return res.send( {
-							status: false,
-							message: config.app.error_message.create_500 + ' - 2',
-							data: {}
-						} );
-					} );
-
-				} ).catch( err => {
+			set_data.save()
+			.then( data => {
+				if ( !data ) {
 					return res.send( {
 						status: false,
-						message: config.app.error_message.put_500,
+						message: config.app.error_message.create_404,
 						data: {}
 					} );
-				} );
-			}
-			// Insert Data Finding
-			else {
-
-				var insert_data = {
-					FINDING_CODE: req.body.FINDING_CODE || "",
-					WERKS: req.body.WERKS || "",
-					AFD_CODE: req.body.AFD_CODE || "",
-					BLOCK_CODE: req.body.BLOCK_CODE || "",
-					FINDING_CATEGORY: req.body.FINDING_CATEGORY || "",
-					FINDING_DESC: req.body.FINDING_DESC || "",
-					FINDING_PRIORITY: req.body.FINDING_PRIORITY || "",
-					DUE_DATE: HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
-					ASSIGN_TO: req.body.ASSIGN_TO || "",
-					PROGRESS: req.body.PROGRESS || "",
-					LAT_FINDING: req.body.LAT_FINDING || "",
-					LONG_FINDING: req.body.LONG_FINDING || "",
-					REFFERENCE_INS_CODE: req.body.REFFERENCE_INS_CODE || "",
-					INSERT_USER: req.body.INSERT_USER,
-					INSERT_TIME: req.body.INSERT_TIME || 0,
-					UPDATE_USER: req.body.UPDATE_USER || "",
-					UPDATE_TIME: req.body.UPDATE_TIME || 0,
-					DELETE_USER: "",
-					DELETE_TIME: 0,
-					RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
-					RATING_MESSAGE: req.body.RATING_MESSAGE || "",
-					END_TIME: ( req.body.END_TIME == "" ) ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
 				}
+				// Insert Finding Log
+				const set_log = new FindingLogModel( {
+					FINDING_CODE: req.body.FINDING_CODE,
+					PROSES: 'INSERT',
+					PROGRESS: req.body.PROGRESS,
+					IMEI: auth.IMEI,
+					SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
+					SYNC_USER: req.body.INSERT_USER,
+				} );
 
-				const set_data = new FindingModel( insert_data );
-
-				set_data.save()
-				.then( data => {
-					if ( !data ) {
+				set_log.save()
+				.then( data_log => {
+					if ( !data_log ) {
 						return res.send( {
 							status: false,
-							message: config.app.error_message.create_404,
+							message: config.app.error_message.create_404 + ' - Log',
 							data: {}
 						} );
 					}
-					// Insert Finding Log
-					const set_log = new FindingLogModel( {
-						FINDING_CODE: req.body.FINDING_CODE,
-						PROSES: 'INSERT',
-						PROGRESS: req.body.PROGRESS,
-						IMEI: auth.IMEI,
-						SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
-						SYNC_USER: req.body.INSERT_USER,
-					} );
+					else {
+						var kafka_body = {
+							FNDCD: req.body.FINDING_CODE || "",
+							WERKS: req.body.WERKS || "",
+							AFD_CODE: req.body.AFD_CODE || "",
+							BLOCK_CODE: req.body.BLOCK_CODE || "",
+							FNDCT: req.body.FINDING_CATEGORY || "",
+							FNDDS: req.body.FINDING_DESC || "",
+							FNDPR: req.body.FINDING_PRIORITY || "",
+							DUE_DATE: req.body.DUE_DATE === undefined ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
+							ASSTO: req.body.ASSIGN_TO || "",
+							PRGRS: req.body.PROGRESS || "",
+							LATFN: req.body.LAT_FINDING || "",
+							LONFN: req.body.LONG_FINDING || "",
+							RFINC: req.body.REFFERENCE_INS_CODE || "",
+							INSUR: req.body.INSERT_USER,
+							INSTM: req.body.INSERT_TIME || 0,
+							UPTUR: req.body.UPDATE_USER || "",
+							UPTTM: req.body.UPDATE_TIME || 0,
+							DLTUR: "",
+							DLTTM: 0,
+							RTGVL: parseInt( req.body.RATING_VALUE ) || 0,
+							RTGMS: req.body.RATING_MESSAGE || "",
+							END_TIME: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
+						};
+					   KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
+					}
 
-					set_log.save()
-					.then( data_log => {
-						if ( !data_log ) {
-							return res.send( {
-								status: false,
-								message: config.app.error_message.create_404 + ' - Log',
-								data: {}
-							} );
-						}
-
-						return res.send( {
-							status: true,
-							message: config.app.error_message.create_200,
-							data: {}
-						} );
-					} ).catch( err => {
-						console.log(err);
-						return res.send( {
-							status: false,
-							message: config.app.error_message.create_500 + ' - 2',
-							data: {}
-						} );
+					// Set Middleware Action
+					// req.headers.action = 'insert';
+					// req.headers.data = insert_data;
+					// next();
+					return res.send( {
+						status: true,
+						message: config.app.error_message.create_200,
+						data: {}
 					} );
 				} ).catch( err => {
+					//console.log(err);
 					return res.send( {
 						status: false,
-						message: config.app.error_message.create_500,
+						message: config.app.error_message.create_500 + ' - 2',
 						data: {}
 					} );
 				} );
-			}
+			} ).catch( err => {
+				return res.send( {
+					status: false,
+					message: config.app.error_message.create_500,
+					data: {}
+				} );
+			} );
 		}
 	};
 
 	exports.create_or_update_comment = async ( req, res ) => {
 
-		// Rule Validasi
-		var rules = [
-			{ "name": "FINDING_COMMENT_ID", "value": req.body.FINDING_COMMENT_ID, "rules": "required|alpha_numeric" },
-			{ "name": "FINDING_CODE", "value": req.body.FINDING_CODE, "rules": "required|alpha_numeric" },
-			{ "name": "USER_AUTH_CODE", "value": req.body.USER_AUTH_CODE, "rules": "required|alpha_numeric" },
-			{ "name": "MESSAGE", "value": req.body.MESSAGE, "rules": "required" }
-		];
-		var run_validator = Validator.run( rules );
+		var auth = req.auth;
+		var check = await FindingCommentModel
+			.find( {
+				FINDING_COMMENT_ID : req.body.FINDING_COMMENT_ID
+			} )
+			.select( {
+				_id: 0,
+				FINDING_COMMENT_ID: 1
+			} );
 
-		if ( run_validator.status == false ) {
-			res.json( {
+		// Jika sudah terdapat data, maka akan mengupdate Data Finding.
+		if ( check.length > 0 ) {
+			return res.json( {
 				status: false,
-				message: "Error! Periksa kembali inputan anda.",
-				data: run_validator
+				message: "Data FINDING_COMMENT_ID sudah ada.",
+				data: []
 			} );
 		}
+		// Insert Data Finding
 		else {
-			var auth = req.auth;
-			var check = await FindingCommentModel
-				.find( {
-					FINDING_COMMENT_ID : req.body.FINDING_COMMENT_ID
-				} )
-				.select( {
-					_id: 0,
-					FINDING_COMMENT_ID: 1
-				} );
+			var insert_data = {
+				FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID || "",
+				FINDING_CODE: req.body.FINDING_CODE || "",
+				USER_AUTH_CODE: req.body.USER_AUTH_CODE || "",
+				MESSAGE: req.body.MESSAGE || "",
+				INSERT_TIME: req.body.INSERT_TIME || 0
+			};
 
-			// Jika sudah terdapat data, maka akan mengupdate Data Finding.
-			if ( check.length > 0 ) {
-				return res.json( {
-					status: false,
-					message: "Data FINDING_COMMENT_ID sudah ada.",
-					data: []
-				} );
-			}
-			// Insert Data Finding
-			else {
-				var insert_data = {
-					FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID || "",
-					FINDING_CODE: req.body.FINDING_CODE || "",
-					USER_AUTH_CODE: req.body.USER_AUTH_CODE || "",
-					MESSAGE: req.body.MESSAGE || "",
-					INSERT_TIME: req.body.INSERT_TIME || 0
-				};
+			const set_data = new FindingCommentModel( insert_data );
 
-				const set_data = new FindingCommentModel( insert_data );
-
-				set_data.save()
-				.then( data => {
-					if ( !data ) {
-						return res.send( {
-							status: false,
-							message: config.app.error_message.create_404,
-							data: {}
-						} );
-					}
-					if(req.body.TAG_USER&&Array.isArray(req.body.TAG_USER)){
-						req.body.TAG_USER.forEach( function( tag ) {
-
-							const set_tag = new FindingCommentTagModel({
-								FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID,
-								USER_AUTH_CODE: tag.USER_AUTH_CODE
-							});
-							set_tag.save()
-							.then( data_tag => {
-								if ( !data_tag ) {
-									return res.send( {
-										status: false,
-										message: config.app.error_message.create_404 + ' - Log',
-										data: {}
-									} );
-								}
-							} ).catch( err => {
-								return res.send( {
-									status: false,
-									message: config.app.error_message.create_500 + ' - 2',
-									data: {}
-								} );
-							} );
-						});
-					}
-
-					// Insert Finding Log
-					const set_log = new FindingCommentLogModel( {
-						FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID,
-						PROSES: 'INSERT',
-						IMEI: auth.IMEI,
-						SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' )
-					} );
-					set_log.save()
-					.then( data_log => {
-						if ( !data_log ) {
-							return res.send( {
-								status: false,
-								message: config.app.error_message.create_404 + ' - Log',
-								data: {}
-							} );
-						}
-
-						return res.send( {
-							status: true,
-							message: config.app.error_message.create_200,
-							data: {}
-						} );
-					} ).catch( err => {
-						console.log(err);
-						return res.send( {
-							status: false,
-							message: config.app.error_message.create_500 + ' - 2',
-							data: {}
-						} );
-					} );
-				} ).catch( err => {
+			set_data.save()
+			.then( data => {
+				if ( !data ) {
 					return res.send( {
 						status: false,
-						message: config.app.error_message.create_500,
+						message: config.app.error_message.create_404,
+						data: {}
+					} );
+				}
+				if(req.body.TAG_USER&&Array.isArray(req.body.TAG_USER)){
+					req.body.TAG_USER.forEach( function( tag ) {
+
+						const set_tag = new FindingCommentTagModel({
+							FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID,
+							USER_AUTH_CODE: tag.USER_AUTH_CODE
+						});
+						set_tag.save()
+						.then( data_tag => {
+							if ( !data_tag ) {
+								return res.send( {
+									status: false,
+									message: config.app.error_message.create_404 + ' - Log',
+									data: {}
+								} );
+							}
+						} ).catch( err => {
+							return res.send( {
+								status: false,
+								message: config.app.error_message.create_500 + ' - 2',
+								data: {}
+							} );
+						} );
+					});
+				}
+
+				// Insert Finding Log
+				const set_log = new FindingCommentLogModel( {
+					FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID,
+					PROSES: 'INSERT',
+					IMEI: auth.IMEI,
+					SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' )
+				} );
+				set_log.save()
+				.then( data_log => {
+					if ( !data_log ) {
+						return res.send( {
+							status: false,
+							message: config.app.error_message.create_404 + ' - Log',
+							data: {}
+						} );
+					}
+
+					return res.send( {
+						status: true,
+						message: config.app.error_message.create_200,
+						data: {}
+					} );
+				} ).catch( err => {
+					//console.log(err);
+					return res.send( {
+						status: false,
+						message: config.app.error_message.create_500 + ' - 2',
 						data: {}
 					} );
 				} );
-			}
+			} ).catch( err => {
+				return res.send( {
+					status: false,
+					message: config.app.error_message.create_500,
+					data: {}
+				} );
+			} );
 		}
 	}
 
@@ -467,10 +489,11 @@
 	exports.find = ( req, res ) => {
 		var auth = req.auth;
 		var location_code_group = String( auth.LOCATION_CODE ).split( ',' );
-		var ref_role = auth.REFFERENCE_ROLE;
+		var ref_role = auth.REFFERENCE_ROLE; // asinsten_lapangan
 		var location_code_final = [];
 		var query_search = [];
 		var afd_code = [];
+		// //console.log(auth)
 
 		if ( ref_role != 'ALL' ) {
 			location_code_group.forEach( function( data ) {
@@ -516,18 +539,36 @@
 		
 		}
 
+		//console.log(location_code_final)
+
 		if ( ref_role == 'NATIONAL' ) {
 			var qs = {
 				DELETE_USER: ""
 			}
 		}
 		else {
+			let date_min_1_week = new Date();
+				date_min_1_week.setDate( date_min_1_week.getDate() - 8 );
+				date_min_1_week = parseInt( MomentTimezone( date_min_1_week ).tz( "Asia/Jakarta" ).format( "YYYYMMDD" ) + '235959' );
 			var qs = {
 				DELETE_USER: "",
-				// WERKS: {"$in":query_search}
+				WERKS: {"$in":query_search},
+				$or: [       
+					{
+						PROGRESS: {
+							$ne: 100
+						}
+					},
+					{
+						END_TIME: {
+							$gte: date_min_1_week
+						}
+					}
+				]
 			}
 		}
-
+		console.log( 'qs' );
+		console.log( qs )
 		FindingModel.aggregate( [
 			{ 
 				"$project" : {
@@ -546,8 +587,8 @@
 			}
  		] )
 		.then( data => {
-			// console.log("XXX");
-			// console.log(data);
+			// //console.log("XXX");
+			// //console.log(data);
 			if( !data ) {
 				return res.send( {
 					status: false,
@@ -558,7 +599,7 @@
 
 			var results = [];
 			data.forEach( function( result ) {
-				console.log(result);
+				//console.log(result);
 				results.push( {
 					FINDING_CODE: result.FINDING_CODE,
 					WERKS: result.WERKS,
@@ -590,7 +631,7 @@
 				} );
 
 			} );
-
+				
 			res.send( {
 				status: true,
 				message: config.app.error_message.find_200,
@@ -613,7 +654,7 @@
 				$match: {
 					INSERT_USER: req.auth.USER_AUTH_CODE,
 					IMEI: req.auth.IMEI,
-					TABEL_UPDATE: "finding"
+					TABEL_UPDATE: "finding-comment"
 				}
 			},
 			{
@@ -694,6 +735,8 @@
 		var tanggal_terakhir_sync = ( check_mobile_sync.length == 1 ? ( check_mobile_sync[0].TGL_MOBILE_SYNC.toString() ).substr( 0, 8 ) + '000000' : 0 );
 		var start_date = parseInt( tanggal_terakhir_sync );
 		var end_date = parseInt( now + '235959' );
+		//console.log( 'Start date', start_date );
+		//console.log( 'End date', end_date );
 		qs["$and"] = [ {
 			"$or": [
 				{
@@ -716,7 +759,7 @@
 				}
 			]
 		} ];
-
+		//console.log( 'qs', qs );
 		FindingModel.aggregate( [
 			{
 				"$match": qs
@@ -761,7 +804,7 @@
 			*/
  		] )
 		.then( async data => {
-			// console.log(data);
+			// //console.log(data);
 			if( !data ) {
 				return res.send( {
 					status: false,
@@ -774,20 +817,20 @@
 			var temp_delete = [];
 			await asyncForEach( data, async function( result ) {
 
-				// console.log(result);
+				// //console.log(result);
 				if ( result.comment.length > 0 ) {
 					for ( var n = 0; n < result.comment.length; n++ ) {
 					
 						var ini_tags = [];
 
-						console.log(result.comment[n]);
+						// //console.log(result.comment[n]);
 
 						if ( result.comment[n].tag.length > 0 ) {
-								console.log('Yay');
+								// //console.log('Yay');
 							for( var i = 0; i < result.comment[n].tag.length; i++ ) {
 								let contact = await findContacts( result.comment[n].tag[i].USER_AUTH_CODE );
 								let ccc = Object.values( contact );
-								// console.log('1');
+								// //console.log('1');
 								ini_tags.push( {
 									USER_AUTH_CODE: ccc[0],
 									EMPLOYEE_NIK: ccc[1],
@@ -803,20 +846,7 @@
 						var contact_comment = await findContacts( result.comment[n].USER_AUTH_CODE );
 						var con_comment = Object.values( contact_comment );
 
-						// console.log(con_comment);
-						if ( result.DELETE_TIME >= start_date && result.DELETE_TIME <= end_date ) {
-							temp_delete.push( {
-								FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
-								FINDING_CODE: result.comment[n].FINDING_CODE,
-								USER_AUTH_CODE: result.comment[n].USER_AUTH_CODE,
-								FULLNAME: con_comment[6],
-								MESSAGE: result.comment[n].MESSAGE,
-								INSERT_TIME: result.comment[n].INSERT_TIME,
-								TAGS: ini_tags
-							} );
-						}
-
-						if ( result.INSERT_TIME >= start_date && result.INSERT_TIME <= end_date ) {
+						if ( start_date === 0 ) {
 							temp_insert.push( {
 								FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
 								FINDING_CODE: result.comment[n].FINDING_CODE,
@@ -826,18 +856,55 @@
 								INSERT_TIME: result.comment[n].INSERT_TIME,
 								TAGS: ini_tags
 							} );
-						}
+							
+						} else {
+							// //console.log(con_comment);
+							if ( result.DELETE_TIME >= start_date && result.DELETE_TIME <= end_date ) {
+								//console.log( 'Start date', start_date );
+								//console.log( 'End date', end_date );
+								//console.log( 'Delete time', result.DELETE_TIME );
+								//console.log('--------------------------------');
+								temp_delete.push( {
+									FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
+									FINDING_CODE: result.comment[n].FINDING_CODE,
+									USER_AUTH_CODE: result.comment[n].USER_AUTH_CODE,
+									FULLNAME: con_comment[6],
+									MESSAGE: result.comment[n].MESSAGE,
+									INSERT_TIME: result.comment[n].INSERT_TIME,
+									TAGS: ini_tags
+								} );
+							}
+							if ( result.INSERT_TIME >= start_date && result.INSERT_TIME <= end_date ) {
+								//console.log( 'Start date', start_date );
+								//console.log( 'End date', end_date );
+								//console.log( 'Insert time', result.INSERT_TIME )
+								//console.log('--------------------------------');
+								temp_insert.push( {
+									FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
+									FINDING_CODE: result.comment[n].FINDING_CODE,
+									USER_AUTH_CODE: result.comment[n].USER_AUTH_CODE,
+									FULLNAME: con_comment[6],
+									MESSAGE: result.comment[n].MESSAGE,
+									INSERT_TIME: result.comment[n].INSERT_TIME,
+									TAGS: ini_tags
+								} );
+							}
 
-						if ( result.UPDATE_TIME >= start_date && result.UPDATE_TIME <= end_date ) {
-							temp_update.push( {
-								FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
-								FINDING_CODE: result.comment[n].FINDING_CODE,
-								USER_AUTH_CODE: result.comment[n].USER_AUTH_CODE,
-								FULLNAME: con_comment[6],
-								MESSAGE: result.comment[n].MESSAGE,
-								INSERT_TIME: result.comment[n].INSERT_TIME,
-								TAGS: ini_tags
-							} );
+							if ( result.UPDATE_TIME >= start_date && result.UPDATE_TIME <= end_date ) {
+								//console.log( 'Start date', start_date );
+								//console.log( 'End date', end_date );
+								//console.log( 'Update time', result.UPDATE_TIME );
+								//console.log('--------------------------------');
+								temp_update.push( {
+									FINDING_COMMENT_ID: result.comment[n].FINDING_COMMENT_ID,
+									FINDING_CODE: result.comment[n].FINDING_CODE,
+									USER_AUTH_CODE: result.comment[n].USER_AUTH_CODE,
+									FULLNAME: con_comment[6],
+									MESSAGE: result.comment[n].MESSAGE,
+									INSERT_TIME: result.comment[n].INSERT_TIME,
+									TAGS: ini_tags
+								} );
+							}
 						}
 					}
 				}
@@ -853,7 +920,7 @@
 				}
 			} );
 		} ).catch( err => {
-			// console.log(err);
+			// //console.log(err);
 			res.send( {
 				status: false,
 				message: config.app.error_message.find_500,
@@ -870,7 +937,6 @@
 	  * --------------------------------------------------------------------
 	*/
 	exports.findAll = ( req, res ) => {
-
 		var url_query = req.query;
 		var url_query_length = Object.keys( url_query ).length;
 		var query = {};
