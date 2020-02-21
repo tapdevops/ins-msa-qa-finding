@@ -46,7 +46,7 @@
                 RTGMS: data.RATING_MESSAGE || "",
                 END_TIME: data.END_TIME || 0
             }
-            KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
+            //KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
         } );
         res.send( {
             message: true,

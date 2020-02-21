@@ -208,7 +208,7 @@
 						RTGMS: req.body.RATING_MESSAGE || "",
 						END_TIME: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
 					};
-				   KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
+				//KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
 				}
 				
 				// Insert Finding Log
@@ -343,7 +343,7 @@
 							RTGMS: req.body.RATING_MESSAGE || "",
 							END_TIME: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
 						};
-					   KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
+					   //KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
 					}
 
 					// Set Middleware Action
