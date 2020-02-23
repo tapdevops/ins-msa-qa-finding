@@ -149,7 +149,7 @@
 				// FINDING_CODE: 1
 			} );
 		if ( !req.body.INSERT_TIME ) {
-			req.body.INSERT_TIME = 'now';
+			req.body.INSERT_TIME = HelperLib.date_format( 'now', 'YYYYMMDDhhmmss' );
 		}
 		// Jika sudah terdapat data, maka akan mengupdate Data Finding.
 		if ( check.length > 0 ) {
@@ -208,7 +208,9 @@
 						RTGMS: req.body.RATING_MESSAGE || "",
 						END_TIME: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
 					};
-				   KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
+					if (config.app.env != "dev") {
+						KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
+					}
 				}
 				
 				// Insert Finding Log
@@ -305,7 +307,7 @@
 					PROSES: 'INSERT',
 					PROGRESS: req.body.PROGRESS,
 					IMEI: auth.IMEI,
-					SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
+					SYNC_TIME: req.body.INSERT_TIME,
 					SYNC_USER: req.body.INSERT_USER,
 				} );
 
@@ -343,7 +345,9 @@
 							RTGMS: req.body.RATING_MESSAGE || "",
 							END_TIME: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' )
 						};
-					   KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
+						if (config.app.env != "dev") {
+							KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
+						}
 					}
 
 					// Set Middleware Action
@@ -364,6 +368,7 @@
 					} );
 				} );
 			} ).catch( err => {
+				console.log(err)
 				return res.send( {
 					status: false,
 					message: config.app.error_message.create_500,
@@ -445,7 +450,7 @@
 					FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID,
 					PROSES: 'INSERT',
 					IMEI: auth.IMEI,
-					SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' )
+					SYNC_TIME: req.body.INSERT_TIME
 				} );
 				set_log.save()
 				.then( data_log => {
