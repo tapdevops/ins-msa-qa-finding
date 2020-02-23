@@ -149,7 +149,7 @@
 				// FINDING_CODE: 1
 			} );
 		if ( !req.body.INSERT_TIME ) {
-			req.body.INSERT_TIME = 'now';
+			req.body.INSERT_TIME = HelperLib.date_format( 'now', 'YYYYMMDDhhmmss' )
 		}
 		// Jika sudah terdapat data, maka akan mengupdate Data Finding.
 		if ( check.length > 0 ) {
@@ -305,7 +305,7 @@
 					PROSES: 'INSERT',
 					PROGRESS: req.body.PROGRESS,
 					IMEI: auth.IMEI,
-					SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' ),
+					SYNC_TIME: req.body.INSERT_TIME,
 					SYNC_USER: req.body.INSERT_USER,
 				} );
 
@@ -445,7 +445,7 @@
 					FINDING_COMMENT_ID: req.body.FINDING_COMMENT_ID,
 					PROSES: 'INSERT',
 					IMEI: auth.IMEI,
-					SYNC_TIME: HelperLib.date_format( req.body.INSERT_TIME, 'YYYYMMDDhhmmss' )
+					SYNC_TIME: req.body.INSERT_TIME
 				} );
 				set_log.save()
 				.then( data_log => {
