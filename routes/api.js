@@ -8,6 +8,9 @@ const RoutesVersioning = require('express-routes-versioning')();
 
 // Controllers
 const Controllers = {
+	v_2_1: {
+		Finding: require(_directory_base + '/app/v2.1/Http/Controllers/FindingController.js'),
+	},
 	v_2_0: {
 		Finding: require(_directory_base + '/app/v2.0/Http/Controllers/FindingController.js'),
 		Report: require(_directory_base + '/app/v2.0/Http/Controllers/ReportController.js'),
@@ -79,6 +82,13 @@ module.exports = (app) => {
 			}
 		})
 	});
+
+	/*
+	 |--------------------------------------------------------------------------
+	 | API Versi 2.1
+	 |--------------------------------------------------------------------------
+	 */
+	app.post('/api/v2.1/finding', Middleware.v_2_0.VerifyToken, Controllers.v_2_1.Finding.create_or_update);
 
 	/*
 	 |--------------------------------------------------------------------------
