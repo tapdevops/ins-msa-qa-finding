@@ -25,7 +25,7 @@
 		},
 		finding: {
 			dev: {
-				url: 'mongodb://s_finding:s_finding@dbappdev.tap-agri.com:4848/s_finding?authSource=s_finding',
+				url: 'mongodb://s_finding:s_finding@dbappdev.tap-agri.net:4848/s_finding?authSource=s_finding',
 				ssl: false
 			},
 			qa: {
