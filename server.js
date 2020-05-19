@@ -60,7 +60,9 @@ let server = App.listen(parseInt(config.app.port[config.app.env]), () => {
 	console.log("\tPort \t\t: " + config.app.port[config.app.env]);
 });
 
-server.timeout(5 * 60 * 1000);
+const timeout = require('connect-timeout');
+//set timeout 5 minutes
+App.use(timeout('300s'));
 
 //scheduling job_update_transaksi_complete() with cron 
 new CronJob('5 0 * * MON', async () => {
