@@ -53,12 +53,16 @@ Mongoose.connect(config.database.url, {
 });
 
 // Server Running Message
-App.listen(parseInt(config.app.port[config.app.env]), () => {
+let server = App.listen(parseInt(config.app.port[config.app.env]), () => {
 	console.log("Server :");
 	console.log("\tStatus \t\t: OK");
 	console.log("\tService \t: " + config.app.name + " (" + config.app.env + ")");
 	console.log("\tPort \t\t: " + config.app.port[config.app.env]);
 });
+
+const timeout = require('connect-timeout');
+//set timeout 5 minutes
+App.use(timeout('300s'));
 
 //scheduling job_update_transaksi_complete() with cron 
 new CronJob('5 0 * * MON', async () => {
