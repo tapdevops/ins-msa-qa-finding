@@ -199,7 +199,7 @@
 						FNDCT: req.body.FINDING_CATEGORY || "",
 						FNDDS: req.body.FINDING_DESC || "",
 						FNDPR: req.body.FINDING_PRIORITY || "",
-						DUE_DATE: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
+						DUE_DATE: req.body.DUE_DATE === undefined ? 0 : HelperLib.date_format( req.body.DUE_DATE, 'YYYYMMDDhhmmss' ),
 						ASSTO: req.body.ASSIGN_TO || "",
 						PRGRS: req.body.PROGRESS || "",
 						LATFN: req.body.LAT_FINDING || "",
