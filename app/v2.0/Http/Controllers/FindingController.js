@@ -154,7 +154,7 @@
 		// Jika sudah terdapat data, maka akan mengupdate Data Finding.
 		if ( check.length > 0 ) {
 
-			if(check[0].PROGRESS == 100) {
+			if(check[0].PROGRESS == 100 && check[0].RATING_VALUE != 0) {
 				return res.send({
 					status: true,
 					message: "skip update! progress sudah 100",
