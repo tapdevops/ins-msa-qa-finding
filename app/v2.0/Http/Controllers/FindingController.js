@@ -154,6 +154,13 @@
 		// Jika sudah terdapat data, maka akan mengupdate Data Finding.
 		if ( check.length > 0 ) {
 
+			if(check[0].PROGRESS == 100) {
+				return res.send({
+					status: true,
+					message: "skip update! progress sudah 100",
+					data: []
+				});
+			}
 			var update_data = {
 				WERKS: req.body.WERKS || "",
 				BLOCK_CODE: req.body.BLOCK_CODE || "",
