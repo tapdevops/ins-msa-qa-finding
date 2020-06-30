@@ -23,6 +23,9 @@ const KafkaErrorLog = require( _directory_base + '/app/v2.0/Http/Models/KafkaErr
 		clientId: 'MSA-INSPECTION',
 		brokers: [config.app.kafka[config.app.env].server_host]
 	})
+	
+	const producer = kafka.producer()
+	
 	class KafkaServer {
 
 		//producer dengan retry
