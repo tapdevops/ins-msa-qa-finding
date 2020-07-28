@@ -743,7 +743,7 @@
 		}
 
 		var now = HelperLib.date_format( 'now', 'YYYYMMDD' ).substr( 0, 8 );
-		var tanggal_terakhir_sync = ( check_mobile_sync.length == 1 ? ( check_mobile_sync[0].TGL_MOBILE_SYNC.toString() ).substr( 0, 8 ) + '000000' : 0 );
+		var tanggal_terakhir_sync = ( check_mobile_sync.length == 1 ? check_mobile_sync[0].TGL_MOBILE_SYNC.toString() : 0 );
 		var start_date = parseInt( tanggal_terakhir_sync );
 		var end_date = parseInt( now + '235959' );
 		//console.log( 'Start date', start_date );
