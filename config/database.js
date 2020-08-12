@@ -37,6 +37,20 @@
 				ssl: false
 			}
 		},
+		hectareStatement: {
+            dev: {
+                url: 'mongodb://s_hectare_statement:s_hectare_statement@dbmongodev.tap-agri.com:4848/s_hectare_statement?authSource=s_hectare_statement',
+                ssl: false
+            },
+            qa: {
+                url: 'mongodb://s_hectare_statement:h52019@dbmongoqa.tap-agri.com:4848/s_hectare_statement?authSource=s_hectare_statement',
+                ssl: false
+            },
+            prod: {
+                url: 'mongodb://s_hectare_statement:h52019@dbmongo.tap-agri.com:4848/s_hectare_statement?authSource=s_hectare_statement',
+                ssl: false
+            }
+        },
 		report: {
 			dev: {
 				url: 'mongodb://s_report:s_report@dbmongodev.tap-agri.com:4848/s_report?authSource=s_report',

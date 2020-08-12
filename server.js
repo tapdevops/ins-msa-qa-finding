@@ -70,6 +70,18 @@ new CronJob('5 0 * * MON', async () => {
 	console.log("running node-cron...");
 }, null, true, 'Asia/Jakarta');
 
+//scheduling check no respond finding
+new CronJob('5 0 * * *', async () => {
+// new CronJob('* * * * *', async () => {
+	Kernel.checkDueDate();
+}, null, true, 'Asia/Jakarta');
+
+//scheduling check overdue finding
+new CronJob('30 0 * * *', async () => {
+// new CronJob('* * * * *', async () => {
+	Kernel.checkOverdueFinding();
+}, null, true, 'Asia/Jakarta');
+
 // Routing
 require('./routes/api.js')(App);
 
