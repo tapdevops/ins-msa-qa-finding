@@ -7,10 +7,15 @@
     // Models
 	const FindingModel = require( _directory_base + '/app/v2.0/Http/Models/Finding.js' );
 	const SummaryWeeklyModel = require( _directory_base + '/app/v2.0/Http/Models/SummaryWeekly.js' );
-
+    const Notification = require( _directory_base + '/app/v2.1/Http/Models/Notification.js' );
+    const Estate = require( _directory_base + '/app/v2.1/Http/Models/Estate.js' );
+	const Block = require( _directory_base + '/app/v2.1/Http/Models/Block.js' );
+    const ViewUserAuth = require( _directory_base + '/app/v2.1/Http/Models/ViewUserAuth.js' );
+    
 	// Node Module
-	const MomentTimezone = require( 'moment-timezone' );
-
+    const MomentTimezone = require( 'moment-timezone' );
+    const async = require('async');
+    const dateformat = require('dateformat')
 	// Libraries
 	const HelperLib = require( _directory_base + '/app/v2.0/Http/Libraries/HelperLib.js' );
 
@@ -129,7 +134,151 @@
                 console.log( `data di TR_FINDING untuk minggu ini kosong!` );
             }
         }
+
+        checkDueDate() {
+            async.auto({
+                getNoDueDateFinding: function(callback) {
+                    FindingModel.find({DUE_DATE: 0})
+                    .then(data => {
+                        callback(null, data);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        callback(err);
+                        return;
+                    });
+                }, 
+                dueDateNoResponds: ['getNoDueDateFinding', function(results, callback) {
+                    let findings = results.getNoDueDateFinding;
+                    var now = new Date().toLocaleString('en-US', {
+                        timeZone: 'Asia/Jakarta'
+                    });
+                    now = parseInt(dateformat(now, 'yyyymmddHHMMss'));
+                    let noRespondsFinding = [];
+                    for(let i = 0; i < findings.length; i++) {
+                        let selisihHari = now - findings[i].INSERT_TIME;
+                        //jika due_date masih belum di set setelah tujuh hari dibuat
+                        //maka masukan ke arrah noRespondFinding
+                        if(selisihHari > 7000000 ) {
+                            noRespondsFinding.push(findings[i]);
+                        }
+                    }
+                    callback(null, noRespondsFinding);
+                }]
+                
+            }, function(err, results) {
+                if (err) {
+                    return console.log(err);
+                }
+                let findings = results.dueDateNoResponds;
+                var now = new Date().toLocaleString('en-US', {
+                    timeZone: 'Asia/Jakarta'
+                });
+                now = parseInt(dateformat(now, 'yyyymmddHHMMss'));
+                findings.map(async (finding) => {
+                    try {
+                        let estate = await Estate.findOne({WERKS: finding.WERKS}).select({_id: 0, EST_NAME: 1});
+                        let block = await Block.findOne({BLOCK_CODE: finding.BLOCK_CODE}).select({_id: 0, BLOCK_NAME: 1});
+                        let assignToUser = await ViewUserAuth.findOne({USER_AUTH_CODE: finding.ASSIGN_TO}).select({_id: 0, HRIS_FULLNAME: 1, PJS_FULLNAME: 1});
+                        let assignToName = assignToUser.HRIS_FULLNAME ? assignToUser.HRIS_FULLNAME : assignToUser.PJS_FULLNAME;
+                        assignToName = assignToName.toLowerCase()
+                                                    .split(' ')
+                                                    .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+                                                    .join(' ');
+                        let insertUser = await ViewUserAuth.findOne({USER_AUTH_CODE: finding.INSERT_USER}).select({_id: 0, HRIS_FULLNAME: 1, PJS_FULLNAME: 1});
+                        let insertUserName = insertUser.HRIS_FULLNAME ? insertUser.HRIS_FULLNAME : insertUser.PJS_FULLNAME;
+                            insertUserName = insertUserName.toLowerCase()
+                                        .split(' ')
+                                        .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+                                        .join(' ');
+                        let insertTime = HelperLib.date_format(finding.INSERT_TIME, 'YYYY-MM-DD');
+                        let date = new Date(insertTime);
+						let insertTimeFormatted = dateformat(date, 'dd mmm yyyy');
+                        let messageInsertUser = `Kamu menugaskan ${assignToName} untuk mengerjakan temuan di ${estate.EST_NAME} Blok ${block.BLOCK_NAME} tanggal ${insertTimeFormatted} tapi ybs belum memberikan respon`;
+                        let messageAssignTo = `Kamu ditugaskan ${insertUserName} untuk mengerjakan temuan di ${estate.EST_NAME} Blok ${block.BLOCK_NAME} tanggal ${insertTimeFormatted} tapi belum memberikan respon`;
+
+                        let notifInsertUser = new Notification({
+                            FINDING_CODE: finding.FINDING_CODE,
+                            CATEGORY: 'BELUM ADA RESPON',
+                            NOTIFICATION_TO: finding.INSERT_USER,
+                            MESSAGE: messageInsertUser,
+                            INSERT_TIME: now
+                        });
+                        
+                        let notifAssignTo = new Notification({
+                            FINDING_CODE: finding.FINDING_CODE,
+                            CATEGORY: 'BELUM ADA BATAS WAKTU',
+                            NOTIFICATION_TO: finding.ASSIGN_TO,
+                            MESSAGE: messageAssignTo,
+                            INSERT_TIME: now
+                        });
+
+                        await notifInsertUser.save();
+                        await notifAssignTo.save();
+                        console.log('sukses saveToNotification');
+                    }catch (err) {
+                        console.log(err);
+                    }
+                })
+            })
+        }
+
+        checkOverdueFinding() {
+            var now = new Date().toLocaleString('en-US', {
+                timeZone: 'Asia/Jakarta'
+            });
+            now = parseInt(dateformat(now, 'yyyymmddHHMMss'));
+            async.auto({
+                getAllOverdueFindings: function(callback) {
+                    FindingModel.find({
+                        DUE_DATE: {
+                            $lt: now,
+                            $ne: 0
+                        },
+                        PROGRESS: {
+                            $ne: 100
+                        }
+                    })
+                    .then( data => {
+                        callback(null, data);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        return callback(err);
+                    });
+                }
+            }, function(err, results) {
+                if (err) {
+                    return console.log(err);
+                }
+                let findings = results.getAllOverdueFindings;
+                findings.map(async (finding) => {
+                    let assignToUser = await ViewUserAuth.findOne({USER_AUTH_CODE: finding.ASSIGN_TO}).select({_id: 0, HRIS_FULLNAME: 1, PJS_FULLNAME: 1});
+                    let assignToName = assignToUser.HRIS_FULLNAME ? assignToUser.HRIS_FULLNAME : assignToUser.PJS_FULLNAME;
+                    assignToName = assignToName.toLowerCase()
+                                                .split(' ')
+                                                .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+                                                .join(' ');
+                    let insertTime = HelperLib.date_format(finding.INSERT_TIME, 'YYYY-MM-DD');
+                    let date = new Date(insertTime);
+                    let insertTimeFormatted = dateformat(date, 'dd mmm yyyy');
+                    let message = `Temuan yang ditugaskan ke ${assignToName} sudah melewati batas waktu tanggal ${insertTimeFormatted}`;
+                    
+                    let notif = new Notification({
+                        FINDING_CODE: finding.FINDING_CODE,
+                        CATEGORY: 'LEWAT BATAS WAKTU',
+                        NOTIFICATION_TO: finding.INSERT_USER,
+                        MESSAGE: message,
+                        INSERT_TIME: now
+                    });
+
+                    await notif.save();
+                    console.log('sukses Simpan');
+                })
+            })
+        }
     }
+
 
 
     module.exports = new Kernel();
