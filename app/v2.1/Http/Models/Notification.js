@@ -5,6 +5,7 @@
  */
 const mongoose = require('mongoose');
 const NotificationSchema = mongoose.Schema({
+	NOTIFICATION_ID: String,
 	FINDING_CODE: String,
 	NOTIFICATION_TO: String,
 	CATEGORY: String,
