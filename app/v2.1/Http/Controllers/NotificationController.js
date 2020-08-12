@@ -11,8 +11,8 @@
 
      exports.syncNotification = async (req, res) => {
          let auth = req.auth;
-         let startDate = req.params.startDate;
-         let endDate = req.params.endDate;
+         let startDate = parseInt(req.params.startDate);
+         let endDate = parseInt(req.params.endDate);
 
          try {
              let notification = await Notification.aggregate([
