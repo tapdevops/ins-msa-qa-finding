@@ -15,7 +15,8 @@
 	// Node Module
     const MomentTimezone = require( 'moment-timezone' );
     const async = require('async');
-    const dateformat = require('dateformat')
+    const dateformat = require('dateformat');
+	const { v4: uuidv4 } = require('uuid');
 	// Libraries
 	const HelperLib = require( _directory_base + '/app/v2.0/Http/Libraries/HelperLib.js' );
 
@@ -198,6 +199,7 @@
                         let messageAssignTo = `Kamu ditugaskan ${insertUserName} untuk mengerjakan temuan di ${estate.EST_NAME} Blok ${block.BLOCK_NAME} tanggal ${insertTimeFormatted} tapi belum memberikan respon`;
 
                         let notifInsertUser = new Notification({
+						    NOTIFICATION_ID: uuidv4(), 
                             FINDING_CODE: finding.FINDING_CODE,
                             CATEGORY: 'BELUM ADA RESPON',
                             NOTIFICATION_TO: finding.INSERT_USER,
@@ -206,6 +208,7 @@
                         });
                         
                         let notifAssignTo = new Notification({
+						    NOTIFICATION_ID: uuidv4(), 
                             FINDING_CODE: finding.FINDING_CODE,
                             CATEGORY: 'BELUM ADA BATAS WAKTU',
                             NOTIFICATION_TO: finding.ASSIGN_TO,
@@ -265,6 +268,7 @@
                     let message = `Temuan yang ditugaskan ke ${assignToName} sudah melewati batas waktu tanggal ${insertTimeFormatted}`;
                     
                     let notif = new Notification({
+						NOTIFICATION_ID: uuidv4(), 
                         FINDING_CODE: finding.FINDING_CODE,
                         CATEGORY: 'LEWAT BATAS WAKTU',
                         NOTIFICATION_TO: finding.INSERT_USER,

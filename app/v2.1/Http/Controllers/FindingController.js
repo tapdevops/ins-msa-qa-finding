@@ -21,6 +21,7 @@
 
 	const MomentTimezone = require( 'moment-timezone' );
 	const dateformat = require('dateformat');
+	const { v4: uuidv4 } = require('uuid');
 	// Libraries
 	const HelperLib = require( _directory_base + '/app/v2.0/Http/Libraries/HelperLib.js' );
 	const KafkaServer = require( _directory_base + '/app/v2.0/Http/Libraries/KafkaServer.js' ); 
@@ -413,6 +414,7 @@
 				let message = `Kamu dapat tugas baru di ${estate.EST_NAME} Blok ${block.BLOCK_NAME} dari ${name}`
 				if(newFinding.INSERT_USER != newFinding.ASSIGN_TO) {
 					let notification = new Notification({
+						NOTIFICATION_ID: uuidv4(), 
 						FINDING_CODE: newFinding.FINDING_CODE,
 						CATEGORY: 'TUGAS BARU',
 						NOTIFICATION_TO: newFinding.ASSIGN_TO,
@@ -445,6 +447,7 @@
 							category = 'UPDATE PROGRESS';
 						}
 						let notification = new Notification({
+							NOTIFICATION_ID: uuidv4(), 
 							FINDING_CODE: oldFinding.FINDING_CODE,
 							NOTIFICATION_TO: oldFinding.INSERT_USER,
 							CATEGORY: category,
@@ -462,6 +465,7 @@
 										.join(' ');
 						let message = `${name} telah memberikan rating kepada kamu. Cek rating yang kamu dapatkan...`;
 						let notification = new Notification({
+							NOTIFICATION_ID: uuidv4(), 
 							FINDING_CODE: oldFinding.FINDING_CODE,
 							NOTIFICATION_TO: newFinding.ASSIGN_TO,
 							CATEGORY: 'DAPAT RATING',
