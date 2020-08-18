@@ -487,7 +487,7 @@
 		}
 		
 	}
-		exports.saveToNotification = (data) => {
+	exports.saveToNotification = (data) => {
 		data.save()
 		.then(data => {
 			console.log('Sukses simpan ke table notification');
@@ -534,13 +534,47 @@
 			const set_data = new FindingCommentModel( insert_data );
 
 			set_data.save()
-			.then( data => {
+			.then(async (data) => {
 				if ( !data ) {
 					return res.send( {
 						status: false,
 						message: config.app.error_message.create_404,
 						data: {}
 					} );
+				}
+				let date = new Date().toLocaleString('en-US', {
+					timeZone: 'Asia/Jakarta'
+				});
+				let insertTime = parseInt(dateformat(date, 'yyyymmddHHMMss')); //misalnya 20203101235959
+				let user = await ViewUserAuth.findOne({USER_AUTH_CODE: req.body.USER_AUTH_CODE}).select({_id: 0, HRIS_FULLNAME: 1, PJS_FULLNAME: 1});
+				let name = user.HRIS_FULLNAME ? user.HRIS_FULLNAME : user.PJS_FULLNAME;
+					name = name.toLowerCase()
+								.split(' ')
+								.map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+								.join(' ');
+				let message = `${name} memberikan komentar baru di temuan kamu`;
+				let finding = await FindingModel.findOne({FINDING_CODE: req.body.FINDING_CODE}).select({_id: 0, INSERT_USER: 1, ASSIGN_TO: 1});
+				if(req.body.USER_AUTH_CODE != finding.INSERT_USER) {
+					let notification = new Notification({
+						NOTIFICATION_ID: uuidv4(), 
+						FINDING_CODE: req.body.FINDING_CODE,
+						NOTIFICATION_TO: finding.INSERT_USER,
+						CATEGORY: 'KOMENTAR BARU',
+						MESSAGE: message,
+						INSERT_TIME: insertTime
+					});
+					exports.saveToNotification(notification);
+				}
+				if(finding.ASSIGN_TO != finding.INSERT_USER) {
+					let notification = new Notification({
+						NOTIFICATION_ID: uuidv4(), 
+						FINDING_CODE: req.body.FINDING_CODE,
+						NOTIFICATION_TO: finding.ASSIGN_TO,
+						CATEGORY: 'KOMENTAR BARU',
+						MESSAGE: message,
+						INSERT_TIME: insertTime
+					});
+					exports.saveToNotification(notification);
 				}
 				if(req.body.TAG_USER&&Array.isArray(req.body.TAG_USER)){
 					req.body.TAG_USER.forEach( function( tag ) {
@@ -550,7 +584,7 @@
 							USER_AUTH_CODE: tag.USER_AUTH_CODE
 						});
 						set_tag.save()
-						.then( data_tag => {
+						.then( async (data_tag) => {
 							if ( !data_tag ) {
 								return res.send( {
 									status: false,
@@ -558,6 +592,23 @@
 									data: {}
 								} );
 							}
+							let user = await ViewUserAuth.findOne({USER_AUTH_CODE: req.body.USER_AUTH_CODE}).select({_id: 0, HRIS_FULLNAME: 1, PJS_FULLNAME: 1});
+							let name = user.HRIS_FULLNAME ? user.HRIS_FULLNAME : user.PJS_FULLNAME;
+								name = name.toLowerCase()
+											.split(' ')
+											.map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+											.join(' ');
+							let message = `${name} telah mention kamu di komentar temuan`;
+							let notification = new Notification({
+								NOTIFICATION_ID: uuidv4(), 
+								FINDING_CODE: req.body.FINDING_CODE,
+								NOTIFICATION_TO: tag.USER_AUTH_CODE,
+								CATEGORY: 'MENTION BARU',
+								MESSAGE: message,
+								INSERT_TIME: insertTime
+							});
+			
+							exports.saveToNotification(notification);
 						} ).catch( err => {
 							return res.send( {
 								status: false,
