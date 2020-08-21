@@ -592,13 +592,13 @@
 									data: {}
 								} );
 							}
-							let user = await ViewUserAuth.findOne({USER_AUTH_CODE: req.body.USER_AUTH_CODE}).select({_id: 0, HRIS_FULLNAME: 1, PJS_FULLNAME: 1});
+							let user = await ViewUserAuth.findOne({USER_AUTH_CODE: tag.USER_AUTH_CODE}).select({_id: 0, HRIS_FULLNAME: 1, PJS_FULLNAME: 1});
 							let name = user.HRIS_FULLNAME ? user.HRIS_FULLNAME : user.PJS_FULLNAME;
 								name = name.toLowerCase()
 											.split(' ')
 											.map((s) => s.charAt(0).toUpperCase() + s.substring(1))
 											.join(' ');
-							let message = `${name} telah mention kamu di komentar temuan`;
+							let message = ` Hai ${name} kamu mendapat pesan komentar.`;
 							let notification = new Notification({
 								NOTIFICATION_ID: uuidv4(), 
 								FINDING_CODE: req.body.FINDING_CODE,
