@@ -275,7 +275,6 @@
                         MESSAGE: message,
                         INSERT_TIME: now
                     });
-
                     await notif.save();
                     console.log('sukses Simpan');
                 })
