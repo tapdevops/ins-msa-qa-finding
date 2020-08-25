@@ -277,6 +277,17 @@
                     });
 
                     await notif.save();
+                    if (finding.INSERT_USER != finding.ASSIGN_TO) {
+                        let notifAssignTo = new Notification({
+                            NOTIFICATION_ID: uuidv4(), 
+                            FINDING_CODE: finding.FINDING_CODE,
+                            CATEGORY: 'LEWAT BATAS WAKTU',
+                            NOTIFICATION_TO: finding.ASSIGN_TO,
+                            MESSAGE: message,
+                            INSERT_TIME: now
+                        });
+                        await notifAssignTo.save();
+                    }
                     console.log('sukses Simpan');
                 })
             })
