@@ -210,7 +210,7 @@
                         let notifAssignTo = new Notification({
 						    NOTIFICATION_ID: uuidv4(), 
                             FINDING_CODE: finding.FINDING_CODE,
-                            CATEGORY: 'BELUM ADA BATAS WAKTU',
+                            CATEGORY: 'BELUM ADA RESPON',
                             NOTIFICATION_TO: finding.ASSIGN_TO,
                             MESSAGE: messageAssignTo,
                             INSERT_TIME: now
