@@ -424,7 +424,7 @@
 					exports.saveToNotification(notification);
 				}
 			} else { //kondisi ketika update data finding
-				if (newFinding.INSERT_USER != newFinding.ASSIGN_TO) {
+				if (oldFinding.INSERT_USER != oldFinding.ASSIGN_TO) {
 					//ketika yang diupdate progress finding
 					if (oldFinding.PROGRESS != newFinding.PROGRESS) {
 						let estate = await Estate.findOne({WERKS: oldFinding.WERKS}).select({_id: 0, EST_NAME: 1});
