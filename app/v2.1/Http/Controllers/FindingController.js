@@ -554,7 +554,7 @@
 								.join(' ');
 				let message = `${name} memberikan komentar baru di temuan kamu`;
 				let finding = await FindingModel.findOne({FINDING_CODE: req.body.FINDING_CODE}).select({_id: 0, INSERT_USER: 1, ASSIGN_TO: 1});
-				if(req.body.USER_AUTH_CODE != finding.INSERT_USER) {
+				if(req.auth.USER_AUTH_CODE != finding.INSERT_USER) {
 					let notification = new Notification({
 						NOTIFICATION_ID: uuidv4(), 
 						FINDING_CODE: req.body.FINDING_CODE,
@@ -565,7 +565,7 @@
 					});
 					exports.saveToNotification(notification);
 				}
-				if(finding.ASSIGN_TO != finding.INSERT_USER) {
+				if(finding.ASSIGN_TO != req.auth.USER_AUTH_CODE) {
 					let notification = new Notification({
 						NOTIFICATION_ID: uuidv4(), 
 						FINDING_CODE: req.body.FINDING_CODE,
