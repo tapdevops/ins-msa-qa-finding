@@ -93,6 +93,7 @@ module.exports = (app) => {
 	app.post('/api/v2.1/finding', Middleware.v_2_0.VerifyToken, Controllers.v_2_1.Finding.create_or_update);
 	app.get('/api/v2.1/sync-mobile/comment', Middleware.v_2_0.VerifyToken, Controllers.v_2_1.Finding.findComment);
 	app.post('/api/v2.1/finding/comment', Middleware.v_2_0.VerifyToken, Controllers.v_2_1.Finding.create_or_update_comment);
+	app.post('/api/v2.1/notification', Middleware.v_2_0.VerifyToken, Controllers.v_2_1.Notification.create);
 
 	/*
 	 |--------------------------------------------------------------------------
