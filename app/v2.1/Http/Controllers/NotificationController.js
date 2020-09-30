@@ -8,11 +8,13 @@
  */
      // Models
     const Notification = require( _directory_base + '/app/v2.1/Http/Models/Notification.js');
+    const History = require( _directory_base + '/app/v2.1/Http/Models/History.js');
 	const Finding = require( _directory_base + '/app/v2.0/Http/Models/Finding.js' );
     const InspectionH = require( _directory_base + '/app/v2.1/Http/Models/InspectionH.js');
     const EBCCValidationHeader = require( _directory_base + '/app/v2.1/Http/Models/EBCCValidationHeader.js');
 	const HelperLib = require( _directory_base + '/app/v2.0/Http/Libraries/HelperLib.js' );
     const async = require('async');
+    const dateformat = require('dateformat');
     const { v4: uuidv4 } = require('uuid');
 
     exports.syncNotification = async (req, res) => {
@@ -75,6 +77,8 @@
     exports.notifPoint = async (req, res) => {
         let auth = req.auth;
         let currentDate = HelperLib.date_format('now', 'YYYYMMDDhhmmss').substring( 0, 8 );
+        let date = new Date();
+        let dateFormatted = dateformat(date, 'dd mmm yyyy');
         let currentTime = HelperLib.date_format('now', 'YYYYMMDDhhmmss');
         async.auto({
             getCurrentDateInspection: function(callback) {
@@ -170,32 +174,64 @@
                 let ratingMessage = ratingPoint > 0 ? ((findingPoint > 0) || (inspectionPoint > 0 ) || (ebccPoint > 0) ? ', '  : ' ') + ratingPoint +' point dari rating.' : '.';
                 
                 let totalPoint = inspectionPoint + ebccPoint + findingPoint + ratingPoint;
-
-                let message = "";
-                if(totalPoint > 0) {
-                    message += 'Kamu telah mendapatkan '+ totalPoint +' point hari ini:' + inspectionMessage + findingMessage + ebccMessage + ratingMessage;
-                    let notification = new Notification({
-						NOTIFICATION_ID: uuidv4(), 
-						FINDING_CODE: '-',
-						CATEGORY: 'DAPAT POINT',
-						NOTIFICATION_TO: auth.USER_AUTH_CODE,
-						MESSAGE: message,
-						INSERT_TIME: currentTime
-                    });
-                    notification.save()
-                    .then(() => {
-                        console.log('berhasil simpan notif');
-                        callback(null, 'berhasil simpan notif');
-                    })
-                    .catch(err => {
-                        console.log(err)
-                        callback(err, null)
-                    })
-                }else {
-                    callback(null, 'skip');
-                }
-
-            }]
+                History.aggregate([
+                    {
+                        $group: {
+                            _id: {
+                                USER_AUTH_CODE: "$USER_AUTH_CODE",
+                                DATE: "$DATE"
+                            },
+                            TOTAL: { $sum: "$POINT" }
+                        }
+                    }, {
+                        $project: {
+                            _id: 0,
+                            USER_AUTH_CODE: "$_id.USER_AUTH_CODE",
+                            DATE: "$_id.DATE",
+                            TOTAL_POINT: "$TOTAL"
+                        }
+                    }, {
+                        $match: {
+                            USER_AUTH_CODE: auth.USER_AUTH_CODE,
+                            DATE: parseInt(currentDate)
+                        }
+                    }
+                ])
+                .then(data => {
+                    console.log(data);
+                    if(data.length > 0) {
+                        let message = "";
+                        if(totalPoint > 0 && totalPoint > data[0].TOTAL_POINT) {
+                            message += 'Tanggal '+ dateFormatted +' kamu telah mendapatkan '+ totalPoint +' point: ' + inspectionMessage + findingMessage + ebccMessage + ratingMessage;
+                            let notification = new Notification({
+                                NOTIFICATION_ID: uuidv4(), 
+                                FINDING_CODE: '-',
+                                CATEGORY: 'DAPAT POINT',
+                                NOTIFICATION_TO: auth.USER_AUTH_CODE,
+                                MESSAGE: message,
+                                INSERT_TIME: currentTime
+                            });
+                            notification.save()
+                            .then(() => {
+                                callback(null, 'berhasil simpan notif');
+                            })
+                            .catch(err => {
+                                console.log(err)
+                                callback(err, null)
+                            })
+                        }else {
+                            callback(null, 'skip karena totalPoint < 0 atau totalPoint <= previousTotalPoint');
+                        }
+                    } else {
+                        callback(null, 'skip karena data history 0');
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    callback(err, null);
+                    return;
+                })
+            }]           
         }, function(err, results) {
             console.log(results.notifPoint);
         })
