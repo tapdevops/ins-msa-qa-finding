@@ -174,34 +174,35 @@
                 let ratingMessage = ratingPoint > 0 ? ((findingPoint > 0) || (inspectionPoint > 0 ) || (ebccPoint > 0) ? ', '  : ' ') + ratingPoint +' point dari rating.' : '.';
                 
                 let totalPoint = inspectionPoint + ebccPoint + findingPoint + ratingPoint;
-                History.aggregate([
-                    {
-                        $group: {
-                            _id: {
-                                USER_AUTH_CODE: "$USER_AUTH_CODE",
-                                DATE: "$DATE"
-                            },
-                            TOTAL: { $sum: "$POINT" }
-                        }
-                    }, {
-                        $project: {
-                            _id: 0,
-                            USER_AUTH_CODE: "$_id.USER_AUTH_CODE",
-                            DATE: "$_id.DATE",
-                            TOTAL_POINT: "$TOTAL"
-                        }
-                    }, {
-                        $match: {
-                            USER_AUTH_CODE: auth.USER_AUTH_CODE,
-                            DATE: parseInt(currentDate)
-                        }
-                    }
-                ])
-                .then(data => {
-                    console.log(data);
-                    if(data.length > 0) {
-                        let message = "";
-                        if(totalPoint > 0 && totalPoint > data[0].TOTAL_POINT) {
+                // History.aggregate([
+                //     {
+                //         $group: {
+                //             _id: {
+                //                 USER_AUTH_CODE: "$USER_AUTH_CODE",
+                //                 DATE: "$DATE"
+                //             },
+                //             TOTAL: { $sum: "$POINT" }
+                //         }
+                //     }, {
+                //         $project: {
+                //             _id: 0,
+                //             USER_AUTH_CODE: "$_id.USER_AUTH_CODE",
+                //             DATE: "$_id.DATE",
+                //             TOTAL_POINT: "$TOTAL"
+                //         }
+                //     }, {
+                //         $match: {
+                //             USER_AUTH_CODE: auth.USER_AUTH_CODE,
+                //             DATE: parseInt(currentDate)
+                //         }
+                //     }
+                // ])
+                // .then(data => {
+                //     console.log(data);
+                    // if(data.length > 0) {
+                        // if(totalPoint > 0 && totalPoint > data[0].TOTAL_POINT) {
+                        if(totalPoint > 0) {
+                            let message = "";
                             message += 'Tanggal '+ dateFormatted +' kamu telah mendapatkan '+ totalPoint +' point: ' + inspectionMessage + findingMessage + ebccMessage + ratingMessage;
                             let notification = new Notification({
                                 NOTIFICATION_ID: uuidv4(), 
@@ -220,17 +221,17 @@
                                 callback(err, null)
                             })
                         }else {
-                            callback(null, 'skip karena totalPoint < 0 atau totalPoint <= previousTotalPoint');
+                            callback(null, 'skip karena totalPoint <= 0');
                         }
-                    } else {
-                        callback(null, 'skip karena data history 0');
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                    callback(err, null);
-                    return;
-                })
+                //     } else {
+                //         callback(null, 'skip karena data history 0');
+                //     }
+                // })
+                // .catch(err => {
+                //     console.log(err);
+                //     callback(err, null);
+                //     return;
+                // })
             }]           
         }, function(err, results) {
             console.log(results.notifPoint);
