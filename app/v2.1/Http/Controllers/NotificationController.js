@@ -124,8 +124,8 @@
                     END_TIME: {
                         $ne: 0
                     },
-                    ASSIGN_TO: auth.USER_AUTH_CODE,
-                    $expr: { $gt: [ "$DUE_DATE" , "$END_TIME" ] }
+                    ASSIGN_TO: auth.USER_AUTH_CODE
+                    // $expr: { $gt: [ "$DUE_DATE" , "$END_TIME" ] }
                 }).count()
                 .then(data => {
                     console.log(data);
