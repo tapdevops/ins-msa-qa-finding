@@ -7,6 +7,8 @@ const Mongoose = require('mongoose');
 const SchemaTypes = Mongoose.Schema.Types;
 
 require('mongoose-double')(Mongoose);
+const db = require(_directory_base + '/config/database.js');
+const connectEbcc = Mongoose.createConnection(db.ebccVal[config.app.env].url, {useNewUrlParser: true});
 
 /*
  |--------------------------------------------------------------------------
@@ -62,4 +64,4 @@ const EBCCValidationHeaderSchema = Mongoose.Schema({
  | Module Exports
  |--------------------------------------------------------------------------
  */
-module.exports = Mongoose.model('EBCCValidationHeader_v_2_0', EBCCValidationHeaderSchema, 'TR_H_EBCC_VALIDATION');
+module.exports = connectEbcc.model('EBCCValidationHeader_v_2_0', EBCCValidationHeaderSchema, 'TR_H_EBCC_VALIDATION');

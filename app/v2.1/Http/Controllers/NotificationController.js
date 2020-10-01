@@ -107,7 +107,7 @@
                     INSERT_USER: auth.USER_AUTH_CODE
                 }).count()
                 .then(data => {
-                    console.log(data);
+                    console.log('data ebcc:', data);
                     callback(null, data);
                 })
                 .catch(err => {
@@ -164,7 +164,7 @@
             },
             notifPoint: ['getCurrentDateInspection', 'getCurrentDateEbcc', 'getCurrentDateFinding', 'getCurrentDateRating', function(results, callback) {
                 let inspectionPoint = 1 * results.getCurrentDateInspection;
-                let findingPoint = 5 * results.getCurrentDateFinding;
+                let findingPoint = 1 * results.getCurrentDateFinding;
                 let ebccPoint = 1 * results.getCurrentDateEbcc;
                 let ratingPoint = results.getCurrentDateRating;
 
@@ -174,6 +174,7 @@
                 let ratingMessage = ratingPoint > 0 ? ((findingPoint > 0) || (inspectionPoint > 0 ) || (ebccPoint > 0) ? ', '  : ' ') + ratingPoint +' point dari rating.' : '.';
                 
                 let totalPoint = inspectionPoint + ebccPoint + findingPoint + ratingPoint;
+                console.log('totalPoint: ', totalPoint)
                 // History.aggregate([
                 //     {
                 //         $group: {
