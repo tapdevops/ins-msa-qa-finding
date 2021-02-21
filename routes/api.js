@@ -11,7 +11,7 @@ const Controllers = {
 	v_2_2: {
 		Finding: require(_directory_base + '/app/v2.2/Http/Controllers/FindingController.js'),
 		// Notification: require(_directory_base + '/app/v2.1/Http/Controllers/NotificationController.js'),
-		// SyncMobile: require(_directory_base + '/app/v2.1/Http/Controllers/SyncMobileController.js'),
+		SyncMobile: require(_directory_base + '/app/v2.2/Http/Controllers/SyncMobileController.js'),
 	},
 	v_2_1: {
 		Finding: require(_directory_base + '/app/v2.1/Http/Controllers/FindingController.js'),
@@ -100,6 +100,8 @@ module.exports = (app) => {
 	app.get('/api/v2.2/finding/all', Middleware.v_2_0.VerifyToken, Controllers.v_2_2.Finding.findAll);
 	app.get('/api/v2.2/finding/q', Middleware.v_2_0.VerifyToken, Controllers.v_2_2.Finding.findAll);
 	app.get('/api/v2.2/finding/:id', Middleware.v_2_0.VerifyToken, Controllers.v_2_2.Finding.findOne);
+	app.get('/api/v2.2/sync-mobile/finding/:start_date/:end_date', Middleware.v_2_0.VerifyToken, Controllers.v_2_2.SyncMobile.synchronize);
+
 
 	/*
 	 |--------------------------------------------------------------------------
