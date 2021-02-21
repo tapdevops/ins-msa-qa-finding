@@ -8,6 +8,11 @@ const RoutesVersioning = require('express-routes-versioning')();
 
 // Controllers
 const Controllers = {
+	v_2_2: {
+		Finding: require(_directory_base + '/app/v2.2/Http/Controllers/FindingController.js'),
+		// Notification: require(_directory_base + '/app/v2.1/Http/Controllers/NotificationController.js'),
+		// SyncMobile: require(_directory_base + '/app/v2.1/Http/Controllers/SyncMobileController.js'),
+	},
 	v_2_1: {
 		Finding: require(_directory_base + '/app/v2.1/Http/Controllers/FindingController.js'),
 		Notification: require(_directory_base + '/app/v2.1/Http/Controllers/NotificationController.js'),
@@ -84,6 +89,17 @@ module.exports = (app) => {
 			}
 		})
 	});
+	/*
+	 |--------------------------------------------------------------------------
+	 | API Versi 2.2
+	 |--------------------------------------------------------------------------
+	 */
+	// tambah field ROAD_CODE, ROAD_NAME di TR_FINDING
+	app.post('/api/v2.2/finding', Middleware.v_2_0.VerifyToken, Controllers.v_2_2.Finding.create_or_update);
+	app.get('/api/v2.2/finding', Middleware.v_2_0.VerifyToken, Controllers.v_2_2.Finding.find);
+	app.get('/api/v2.2/finding/all', Middleware.v_2_0.VerifyToken, Controllers.v_2_2.Finding.findAll);
+	app.get('/api/v2.2/finding/q', Middleware.v_2_0.VerifyToken, Controllers.v_2_2.Finding.findAll);
+	app.get('/api/v2.2/finding/:id', Middleware.v_2_0.VerifyToken, Controllers.v_2_2.Finding.findOne);
 
 	/*
 	 |--------------------------------------------------------------------------
