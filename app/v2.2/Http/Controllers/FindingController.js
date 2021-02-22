@@ -178,8 +178,8 @@
 				RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
 				RATING_MESSAGE: req.body.RATING_MESSAGE || "",
 				END_TIME: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
-				ROAD_CODE: req.body.ROAD_CODE,
-				ROAD_NAME: req.body.ROAD_NAME
+				ROAD_CODE: req.body.ROAD_CODE || "",
+				ROAD_NAME: req.body.ROAD_NAME || ""
 			};
 			FindingModel.findOneAndUpdate( { 
 				FINDING_CODE : req.body.FINDING_CODE
@@ -216,8 +216,8 @@
 						RTGVL: parseInt( req.body.RATING_VALUE ) || 0,
 						RTGMS: req.body.RATING_MESSAGE || "",
 						END_TIME: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
-						ROAD_CODE: req.body.ROAD_CODE,
-						ROAD_NAME: req.body.ROAD_NAME
+						ROAD_CODE: req.body.ROAD_CODE || "",
+						ROAD_NAME: req.body.ROAD_NAME || ""
 					};
 					if (config.app.env != "dev") {
 						KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
@@ -299,8 +299,8 @@
 				RATING_VALUE: parseInt( req.body.RATING_VALUE ) || 0,
 				RATING_MESSAGE: req.body.RATING_MESSAGE || "",
 				END_TIME: req.body.END_TIME == undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
-				ROAD_CODE: req.body.ROAD_CODE,
-				ROAD_NAME: req.body.ROAD_NAME
+				ROAD_CODE: req.body.ROAD_CODE || "",
+				ROAD_NAME: req.body.ROAD_NAME || ""
 			}
 
 			const set_data = new FindingModel( insert_data );
@@ -357,8 +357,8 @@
 							RTGVL: parseInt( req.body.RATING_VALUE ) || 0,
 							RTGMS: req.body.RATING_MESSAGE || "",
 							END_TIME: req.body.END_TIME === undefined ? 0 : HelperLib.date_format( req.body.END_TIME, 'YYYYMMDDhhmmss' ),
-							ROAD_CODE: req.body.ROAD_CODE,
-							ROAD_NAME: req.body.ROAD_NAME
+							ROAD_CODE: req.body.ROAD_CODE || "",
+							ROAD_NAME: req.body.ROAD_NAME || ""
 						};
 						if (config.app.env != "dev") {
 							KafkaServer.producer( 'INS_MSA_FINDING_TR_FINDING', JSON.stringify( kafka_body ) );
@@ -647,8 +647,8 @@
 					RATING_MESSAGE: result.RATING_MESSAGE,
 					END_TIME: HelperLib.date_format( String( result.END_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 					//INSERT_TIME: HelperLib.date_format( String( result.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
-					ROAD_CODE: result.ROAD_CODE,
-					ROAD_NAME: result.ROAD_NAME
+					ROAD_CODE: result.ROAD_CODE || "",
+					ROAD_NAME: result.ROAD_NAME || ""
 				} );
 
 			} );
@@ -1029,8 +1029,8 @@
 					UPDATE_TIME: HelperLib.date_format( String( result.UPDATE_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 					RATING_VALUE: data.RATING_VALUE,
 					RATING_MESSAGE: data.RATING_MESSAGE,
-					ROAD_CODE: result.ROAD_CODE,
-					ROAD_NAME: result.ROAD_NAME
+					ROAD_CODE: result.ROAD_CODE || "",
+					ROAD_NAME: result.ROAD_NAME || ""
 				} );
 			} );
 
@@ -1091,8 +1091,8 @@
 				INSERT_USER: data.INSERT_USER,
 				INSERT_TIME: HelperLib.date_format( String( data.INSERT_TIME ), 'YYYY-MM-DD hh-mm-ss' ),
 				STATUS_SYNC: "Y",
-				ROAD_CODE: data.ROAD_CODE,
-				ROAD_NAME: data.ROAD_NAME
+				ROAD_CODE: data.ROAD_CODE || "",
+				ROAD_NAME: data.ROAD_NAME || ""
 			};
 			res.send( {
 				status: true,

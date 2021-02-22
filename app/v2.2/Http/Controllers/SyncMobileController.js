@@ -174,8 +174,8 @@ exports.synchronize = (req, res) => {
 								RATING_VALUE: data.RATING_VALUE,
 								RATING_MESSAGE: data.RATING_MESSAGE,
 								END_TIME: HelperLib.date_format(String(data.END_TIME), 'YYYY-MM-DD hh-mm-ss'),
-								ROAD_CODE: data.ROAD_CODE,
-								ROAD_NAME: data.ROAD_NAME
+								ROAD_CODE: data.ROAD_CODE || "",
+								ROAD_NAME: data.ROAD_NAME || ""
 
 							});
 						}
@@ -208,8 +208,8 @@ exports.synchronize = (req, res) => {
 							RATING_VALUE: data.RATING_VALUE,
 							RATING_MESSAGE: data.RATING_MESSAGE,
 							END_TIME: HelperLib.date_format(String(data.END_TIME), 'YYYY-MM-DD hh-mm-ss'),
-							ROAD_CODE: data.ROAD_CODE,
-							ROAD_NAME: data.ROAD_NAME
+							ROAD_CODE: data.ROAD_CODE || "",
+							ROAD_NAME: data.ROAD_NAME || ""
 						});
 					}
 					if (data.UPDATE_TIME > 0) {
@@ -239,8 +239,8 @@ exports.synchronize = (req, res) => {
 								RATING_VALUE: data.RATING_VALUE,
 								RATING_MESSAGE: data.RATING_MESSAGE,
 								END_TIME: HelperLib.date_format(String(data.END_TIME), 'YYYY-MM-DD hh-mm-ss'),
-								ROAD_CODE: data.ROAD_CODE,
-								ROAD_NAME: data.ROAD_NAME
+								ROAD_CODE: data.ROAD_CODE || "",
+								ROAD_NAME: data.ROAD_NAME || ""
 							});
 						}
 					}
@@ -356,8 +356,8 @@ exports.synchronize = (req, res) => {
 								RATING_VALUE: data.RATING_VALUE,
 								RATING_MESSAGE: data.RATING_MESSAGE,
 								END_TIME: HelperLib.date_format(String(data.END_TIME), 'YYYY-MM-DD hh-mm-ss'),
-								ROAD_CODE: data.ROAD_CODE,
-								ROAD_NAME: data.ROAD_NAME
+								ROAD_CODE: data.ROAD_CODE || "",
+								ROAD_NAME: data.ROAD_NAME || ""
 							});
 						}
 					}
@@ -389,8 +389,8 @@ exports.synchronize = (req, res) => {
 							RATING_VALUE: data.RATING_VALUE,
 							RATING_MESSAGE: data.RATING_MESSAGE,
 							END_TIME: HelperLib.date_format(String(data.END_TIME), 'YYYY-MM-DD hh-mm-ss'),
-							ROAD_CODE: data.ROAD_CODE,
-							ROAD_NAME: data.ROAD_NAME
+							ROAD_CODE: data.ROAD_CODE || "",
+							ROAD_NAME: data.ROAD_NAME || ""
 						});
 					}
 					if (data.UPDATE_TIME > 0) {
@@ -420,8 +420,8 @@ exports.synchronize = (req, res) => {
 								RATING_VALUE: data.RATING_VALUE,
 								RATING_MESSAGE: data.RATING_MESSAGE,
 								END_TIME: HelperLib.date_format(String(data.END_TIME), 'YYYY-MM-DD hh-mm-ss'),
-								ROAD_CODE: data.ROAD_CODE,
-								ROAD_NAME: data.ROAD_NAME
+								ROAD_CODE: data.ROAD_CODE || "",
+								ROAD_NAME: data.ROAD_NAME || ""
 							});
 						}
 					}
